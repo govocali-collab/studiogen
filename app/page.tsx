@@ -223,6 +223,7 @@ export default async function LandingPage() {
         </div>
       </nav>
 
+      <main>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative pt-28 sm:pt-40 pb-20 sm:pb-32 px-4 sm:px-6 overflow-hidden">
         {/* Background gradient blobs */}
@@ -278,7 +279,7 @@ export default async function LandingPage() {
             )}
           </div>
 
-          {!isActive && <p className="text-xs text-gray-400 mt-4">Aucune carte de crédit requise · Annulation en tout temps</p>}
+          {!isActive && <p className="text-xs text-gray-500 mt-4">Aucune carte de crédit requise · Annulation en tout temps</p>}
         </div>
 
         {/* App preview mockup — hidden on small screens */}
@@ -445,9 +446,9 @@ export default async function LandingPage() {
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="grid grid-cols-3 text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest border-b border-gray-100">
-              <div className="py-3 sm:py-4 px-3 sm:px-4 text-left text-gray-400">Fonctionnalité</div>
+              <div className="py-3 sm:py-4 px-3 sm:px-4 text-left text-gray-500">Fonctionnalité</div>
               <div className="py-3 sm:py-4 px-3 sm:px-4 bg-violet-600 text-white">Studio Gen</div>
-              <div className="py-3 sm:py-4 px-3 sm:px-4 text-gray-400">Canva</div>
+              <div className="py-3 sm:py-4 px-3 sm:px-4 text-gray-500">Canva</div>
             </div>
             {comparisonRows.map((row, i) => (
               <div
@@ -497,7 +498,7 @@ export default async function LandingPage() {
                 <div className="w-9 h-9 rounded-full bg-violet-200 flex items-center justify-center text-sm font-bold text-violet-700">M</div>
                 <div>
                   <div className="text-sm font-semibold text-gray-900">Marie-Pier T.</div>
-                  <div className="text-xs text-gray-400">Salon de coiffure, Sherbrooke</div>
+                  <div className="text-xs text-gray-500">Salon de coiffure, Sherbrooke</div>
                 </div>
               </div>
             </div>
@@ -517,7 +518,7 @@ export default async function LandingPage() {
                 <div className="w-9 h-9 rounded-full bg-fuchsia-200 flex items-center justify-center text-sm font-bold text-fuchsia-700">S</div>
                 <div>
                   <div className="text-sm font-semibold text-gray-900">Stéphanie B.</div>
-                  <div className="text-xs text-gray-400">Clinique esthétique, Québec</div>
+                  <div className="text-xs text-gray-500">Clinique esthétique, Québec</div>
                 </div>
               </div>
             </div>
@@ -542,7 +543,7 @@ export default async function LandingPage() {
               <div className="text-sm font-semibold text-gray-500 mb-1">Essentiel</div>
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-4xl font-black text-gray-900">47 $</span>
-                <span className="text-gray-400 mb-1">CA / mois</span>
+                <span className="text-gray-500 mb-1">CA / mois</span>
               </div>
               <ul className="space-y-3 mb-8">
                 {['30 générations / mois', '1 logo', '4 formats de montage auto', 'Post Facebook prêt à copier', 'Montages photo automatiques (JPG 1080px)'].map(item => (
@@ -655,11 +656,13 @@ export default async function LandingPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
               </Link>
-              <p className="text-xs text-gray-400 mt-3">Aucune carte de crédit requise · Annulation en tout temps</p>
+              <p className="text-xs text-gray-500 mt-3">Aucune carte de crédit requise · Annulation en tout temps</p>
             </>
           )}
         </div>
       </section>
+
+      </main>
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
       <footer className="bg-gradient-to-br from-fuchsia-950 via-violet-950 to-fuchsia-950 py-10 px-4 sm:px-6">
