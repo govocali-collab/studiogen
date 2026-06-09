@@ -676,8 +676,10 @@ export default async function LandingPage() {
             <Link href="/auth/signup" className="hover:text-gray-300 transition-colors">S'inscrire</Link>
             <Link href="#tarifs" className="hover:text-gray-300 transition-colors">Tarifs</Link>
           </div>
-          <div className="text-xs text-gray-600">
-            © {new Date().getFullYear()} Astrova. Tous droits réservés.
+          <div className="flex items-center gap-4 text-xs text-gray-600">
+            <Link href="/politique-confidentialite" className="hover:text-gray-400 transition-colors">Confidentialite</Link>
+            <Link href="/conditions-utilisation" className="hover:text-gray-400 transition-colors">Conditions</Link>
+            <span>© {new Date().getFullYear()} Astrova.</span>
           </div>
         </div>
       </footer>
