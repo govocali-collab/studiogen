@@ -226,12 +226,14 @@ export default async function LandingPage() {
       <main>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative pt-28 sm:pt-40 pb-20 sm:pb-32 px-4 sm:px-6 overflow-hidden">
-        {/* Background gradient blobs */}
-        <div className="absolute inset-0 pointer-events-none">
+        {/* Background gradient blobs — desktop only (blur is GPU-expensive on mobile) */}
+        <div className="absolute inset-0 pointer-events-none hidden sm:block">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-violet-100 rounded-full blur-[120px] opacity-40" />
           <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-fuchsia-100 rounded-full blur-[100px] opacity-30" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[400px] bg-pink-100 rounded-full blur-[130px] opacity-30" />
         </div>
+        {/* Mobile: lightweight gradient instead */}
+        <div className="absolute inset-0 pointer-events-none sm:hidden" style={{ background: 'linear-gradient(135deg, #f5f3ff 0%, #fff0f6 50%, #fff 100%)' }} />
 
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-8">
@@ -358,7 +360,7 @@ export default async function LandingPage() {
 
       {/* ── Pain ─────────────────────────────────────────────────────────── */}
       <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-white overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none hidden sm:block">
           <div className="absolute -top-20 right-0 w-[450px] h-[450px] bg-pink-100 rounded-full blur-[120px] opacity-20" />
         </div>
         <div className="max-w-6xl mx-auto">
@@ -384,7 +386,7 @@ export default async function LandingPage() {
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
       <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-gray-50 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none hidden sm:block">
           <div className="absolute bottom-0 left-1/4 w-[600px] h-[400px] bg-pink-100 rounded-full blur-[140px] opacity-20" />
         </div>
         <div className="max-w-6xl mx-auto">
@@ -603,7 +605,7 @@ export default async function LandingPage() {
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-white overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none hidden sm:block">
           <div className="absolute top-1/2 -translate-y-1/2 -left-20 w-[400px] h-[400px] bg-pink-100 rounded-full blur-[120px] opacity-15" />
         </div>
         <div className="max-w-2xl mx-auto">
