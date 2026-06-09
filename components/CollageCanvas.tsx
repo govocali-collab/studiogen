@@ -44,6 +44,9 @@ interface PinchState {
 const ZOOM_MIN = 1;
 const ZOOM_MAX = 5;
 const LOGO_PADDING = 28;
+const TAP_MAX_MS = 300;
+const TAP_MAX_PX = 12;
+const DOUBLE_TAP_MS = 400;
 
 function loadImageEl(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -54,10 +57,6 @@ function loadImageEl(src: string): Promise<HTMLImageElement> {
   });
 }
 
-/**
- * Cover-fit an image into a canvas cell with independent pan (canvas-px from centre)
- * and zoom (1 = default cover fit, >1 = zoomed in, shows less of the image).
- */
 function drawCover(
   ctx: CanvasRenderingContext2D,
   img: HTMLImageElement,
@@ -69,19 +68,12 @@ function drawCover(
   const { naturalWidth: iw, naturalHeight: ih } = img;
   const cellRatio = dw / dh;
   const imgRatio = iw / ih;
-
-  // Baseline cover-fit crop (zoom = 1)
   const swBase = imgRatio > cellRatio ? ih * cellRatio : iw;
   const shBase = imgRatio > cellRatio ? ih : iw / cellRatio;
-
-  // Apply zoom — larger zoom = smaller crop window = more zoomed in
   const sw = swBase / zoom;
   const sh = shBase / zoom;
-
-  // Pan offset: canvas-px → source-image-px
   const sx = Math.max(0, Math.min(iw - sw, (iw - sw) / 2 - offsetX * (sw / dw)));
   const sy = Math.max(0, Math.min(ih - sh, (ih - sh) / 2 - offsetY * (sh / dh)));
-
   ctx.save();
   ctx.beginPath();
   ctx.rect(dx, dy, dw, dh);
@@ -103,14 +95,11 @@ async function renderCollage(
 ): Promise<void> {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-
   canvas.width = cw;
   canvas.height = ch;
   ctx.fillStyle = '#FFFFFF';
   ctx.fillRect(0, 0, cw, ch);
-
   const usedCells = layout.cells.slice(0, photos.length);
-
   await Promise.all(
     usedCells.map(async (cell, i) => {
       try {
@@ -124,7 +113,6 @@ async function renderCollage(
       }
     }),
   );
-
   if (logoSettings.logoId) {
     const logo = logos.find((l) => l.id === logoSettings.logoId);
     if (logo) {
@@ -156,9 +144,30 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
     const adjustMapRef = useRef<AdjustMap>(new Map());
     useEffect(() => { adjustMapRef.current = adjustMap; }, [adjustMap]);
 
+    // ── Mobile selection state ────────────────────────────────
+    const [selectedPhotoSrc, setSelectedPhotoSrc] = useState<string | null>(null);
+    const selectedRef = useRef<string | null>(null);
+    useEffect(() => { selectedRef.current = selectedPhotoSrc; }, [selectedPhotoSrc]);
+
+    // Deselect if selected photo is removed
+    useEffect(() => {
+      if (selectedPhotoSrc && !photos.includes(selectedPhotoSrc)) {
+        setSelectedPhotoSrc(null);
+      }
+    }, [photos, selectedPhotoSrc]);
+
     const dragRef = useRef<DragState | null>(null);
     const pinchRef = useRef<PinchState | null>(null);
     const [cursor, setCursor] = useState('default');
+
+    // Tap detection
+    const tapStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
+    const tapMovedRef = useRef(false);
+    const lastTapRef = useRef<{ time: number; photoSrc: string } | null>(null);
+
+    // Is touch device (for hint text)
+    const [isTouchDevice, setIsTouchDevice] = useState(false);
+    useEffect(() => { setIsTouchDevice('ontouchstart' in window); }, []);
 
     // Zoom indicator
     const [zoomLabel, setZoomLabel] = useState('');
@@ -181,7 +190,7 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
       });
     }, [photos]);
 
-    // Draw
+    // ── Draw ─────────────────────────────────────────────────
     const draw = useCallback(async () => {
       const id = ++drawIdRef.current;
       const canvas = canvasRef.current;
@@ -202,7 +211,27 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
 
       await renderCollage(canvas, photos, layout, logos, logoSettings, adjustMap, imgCacheRef.current, canvasWidth, canvasHeight);
       if (id !== drawIdRef.current) return;
-    }, [photos, layout, logos, logoSettings, adjustMap, canvasWidth, canvasHeight]);
+
+      // Draw selection border on selected cell
+      const selSrc = selectedRef.current;
+      if (selSrc) {
+        const selIdx = photos.indexOf(selSrc);
+        if (selIdx >= 0 && selIdx < layout.cells.length) {
+          const cell = layout.cells[selIdx];
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.save();
+            ctx.strokeStyle = '#7c3aed';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(cell.x + 4, cell.y + 4, cell.w - 8, cell.h - 8);
+            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cell.x + 10, cell.y + 10, cell.w - 20, cell.h - 20);
+            ctx.restore();
+          }
+        }
+      }
+    }, [photos, layout, logos, logoSettings, adjustMap, canvasWidth, canvasHeight, selectedPhotoSrc]);
 
     useEffect(() => { draw(); }, [draw]);
 
@@ -219,7 +248,6 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
     }));
 
     // ── Helpers ──────────────────────────────────────────────
-
     const getScale = () => {
       const c = canvasRef.current;
       return c ? c.getBoundingClientRect().width / canvasWidth : 1;
@@ -240,8 +268,7 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
       [layout, photos.length],
     );
 
-    // ── Mouse wheel zoom (non-passive) ───────────────────────
-
+    // ── Mouse wheel zoom (desktop) ────────────────────────────
     const wheelHandlerRef = useRef<((e: WheelEvent) => void) | null>(null);
 
     useEffect(() => {
@@ -271,16 +298,11 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
     }, []);
 
     // ── Drag (pan) ───────────────────────────────────────────
-
-    const startDrag = useCallback((screenX: number, screenY: number) => {
-      const idx = getCellIndex(screenX, screenY);
-      if (idx < 0 || idx >= photos.length) return false;
-      const photoSrc = photos[idx];
+    const startDrag = useCallback((photoSrc: string, screenX: number, screenY: number) => {
       const adj = adjustMapRef.current.get(photoSrc) ?? { x: 0, y: 0, zoom: 1 };
       dragRef.current = { photoSrc, startScreenX: screenX, startScreenY: screenY, startOffX: adj.x, startOffY: adj.y };
       setCursor('grabbing');
-      return true;
-    }, [getCellIndex, photos]);
+    }, []);
 
     const moveDrag = useCallback((screenX: number, screenY: number) => {
       if (!dragRef.current) return;
@@ -298,24 +320,45 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
 
     const endDrag = useCallback(() => { dragRef.current = null; setCursor('grab'); }, []);
 
-    // ── Pinch zoom ───────────────────────────────────────────
+    // ── Touch handlers (mobile selection model) ───────────────
+    //
+    // No selection  →  touch-action: pan-y  (page scrolls normally)
+    //                  Tap a photo          → select it
+    //
+    // Photo selected → touch-action: none   (browser defers all gestures to us)
+    //                  Drag anywhere        → pan selected photo
+    //                  Pinch anywhere       → zoom selected photo
+    //                  Tap same / outside   → deselect
+    //                  Tap different photo  → switch selection
+    //                  Double-tap           → reset zoom + deselect
 
     const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
       if (e.touches.length === 2) {
+        // Pinch: zoom selected photo (or the photo under the midpoint)
+        tapStartRef.current = null;
         const t0 = e.touches[0], t1 = e.touches[1];
         const dist = Math.hypot(t0.clientX - t1.clientX, t0.clientY - t1.clientY);
-        const midX = (t0.clientX + t1.clientX) / 2;
-        const midY = (t0.clientY + t1.clientY) / 2;
-        const idx = getCellIndex(midX, midY);
-        if (idx >= 0 && idx < photos.length) {
-          const photoSrc = photos[idx];
+        const photoSrc = selectedRef.current;
+        if (photoSrc) {
           const adj = adjustMapRef.current.get(photoSrc) ?? { x: 0, y: 0, zoom: 1 };
           pinchRef.current = { photoSrc, startDist: dist, startZoom: adj.zoom };
-          e.preventDefault();
+        } else {
+          const midX = (t0.clientX + t1.clientX) / 2;
+          const midY = (t0.clientY + t1.clientY) / 2;
+          const idx = getCellIndex(midX, midY);
+          if (idx >= 0 && idx < photos.length) {
+            const adj = adjustMapRef.current.get(photos[idx]) ?? { x: 0, y: 0, zoom: 1 };
+            pinchRef.current = { photoSrc: photos[idx], startDist: dist, startZoom: adj.zoom };
+          }
         }
       } else if (e.touches.length === 1) {
         const t = e.touches[0];
-        if (startDrag(t.clientX, t.clientY)) e.preventDefault();
+        tapStartRef.current = { x: t.clientX, y: t.clientY, time: Date.now() };
+        tapMovedRef.current = false;
+        // If a photo is selected, start dragging it immediately
+        if (selectedRef.current) {
+          startDrag(selectedRef.current, t.clientX, t.clientY);
+        }
       }
     };
 
@@ -332,22 +375,63 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
           return next;
         });
         flashZoom(newZoom);
-        e.preventDefault();
       } else if (e.touches.length === 1) {
-        moveDrag(e.touches[0].clientX, e.touches[0].clientY);
-        e.preventDefault();
+        const t = e.touches[0];
+        if (tapStartRef.current) {
+          const dx = Math.abs(t.clientX - tapStartRef.current.x);
+          const dy = Math.abs(t.clientY - tapStartRef.current.y);
+          if (dx > TAP_MAX_PX || dy > TAP_MAX_PX) tapMovedRef.current = true;
+        }
+        if (dragRef.current) moveDrag(t.clientX, t.clientY);
       }
     };
 
     const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
       if (e.touches.length < 2) pinchRef.current = null;
-      if (e.touches.length === 0) endDrag();
+
+      if (e.touches.length === 0) {
+        const tap = tapStartRef.current;
+        const wasTap = tap && !tapMovedRef.current && (Date.now() - tap.time) < TAP_MAX_MS;
+
+        if (wasTap && tap) {
+          const { x, y } = tap;
+          const idx = getCellIndex(x, y);
+          const tappedSrc = idx >= 0 && idx < photos.length ? photos[idx] : null;
+          const now = Date.now();
+
+          // Double-tap: reset zoom + deselect
+          const lastTap = lastTapRef.current;
+          if (lastTap && tappedSrc && lastTap.photoSrc === tappedSrc && (now - lastTap.time) < DOUBLE_TAP_MS) {
+            setAdjustMap((prev) => { const next = new Map(prev); next.delete(tappedSrc); return next; });
+            setZoomVisible(false);
+            setSelectedPhotoSrc(null);
+            lastTapRef.current = null;
+          } else {
+            lastTapRef.current = tappedSrc ? { time: now, photoSrc: tappedSrc } : null;
+            if (selectedRef.current) {
+              // Already selected
+              if (tappedSrc && tappedSrc !== selectedRef.current) {
+                setSelectedPhotoSrc(tappedSrc); // switch to another photo
+              } else {
+                setSelectedPhotoSrc(null); // deselect
+              }
+            } else {
+              if (tappedSrc) setSelectedPhotoSrc(tappedSrc); // select
+            }
+          }
+        }
+
+        endDrag();
+        tapStartRef.current = null;
+      }
     };
 
-    // ── Mouse events ─────────────────────────────────────────
-
+    // ── Mouse events (desktop, unchanged) ────────────────────
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-      if (startDrag(e.clientX, e.clientY)) e.preventDefault();
+      const idx = getCellIndex(e.clientX, e.clientY);
+      if (idx < 0 || idx >= photos.length) return;
+      e.preventDefault();
+      startDrag(photos[idx], e.clientX, e.clientY);
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -370,6 +454,8 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
       setZoomVisible(false);
     };
 
+    const selectedIdx = selectedPhotoSrc ? photos.indexOf(selectedPhotoSrc) : -1;
+
     return (
       <div className="relative">
         <canvas
@@ -377,7 +463,15 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
           width={canvasWidth}
           height={canvasHeight}
           className="rounded-xl shadow-lg ring-1 ring-black/5 select-none block mx-auto"
-          style={{ cursor, maxHeight: '580px', width: 'auto', maxWidth: '100%' }}
+          style={{
+            cursor,
+            maxHeight: '580px',
+            width: 'auto',
+            maxWidth: '100%',
+            // Selected: block all browser gestures so WE control zoom/pan
+            // Not selected: allow vertical scroll so user can scroll past canvas
+            touchAction: selectedPhotoSrc ? 'none' : 'pan-y',
+          }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -388,9 +482,24 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
           onTouchEnd={handleTouchEnd}
         />
 
+        {/* Mobile selection indicator */}
+        {selectedPhotoSrc && selectedIdx >= 0 && (
+          <div className="absolute top-2 left-2 right-2 flex items-center justify-between sm:hidden">
+            <div className="bg-violet-700/90 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
+              Photo {selectedIdx + 1} · Pincer pour zoomer · Glisser pour déplacer
+            </div>
+            <button
+              className="bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold backdrop-blur-sm leading-none"
+              onTouchEnd={(e) => { e.preventDefault(); setSelectedPhotoSrc(null); }}
+            >
+              ×
+            </button>
+          </div>
+        )}
+
         {/* Zoom indicator */}
         {zoomVisible && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-fuchsia-600/90 text-white text-xs font-bold px-3 py-1 rounded-full pointer-events-none tabular-nums transition-opacity">
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-fuchsia-600/90 text-white text-xs font-bold px-3 py-1 rounded-full pointer-events-none tabular-nums">
             {zoomLabel}
           </div>
         )}
@@ -398,7 +507,11 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
         {/* Hint */}
         {photos.length > 0 && (
           <p className="absolute bottom-2 right-3 text-[10px] text-white/60 select-none pointer-events-none drop-shadow">
-            Glisser · molette pour zoomer · double-clic pour réinitialiser
+            {isTouchDevice
+              ? selectedPhotoSrc
+                ? 'Double-tap pour réinitialiser · Tap ailleurs pour déselectionner'
+                : 'Tap pour sélectionner · Pincer pour zoomer'
+              : 'Glisser · molette pour zoomer · double-clic pour réinitialiser'}
           </p>
         )}
       </div>
