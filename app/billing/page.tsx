@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { PRICING } from '@/lib/config/pricing';
@@ -8,6 +8,10 @@ import { TIER_LIMITS } from '@/lib/config/tier-limits';
 import type { Profile } from '@/lib/supabase/types';
 
 export default function BillingPage() {
+  return <Suspense><BillingPageInner /></Suspense>;
+}
+
+function BillingPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
