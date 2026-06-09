@@ -230,6 +230,7 @@ export default async function LandingPage() {
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-violet-100 rounded-full blur-[120px] opacity-40" />
           <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-fuchsia-100 rounded-full blur-[100px] opacity-30" />
+          <div className="absolute bottom-0 left-0 w-[500px] h-[400px] bg-pink-100 rounded-full blur-[130px] opacity-30" />
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center">
@@ -356,7 +357,10 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Pain ─────────────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-white overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-20 right-0 w-[450px] h-[450px] bg-pink-100 rounded-full blur-[120px] opacity-20" />
+        </div>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
@@ -379,7 +383,10 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Features ─────────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-gray-50 overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute bottom-0 left-1/4 w-[600px] h-[400px] bg-pink-100 rounded-full blur-[140px] opacity-20" />
+        </div>
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
             <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Fonctionnalités</div>
@@ -473,7 +480,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Testimonials ─────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 overflow-hidden" style={{ background: 'linear-gradient(135deg, #fff 0%, #fff5f7 50%, #fff 100%)' }}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Témoignages</div>
@@ -483,7 +490,7 @@ export default async function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* TODO: replace with real testimonials */}
-            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+            <div className="bg-pink-50/70 rounded-2xl border border-pink-100 p-6">
               <div className="flex gap-0.5 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
@@ -503,7 +510,7 @@ export default async function LandingPage() {
               </div>
             </div>
             {/* TODO: replace with real testimonials */}
-            <div className="bg-gray-50 rounded-2xl border border-gray-200 p-6">
+            <div className="bg-pink-50/70 rounded-2xl border border-pink-100 p-6">
               <div className="flex gap-0.5 mb-4">
                 {[...Array(5)].map((_, i) => (
                   <svg key={i} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
@@ -595,7 +602,10 @@ export default async function LandingPage() {
       </section>
 
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-white overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 -translate-y-1/2 -left-20 w-[400px] h-[400px] bg-pink-100 rounded-full blur-[120px] opacity-15" />
+        </div>
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-12">
             <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">FAQ</div>
@@ -628,7 +638,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Final CTA ────────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 overflow-hidden" style={{ background: 'linear-gradient(160deg, #fff 0%, #fff0f4 40%, #fdf4ff 100%)' }}>
         <div className="max-w-2xl mx-auto text-center">
           <div className="w-14 h-14 rounded-2xl bg-violet-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-200">
             <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
