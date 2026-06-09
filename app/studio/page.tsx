@@ -145,7 +145,7 @@ export default function StudioPage() {
             <span className="text-xs text-gray-300 hidden sm:inline">par Astrova</span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAdmin && (
               <Link href="/admin" className="text-xs bg-amber-100 text-amber-700 hover:bg-amber-200 px-2.5 py-1 rounded-full font-semibold transition-colors">
                 Admin
@@ -153,17 +153,17 @@ export default function StudioPage() {
             )}
             {!subLoading && <BillingBadge profile={profile} />}
             {!subLoading && <GenerationCounter genInfo={displayGenInfo} />}
-            <Link href="/settings" className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
+            <Link href="/settings" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">
               Paramètres
             </Link>
-            <Link href="/billing" className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
+            <Link href="/billing" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">
               Facturation
             </Link>
             <button
               onClick={handleSignOut}
               className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
             >
-              Déconnexion
+              Déco
             </button>
           </div>
         </div>

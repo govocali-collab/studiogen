@@ -5,8 +5,11 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 export const metadata: Metadata = {
-  title: 'Studio Gen — Posts Facebook & Instagram pour salons québécois en 30 secondes',
-  description: 'Studio Gen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Pour ta clinique. Essai gratuit 7 jours, aucune carte requise.',
+  title: 'Studio Gen - Posts Facebook & Instagram pour salons québécois en 30 secondes',
+  description: 'Studio Gen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Essai gratuit 7 jours, aucune carte requise.',
+  alternates: {
+    canonical: 'https://studiogen.ca',
+  },
   openGraph: {
     title: 'Fais tes posts Facebook & Instagram en 30 sec!',
     description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
@@ -165,6 +168,21 @@ const faqs = [
   },
 ];
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Studio Gen',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  url: 'https://studiogen.ca',
+  description: 'Générateur de publications Facebook et Instagram pour salons québécois. Montages photo automatiques et textes rédigés par IA en français québécois.',
+  offers: [
+    { '@type': 'Offer', name: 'Essentiel', price: '47', priceCurrency: 'CAD', billingIncrement: 'P1M' },
+    { '@type': 'Offer', name: 'Pro', price: '97', priceCurrency: 'CAD', billingIncrement: 'P1M' },
+  ],
+  publisher: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
+};
+
 export default async function LandingPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -177,6 +195,10 @@ export default async function LandingPage() {
   }
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
@@ -189,7 +211,7 @@ export default async function LandingPage() {
               </Link>
             ) : (
               <>
-                <Link href="/auth/login" className="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors px-3 py-1.5">
+                <Link href="/auth/login" className="hidden sm:inline text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors px-3 py-1.5">
                   Connexion
                 </Link>
                 <Link href="/auth/signup" className="text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
@@ -217,7 +239,7 @@ export default async function LandingPage() {
             Propulsé par Astrova · Conçu pour les salons québécois
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-6">
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-6">
             Crée tes posts Facebook et Instagram
             <br />
             <span className="bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent">
@@ -259,8 +281,8 @@ export default async function LandingPage() {
           {!isActive && <p className="text-xs text-gray-400 mt-4">Aucune carte de crédit requise · Annulation en tout temps</p>}
         </div>
 
-        {/* App preview mockup */}
-        <div className="relative max-w-5xl mx-auto mt-16">
+        {/* App preview mockup — hidden on small screens */}
+        <div className="relative max-w-5xl mx-auto mt-16 hidden sm:block">
           <div className="bg-white rounded-3xl shadow-2xl shadow-violet-100 border border-gray-200 overflow-hidden">
             {/* Fake browser bar */}
             <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center gap-2">
@@ -422,26 +444,26 @@ export default async function LandingPage() {
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-            <div className="grid grid-cols-3 text-center text-xs font-bold uppercase tracking-widest border-b border-gray-100">
-              <div className="py-4 px-4 text-left text-gray-400">Fonctionnalité</div>
-              <div className="py-4 px-4 bg-violet-600 text-white">Studio Gen</div>
-              <div className="py-4 px-4 text-gray-400">Canva</div>
+            <div className="grid grid-cols-3 text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest border-b border-gray-100">
+              <div className="py-3 sm:py-4 px-3 sm:px-4 text-left text-gray-400">Fonctionnalité</div>
+              <div className="py-3 sm:py-4 px-3 sm:px-4 bg-violet-600 text-white">Studio Gen</div>
+              <div className="py-3 sm:py-4 px-3 sm:px-4 text-gray-400">Canva</div>
             </div>
             {comparisonRows.map((row, i) => (
               <div
                 key={row.label}
-                className={`grid grid-cols-3 text-center text-sm items-center ${i < comparisonRows.length - 1 ? 'border-b border-gray-100' : ''}`}
+                className={`grid grid-cols-3 text-center text-xs sm:text-sm items-center ${i < comparisonRows.length - 1 ? 'border-b border-gray-100' : ''}`}
               >
-                <div className="py-3.5 px-4 text-left text-gray-600">{row.label}</div>
-                <div className="py-3.5 px-4 bg-violet-50 font-semibold">
+                <div className="py-3 sm:py-3.5 px-3 sm:px-4 text-left text-gray-600 leading-snug">{row.label}</div>
+                <div className="py-3 sm:py-3.5 px-3 sm:px-4 bg-violet-50 font-semibold">
                   {row.studioGen
                     ? <span className="text-violet-600">✓</span>
-                    : <span className="text-gray-300">—</span>}
+                    : <span className="text-gray-300">-</span>}
                 </div>
-                <div className="py-3.5 px-4 text-gray-400">
+                <div className="py-3 sm:py-3.5 px-3 sm:px-4 text-gray-400">
                   {row.canva
                     ? <span className="text-gray-500">✓</span>
-                    : <span className="text-gray-300">—</span>}
+                    : <span className="text-gray-300">-</span>}
                 </div>
               </div>
             ))}
