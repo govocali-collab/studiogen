@@ -69,13 +69,8 @@ export default function SignupPage() {
         <div className="absolute bottom-0 right-0 w-[300px] h-[300px] bg-fuchsia-100 rounded-full blur-[80px] opacity-30" />
       </div>
       <div className="relative w-full max-w-sm">
-        <div className="flex items-center gap-2.5 justify-center mb-8">
-          <div className="w-8 h-8 rounded-xl bg-violet-600 flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <span className="text-sm font-bold text-gray-900">Studio Gen</span>
+        <div className="flex justify-center mb-8">
+          <img src="/logo-black.png" alt="Studio Gen" className="h-[50px] w-auto" />
         </div>
 
         <div className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-100 p-8">

@@ -48,7 +48,7 @@ function LoginPageInner() {
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <img src="/logo-black.png" alt="Studio Gen" className="h-10 w-auto" />
+          <img src="/logo-black.png" alt="Studio Gen" className="h-[50px] w-auto" />
         </div>
 
         <div className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-100 p-8">
