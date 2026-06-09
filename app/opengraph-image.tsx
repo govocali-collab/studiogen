@@ -23,20 +23,9 @@ export default async function Image() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://studiogen.ca/logo-black.png"
-          style={{ height: 140, objectFit: 'contain' }}
+          style={{ height: 280, objectFit: 'contain' }}
           alt="Studio Gen"
         />
-        <p
-          style={{
-            fontSize: 32,
-            color: '#6b7280',
-            margin: 0,
-            textAlign: 'center',
-            maxWidth: 800,
-          }}
-        >
-          Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!
-        </p>
       </div>
     ),
     { ...size },
