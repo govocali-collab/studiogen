@@ -137,10 +137,10 @@ export default function StudioPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-screen-xl mx-auto px-5 h-14 flex items-center justify-between">
+        <div className="max-w-screen-xl mx-auto px-3 sm:px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/">
-              <Image src="/logo-black.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" priority />
+              <Image src="/logo-black.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto max-w-[160px] sm:max-w-none" priority />
             </Link>
             <span className="text-xs text-gray-300 hidden sm:inline">par Astrova</span>
           </div>
