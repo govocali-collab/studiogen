@@ -23,7 +23,7 @@ export default async function Image() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://studiogen.ca/logo-black.png"
-          style={{ height: 280, objectFit: 'contain' }}
+          style={{ height: 210, objectFit: 'contain' }}
           alt="Studio Gen"
         />
       </div>
