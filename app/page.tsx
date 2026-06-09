@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -182,7 +183,7 @@ export default async function LandingPage() {
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <img src="/logo-black.png" alt="Studio Gen" className="h-10 w-auto" />
+          <Image src="/logo-black.png" alt="Studio Gen" width={200} height={40} className="h-10 w-auto" priority />
           <div className="flex items-center gap-3">
             {isActive ? (
               <Link href="/studio" className="text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
@@ -644,7 +645,7 @@ export default async function LandingPage() {
       <footer className="bg-gradient-to-br from-fuchsia-950 via-violet-950 to-fuchsia-950 py-10 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <img src="/logo-white.png" alt="Studio Gen" className="h-9 w-auto" />
+            <Image src="/logo-white.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" />
             <span className="text-gray-500 text-sm">par Astrova</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-gray-500">

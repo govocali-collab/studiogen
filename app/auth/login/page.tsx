@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
@@ -48,7 +49,7 @@ function LoginPageInner() {
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <img src="/logo-black.png" alt="Studio Gen" className="h-[50px] w-auto" />
+          <Image src="/logo-black.png" alt="Studio Gen" width={250} height={50} className="h-[50px] w-auto" priority />
         </div>
 
         <div className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-100 p-8">

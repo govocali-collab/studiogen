@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 
 const supabase = createClient();
@@ -113,7 +114,7 @@ export default function SettingsPage() {
         <div className="max-w-screen-xl mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/studio">
-              <img src="/logo-black.png" alt="Studio Gen" className="h-9 w-auto" />
+              <Image src="/logo-black.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" priority />
             </Link>
           </div>
           <div className="flex items-center gap-3">

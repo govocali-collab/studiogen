@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { PRICING } from '@/lib/config/pricing';
 import { TIER_LIMITS } from '@/lib/config/tier-limits';
 import type { Profile } from '@/lib/supabase/types';
@@ -90,7 +91,7 @@ function BillingPageInner() {
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-screen-md mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/studio">
-            <img src="/logo-black.png" alt="Studio Gen" className="h-10 w-auto" />
+            <Image src="/logo-black.png" alt="Studio Gen" width={200} height={40} className="h-10 w-auto" priority />
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
