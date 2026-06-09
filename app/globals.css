@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+  * {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  .section-title {
+    @apply text-[11px] font-semibold text-gray-500 uppercase tracking-widest;
+  }
+
+  .btn-primary {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
+           bg-violet-600 text-white hover:bg-violet-700 active:scale-95 transition-all shadow-sm;
+  }
+
+  .btn-ghost {
+    @apply flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium
+           bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors;
+  }
+
+  /* Pill/chip selector buttons (inactive) */
+  .chip {
+    @apply px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-medium
+           text-gray-600 hover:border-gray-400 transition-colors cursor-pointer;
+  }
+
+  /* Active chip */
+  .chip-active {
+    @apply border-violet-600 bg-violet-600 text-white;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #e4e4e7 transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #e4e4e7;
+    border-radius: 2px;
+  }
+}
