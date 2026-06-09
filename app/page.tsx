@@ -6,6 +6,21 @@ import { createAdminClient } from '@/lib/supabase/admin';
 export const metadata: Metadata = {
   title: 'Studio Gen — Posts Facebook & Instagram pour salons québécois en 30 secondes',
   description: 'Studio Gen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Pour ta clinique. Essai gratuit 7 jours, aucune carte requise.',
+  openGraph: {
+    title: 'Studio Gen — Posts Facebook & Instagram en 30 secondes',
+    description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
+    url: 'https://studiogen.ca',
+    siteName: 'Studio Gen',
+    images: [{ url: 'https://studiogen.ca/logo-black.png', alt: 'Studio Gen' }],
+    locale: 'fr_CA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Studio Gen — Posts Facebook & Instagram en 30 secondes',
+    description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
+    images: ['https://studiogen.ca/logo-black.png'],
+  },
 };
 
 const features = [
