@@ -12,15 +12,13 @@ export const metadata: Metadata = {
     description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
     url: 'https://studiogen.ca',
     siteName: 'Studio Gen',
-    images: [{ url: 'https://studiogen.ca/logo-black.png', alt: 'Studio Gen' }],
     locale: 'fr_CA',
     type: 'website',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Studio Gen — Posts Facebook & Instagram en 30 secondes',
     description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
-    images: ['https://studiogen.ca/logo-black.png'],
   },
 };
 
