@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import StudioClient from './StudioClient';
 
@@ -8,7 +9,8 @@ export default async function StudioPage() {
   const user = session?.user ?? null;
   if (!user) redirect('/auth/login?redirect=/studio');
 
-  const { data: profile } = await supabase
+  const admin = createAdminClient();
+  const { data: profile } = await admin
     .from('profiles')
     .select('*')
     .eq('id', user.id)
