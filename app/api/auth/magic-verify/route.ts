@@ -5,19 +5,19 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const token = searchParams.get('token');
   const email = searchParams.get('email');
+  const type = searchParams.get('type') ?? 'magiclink';
 
   if (!token || !email) {
     return NextResponse.redirect(new URL('/auth/login?error=invalid', request.url));
   }
 
-  // Call Supabase verify endpoint directly — returns tokens as JSON, no PKCE needed
   const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     },
-    body: JSON.stringify({ token, type: 'magiclink', email }),
+    body: JSON.stringify({ token, type, email }),
   });
 
   if (!verifyRes.ok) {
