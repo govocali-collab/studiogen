@@ -311,9 +311,8 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
         <div className="space-y-4 lg:grid lg:grid-cols-[260px_1fr_340px] lg:gap-4 lg:space-y-0 lg:items-start">
 
           <div className="space-y-4">
-            <BillingBadge profile={profile} />
             <Card>
-              <FormatPicker format={format} onFormatChange={setFormat} />
+              <FormatPicker format={format} onFormatChange={setFormat} headerRight={<BillingBadge profile={profile} />} />
             </Card>
             <Card>
               <LayoutPicker

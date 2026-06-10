@@ -6,6 +6,7 @@ import { FORMATS } from '@/lib/layouts';
 interface FormatPickerProps {
   format: FormatType;
   onFormatChange: (format: FormatType) => void;
+  headerRight?: React.ReactNode;
 }
 
 const FORMAT_SVG: Record<FormatType, { vw: number; vh: number }> = {
@@ -14,10 +15,13 @@ const FORMAT_SVG: Record<FormatType, { vw: number; vh: number }> = {
   '9:16': { vw: 16, vh: 28 },
 };
 
-export default function FormatPicker({ format, onFormatChange }: FormatPickerProps) {
+export default function FormatPicker({ format, onFormatChange, headerRight }: FormatPickerProps) {
   return (
     <div className="space-y-3">
-      <h2 className="section-title">Format</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="section-title">Format</h2>
+        {headerRight}
+      </div>
       <div className="flex gap-2">
         {(Object.keys(FORMATS) as FormatType[]).map((id) => {
           const { label } = FORMATS[id];
