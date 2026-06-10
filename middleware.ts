@@ -34,9 +34,8 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  // getSession decodes the JWT locally — no network round-trip to Supabase
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
+  // getUser validates the token and refreshes it if expired
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     const loginUrl = request.nextUrl.clone();
