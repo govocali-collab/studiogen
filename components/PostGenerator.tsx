@@ -269,38 +269,24 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
       {/* Tone */}
       <div>
         <p className="section-title mb-2">Ton</p>
-        {activeBrandVoice ? (
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-1.5">
-              {activeBrandVoice.map((v) => (
-                <span
-                  key={v}
-                  title="Défini dans les paramètres IA"
-                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-violet-600 text-white cursor-default select-none"
-                >
-                  {BRAND_VOICE_LABELS[v] ?? v}
-                </span>
-              ))}
-            </div>
-            <p className="text-[11px] text-gray-400">
-              Défini dans{' '}
-              <a href="/settings?tab=ia" className="text-violet-500 hover:text-violet-700 underline underline-offset-2">
-                Paramètres IA
-              </a>
-            </p>
-          </div>
-        ) : (
-          <div className="flex gap-1.5">
-            {TONES.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTone(t.id)}
-                className={`flex-1 chip text-center ${tone === t.id ? 'chip-active' : ''}`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+        <div className={`flex gap-1.5 ${activeBrandVoice ? 'opacity-40 pointer-events-none select-none' : ''}`}>
+          {TONES.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setTone(t.id)}
+              className={`flex-1 chip text-center ${!activeBrandVoice && tone === t.id ? 'chip-active' : ''}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+        {activeBrandVoice && (
+          <p className="text-[11px] text-gray-400 mt-1.5">
+            Ton défini dans{' '}
+            <a href="/settings?tab=ia" className="text-violet-500 hover:text-violet-700 underline underline-offset-2">
+              Paramètres IA
+            </a>
+          </p>
         )}
       </div>
 
