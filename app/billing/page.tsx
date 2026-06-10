@@ -207,7 +207,7 @@ function BillingPageInner() {
             return (
               <div
                 key={t}
-                className={`rounded-2xl p-6 space-y-5 relative overflow-hidden ${
+                className={`rounded-2xl p-6 flex flex-col gap-5 relative overflow-hidden ${
                   isPro
                     ? 'bg-gradient-to-br from-fuchsia-950 to-violet-950 border border-fuchsia-900/40'
                     : 'bg-white border-2 border-gray-200'
@@ -237,7 +237,7 @@ function BillingPageInner() {
                 <button
                   onClick={() => !isCurrent && handleCheckout(t)}
                   disabled={isCurrent || !!actionLoading}
-                  className={`w-full py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
+                  className={`mt-auto w-full py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
                     isCurrent
                       ? isPro ? 'bg-white/10 text-white/40 cursor-default' : 'bg-gray-100 text-gray-400 cursor-default'
                       : isPro
