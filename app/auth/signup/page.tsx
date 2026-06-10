@@ -171,17 +171,6 @@ export default function SignupPage() {
                 </span>
               </label>
 
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={smsConsent}
-                  onChange={(e) => setSmsConsent(e.target.checked)}
-                  className="mt-0.5 accent-violet-600 h-4 w-4 shrink-0"
-                />
-                <span className="text-xs text-gray-500 leading-relaxed">
-                  J'accepte de recevoir des communications par SMS de StudioGen.
-                </span>
-              </label>
             </div>
 
             {error && (
