@@ -457,7 +457,7 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
     const selectedIdx = selectedPhotoSrc ? photos.indexOf(selectedPhotoSrc) : -1;
 
     return (
-      <div className="relative overflow-hidden">
+      <div className="relative w-full overflow-hidden">
         <canvas
           ref={canvasRef}
           width={canvasWidth}
@@ -465,11 +465,11 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
           className="rounded-xl shadow-lg ring-1 ring-black/5 select-none block mx-auto"
           style={{
             cursor,
-            maxHeight: '580px',
-            width: 'auto',
+            display: 'block',
+            width: '100%',
+            height: 'auto',
             maxWidth: '100%',
-            // Selected: block all browser gestures so WE control zoom/pan
-            // Not selected: allow vertical scroll so user can scroll past canvas
+            maxHeight: '580px',
             touchAction: selectedPhotoSrc ? 'none' : 'pan-y',
           }}
           onMouseDown={handleMouseDown}
