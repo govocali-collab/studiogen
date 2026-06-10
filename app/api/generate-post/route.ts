@@ -121,11 +121,11 @@ export async function POST(request: NextRequest) {
   // ── Monthly limit (active subscriptions only) ─────────────────────────────
   const limits = getTierLimits(tier);
 
-  if (status === 'active' && tier === 'essentiel' && generationsUsed >= limits.generationsPerMonth) {
-    return NextResponse.json(
-      { error: `Limite atteinte : ${limits.generationsPerMonth} générations par mois pour le plan Essentiel. Passez au plan Pro pour des générations illimitées.`, code: 'LIMIT_REACHED' },
-      { status: 403 },
-    );
+  if (status === 'active' && generationsUsed >= limits.generationsPerMonth) {
+    const msg = tier === 'essentiel'
+      ? `Limite atteinte : ${limits.generationsPerMonth} générations par mois pour le plan Essentiel. Passez au plan Pro pour continuer.`
+      : `Limite atteinte : ${limits.generationsPerMonth} générations par mois pour le plan Pro.`;
+    return NextResponse.json({ error: msg, code: 'LIMIT_REACHED' }, { status: 403 });
   }
 
   // ── Parse request body ────────────────────────────────────────────────────

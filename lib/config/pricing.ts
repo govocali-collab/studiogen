@@ -6,7 +6,7 @@ export const PRICING = {
     stripePriceId: process.env.STRIPE_PRICE_ESSENTIEL,
     description: 'Pour bien commencer',
     features: [
-      '30 générations / mois',
+      '50 générations / mois',
       '1 logo',
       '4 formats de montage auto',
       'Post Facebook prêt à copier',
@@ -20,7 +20,7 @@ export const PRICING = {
     stripePriceId: process.env.STRIPE_PRICE_PRO,
     description: 'Pour les équipes actives',
     features: [
-      'Générations illimitées',
+      '150 générations / mois',
       'Logos illimités',
       'Tous les formats de montage',
       'Facebook + Instagram simultanément',

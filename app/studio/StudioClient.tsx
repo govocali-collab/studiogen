@@ -139,7 +139,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
           return;
         }
         if (data.code === 'LIMIT_REACHED') {
-          setUpgradeModal({ reason: 'Tu as atteint ta limite de 30 générations ce mois-ci. Passe au Pro pour des générations illimitées.', tier: 'pro' });
+          setUpgradeModal({ reason: data.error, tier: 'pro' });
           return;
         }
         throw new Error(data.error ?? `Erreur ${res.status}`);
