@@ -53,8 +53,7 @@ function LoginPageInner() {
         </div>
 
         <div className="bg-white rounded-3xl border border-gray-200 shadow-xl shadow-gray-100 p-8">
-          <h1 className="text-lg font-bold text-gray-900 mb-1">Connexion</h1>
-          <p className="text-sm text-gray-500 mb-6">Studio réseaux sociaux</p>
+          <h1 className="text-lg font-bold text-gray-900 mb-6">Connexion</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
