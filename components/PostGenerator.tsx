@@ -10,7 +10,30 @@ interface PostGeneratorProps {
   onPostsChange: (posts: GeneratePostResponse) => void;
   tier?: 'essentiel' | 'pro';
   onUpgradeClick?: () => void;
+  brandVoice?: string[] | null;
 }
+
+const BRAND_VOICE_LABELS: Record<string, string> = {
+  chaleureux: 'Chaleureux',
+  professionnel: 'Professionnel',
+  luxueux: 'Luxueux',
+  moderne: 'Moderne',
+  éducatif: 'Éducatif',
+  inspirant: 'Inspirant',
+  familial: 'Familial',
+  haut_de_gamme: 'Haut de gamme',
+};
+
+const BRAND_VOICE_TO_TONE: Record<string, Tone> = {
+  chaleureux: 'chaleureux',
+  familial: 'chaleureux',
+  inspirant: 'chaleureux',
+  professionnel: 'professionnel',
+  luxueux: 'professionnel',
+  haut_de_gamme: 'professionnel',
+  moderne: 'professionnel',
+  éducatif: 'professionnel',
+};
 
 const CONTENT_TYPES: { id: ContentType; label: string }[] = [
   { id: 'formation',         label: 'Formation' },
@@ -182,7 +205,7 @@ function EditModal({ field, text, onClose, onSave }: EditModalProps) {
   );
 }
 
-export default function PostGenerator({ isGenerating, posts, onGenerate, onPostsChange, tier = 'essentiel', onUpgradeClick }: PostGeneratorProps) {
+export default function PostGenerator({ isGenerating, posts, onGenerate, onPostsChange, tier = 'essentiel', onUpgradeClick, brandVoice }: PostGeneratorProps) {
   const [contentType, setContentType] = useState<ContentType>('résultats clients');
   const [tone, setTone] = useState<Tone>('chaleureux');
   const [length, setLength] = useState<TextLength>('moyen');
@@ -191,10 +214,15 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
   const [allCopied, setAllCopied] = useState(false);
   const [editModal, setEditModal] = useState<{ field: 'fb' | 'ig'; text: string } | null>(null);
 
+  const activeBrandVoice = brandVoice?.length ? brandVoice : null;
+  const effectiveTone: Tone = activeBrandVoice
+    ? (activeBrandVoice.map((v) => BRAND_VOICE_TO_TONE[v]).find(Boolean) ?? 'chaleureux')
+    : tone;
+
   const handleGenerate = async () => {
     setError(null);
     try {
-      await onGenerate({ contentType, tone, details, length });
+      await onGenerate({ contentType, tone: effectiveTone, details, length });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la génération');
     }
@@ -241,17 +269,39 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
       {/* Tone */}
       <div>
         <p className="section-title mb-2">Ton</p>
-        <div className="flex gap-1.5">
-          {TONES.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTone(t.id)}
-              className={`flex-1 chip text-center ${tone === t.id ? 'chip-active' : ''}`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
+        {activeBrandVoice ? (
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-1.5">
+              {activeBrandVoice.map((v) => (
+                <span
+                  key={v}
+                  title="Défini dans les paramètres IA"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-violet-600 text-white cursor-default select-none"
+                >
+                  {BRAND_VOICE_LABELS[v] ?? v}
+                </span>
+              ))}
+            </div>
+            <p className="text-[11px] text-gray-400">
+              Défini dans{' '}
+              <a href="/settings?tab=ia" className="text-violet-500 hover:text-violet-700 underline underline-offset-2">
+                Paramètres IA
+              </a>
+            </p>
+          </div>
+        ) : (
+          <div className="flex gap-1.5">
+            {TONES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTone(t.id)}
+                className={`flex-1 chip text-center ${tone === t.id ? 'chip-active' : ''}`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Length */}

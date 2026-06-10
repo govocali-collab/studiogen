@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const SELECT_FIELDS = [
   'first_name', 'last_name', 'business_name', 'website', 'service_description',
-  'city', 'province', 'target_audience', 'brand_voice', 'services',
+  'phone', 'city', 'province', 'target_audience', 'brand_voice', 'services',
   'favorite_phrases', 'avoid_phrases', 'content_preferences', 'cta_style',
   'email', 'subscription_tier', 'subscription_status',
 ].join(', ');
@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
 
   const allowed = [
     'first_name', 'last_name', 'business_name', 'website', 'service_description',
-    'city', 'province', 'target_audience', 'brand_voice', 'services',
+    'phone', 'city', 'province', 'target_audience', 'brand_voice', 'services',
     'favorite_phrases', 'avoid_phrases', 'content_preferences', 'cta_style',
   ];
   const update: Record<string, unknown> = {};

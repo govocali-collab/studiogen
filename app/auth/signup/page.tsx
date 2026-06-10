@@ -8,8 +8,13 @@ import { createClient } from '@/lib/supabase/client';
 
 export default function SignupPage() {
   const router = useRouter();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [emailConsent, setEmailConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -24,7 +29,7 @@ export default function SignupPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -32,11 +37,17 @@ export default function SignupPage() {
       },
     });
 
-    if (error) {
-      setError(error.message);
+    if (signUpError) {
+      setError(signUpError.message);
       setLoading(false);
       return;
     }
+
+    await fetch('/api/auth/register-consent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, first_name: firstName, last_name: lastName, phone, email_consent: emailConsent, sms_consent: smsConsent }),
+    });
 
     setDone(true);
   };
@@ -80,6 +91,32 @@ export default function SignupPage() {
           <p className="text-sm text-gray-500 mb-6">Essai gratuit de 7 jours, aucune carte requise</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Prénom</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  autoFocus
+                  placeholder="ex. Marie"
+                  className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Nom</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  placeholder="ex. Tremblay"
+                  className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Courriel</label>
               <input
@@ -87,8 +124,20 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                autoFocus
                 placeholder="vous@example.com"
+                className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">
+                Cellulaire <span className="font-normal text-gray-400">(optionnel)</span>
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="ex. 819 555-0123"
                 className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
               />
             </div>
@@ -103,6 +152,32 @@ export default function SignupPage() {
                 placeholder="8 caractères minimum"
                 className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
               />
+            </div>
+
+            <div className="space-y-2.5 pt-1">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={emailConsent}
+                  onChange={(e) => setEmailConsent(e.target.checked)}
+                  className="mt-0.5 accent-violet-600 h-4 w-4 shrink-0"
+                />
+                <span className="text-xs text-gray-500 leading-relaxed">
+                  J'accepte de recevoir des communications par courriel de StudioGen (nouvelles fonctionnalités, conseils, offres).
+                </span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={smsConsent}
+                  onChange={(e) => setSmsConsent(e.target.checked)}
+                  className="mt-0.5 accent-violet-600 h-4 w-4 shrink-0"
+                />
+                <span className="text-xs text-gray-500 leading-relaxed">
+                  J'accepte de recevoir des communications par SMS de StudioGen.
+                </span>
+              </label>
             </div>
 
             {error && (
@@ -131,4 +206,3 @@ export default function SignupPage() {
     </div>
   );
 }
-

@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import AppHeader from '@/components/AppHeader';
@@ -131,6 +133,7 @@ interface Form {
   business_name: string;
   website: string;
   service_description: string;
+  phone: string;
   city: string;
   province: string;
   target_audience: string;
@@ -151,6 +154,7 @@ const EMPTY: Form = {
   business_name: '',
   website: '',
   service_description: '',
+  phone: '',
   city: '',
   province: '',
   target_audience: '',
@@ -168,11 +172,20 @@ const EMPTY: Form = {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
+  return <Suspense><SettingsPageInner /></Suspense>;
+}
+
+function SettingsPageInner() {
+  const searchParams = useSearchParams();
   const [form, setForm] = useState<Form>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [tab, setTab] = useState<'profil' | 'ia'>(
+    searchParams.get('tab') === 'ia' ? 'ia' : 'profil'
+  );
 
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
@@ -270,6 +283,7 @@ export default function SettingsPage() {
           business_name: form.business_name,
           website: form.website,
           service_description: form.service_description,
+          phone: form.phone,
           city: form.city,
           province: form.province,
           target_audience: form.target_audience,
@@ -322,11 +336,30 @@ export default function SettingsPage() {
       <AppHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-10">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Paramètres du profil</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Ces informations personnalisent vos publications. Plus c'est complet, plus l'IA vous ressemble.
-          </p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6 w-fit">
+          <button
+            type="button"
+            onClick={() => setTab('profil')}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              tab === 'profil' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Profil
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('ia')}
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+              tab === 'ia' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            IA
+          </button>
         </div>
 
         {loading ? (
@@ -339,11 +372,10 @@ export default function SettingsPage() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : tab === 'profil' ? (
           <>
+            {/* ── Onglet Profil ── */}
             <form onSubmit={handleSubmit} className="space-y-6">
-
-              {/* ── Informations personnelles ── */}
               <section className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
                 <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Informations personnelles</h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -359,39 +391,113 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div>
+                  <label className={labelClass}>Cellulaire <span className="font-normal text-gray-400">(optionnel)</span></label>
+                  <input type="tel" name="phone" value={form.phone} onChange={handleChange}
+                    placeholder="ex. 819 555-0123" className={inputClass} />
+                </div>
+                <div>
                   <label className={labelClass}>Courriel du compte</label>
                   <input type="email" value="" disabled placeholder="votre@courriel.com"
                     className="w-full rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-400 cursor-not-allowed" />
                 </div>
               </section>
 
-              {/* ── Votre marque (Pro) ── */}
-              <section className={`rounded-2xl border p-6 space-y-5 transition-colors ${isPro ? 'bg-white border-gray-100' : 'bg-gray-50 border-gray-200'}`}>
+              <section className="bg-white rounded-2xl border border-gray-100 p-6">
+                {error && (
+                  <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">{error}</p>
+                )}
+                <div className="flex justify-end">
+                  <button type="submit" disabled={saving}
+                    className="bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                    {saving ? 'Sauvegarde...' : saved ? 'Sauvegardé ✓' : 'Sauvegarder'}
+                  </button>
+                </div>
+              </section>
+            </form>
+
+            {/* ── Mot de passe ── */}
+            <form onSubmit={handlePasswordChange} className="mt-6 space-y-5 bg-white rounded-2xl border border-gray-100 p-6">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Changer le mot de passe</h2>
+              <div>
+                <label className={labelClass}>Nouveau mot de passe</label>
+                <input type="password" value={newPassword}
+                  onChange={(e) => { setNewPassword(e.target.value); setPwMessage(null); }}
+                  placeholder="Minimum 8 caractères" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Confirmer le mot de passe</label>
+                <input type="password" value={confirmPassword}
+                  onChange={(e) => { setConfirmPassword(e.target.value); setPwMessage(null); }}
+                  placeholder="Répétez le mot de passe" className={inputClass} />
+              </div>
+              {pwMessage && (
+                <p className={`text-sm ${pwMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
+                  {pwMessage.text}
+                </p>
+              )}
+              <div className="flex justify-end">
+                <button type="submit" disabled={pwSaving || !newPassword}
+                  className="bg-gray-800 hover:bg-gray-900 disabled:opacity-40 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                  {pwSaving ? 'Mise à jour...' : 'Mettre à jour'}
+                </button>
+              </div>
+            </form>
+
+            <div className="mt-6 flex justify-center">
+              <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
+                ← Retour au studio
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* ── Onglet IA ── */}
+
+            {/* Guide */}
+            <div className="mb-6 bg-violet-50 border border-violet-100 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-violet-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                </svg>
+                <span className="text-sm font-semibold text-violet-800">Comment obtenir de meilleures publications</span>
+              </div>
+              <ul className="space-y-2 text-xs text-violet-700 leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 font-bold shrink-0">1.</span>
+                  <span><strong>Description de l'entreprise</strong> — Rédigez 3 à 5 phrases comme si vous vous présentiez à un nouveau client. Mentionnez ce que vous faites, où vous êtes, et ce qui vous distingue.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 font-bold shrink-0">2.</span>
+                  <span><strong>Clientèle cible</strong> — Décrivez votre client idéal : âge, style de vie, valeurs. Ex. : <em>Femmes 30-50 ans qui valorisent le naturel et le bien-être.</em></span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 font-bold shrink-0">3.</span>
+                  <span><strong>Voix de marque</strong> — Choisissez les tons qui correspondent à votre façon de parler à vos clients. L'IA ajustera son écriture en conséquence.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 font-bold shrink-0">4.</span>
+                  <span><strong>Expressions favorites / à éviter</strong> — Ajoutez les mots que vous utilisez souvent et ceux que vous ne voulez jamais voir dans vos publications.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 font-bold shrink-0">5.</span>
+                  <span><strong>Analyser mon site</strong> — Si vous avez un site internet, ce bouton remplit automatiquement la plupart des champs. Vérifiez et ajustez ensuite.</span>
+                </li>
+              </ul>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+
+              {/* ── Votre marque ── */}
+              <section className="rounded-2xl border border-gray-100 bg-white p-6 space-y-5">
                 <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Votre marque</h2>
 
-                {!isPro && (
-                  <div className="flex items-center justify-between bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5">
-                    <div className="flex items-center gap-2 text-violet-700">
-                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      <span className="text-sm font-medium">Fonctionnalité Pro</span>
-                    </div>
-                    <Link href="/billing" className="text-sm font-semibold text-violet-600 hover:text-violet-800 transition-colors">
-                      Passer au Pro →
-                    </Link>
-                  </div>
-                )}
-
-                <div className={!isPro ? 'pointer-events-none opacity-40 select-none' : ''}>
-                  {/* Nom d'entreprise */}
+                <div>
                   <div className="mb-5">
                     <label className={labelClass}>Nom de l'entreprise</label>
                     <input type="text" name="business_name" value={form.business_name} onChange={handleChange}
                       placeholder="ex. Salon Beauté Lumière" className={inputClass} />
                   </div>
 
-                  {/* Site internet + bouton Analyser */}
                   <div className="mb-5">
                     <label className={labelClass}>Site internet</label>
                     <div className="flex gap-2">
@@ -425,12 +531,11 @@ export default function SettingsPage() {
                     {analyzeError && <p className="text-xs text-red-500 mt-1.5">{analyzeError}</p>}
                     {analyzeSuccess && (
                       <p className="text-xs text-violet-600 mt-1.5 font-medium">
-                        Profil extrait avec succes. Verifiez les champs ci-dessous et sauvegardez.
+                        Profil extrait avec succès. Vérifiez les champs ci-dessous et sauvegardez.
                       </p>
                     )}
                   </div>
 
-                  {/* Ville + Province */}
                   <div className="grid grid-cols-2 gap-4 mb-5">
                     <div>
                       <label className={labelClass}>Ville</label>
@@ -439,81 +544,68 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className={labelClass}>Province</label>
-                      <select name="province" value={form.province} onChange={handleChange}
-                        className={inputClass + ' bg-white'}>
-                        <option value="">Sélectionner...</option>
-                        {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
-                      </select>
+                      <div className="relative">
+                        <select name="province" value={form.province} onChange={handleChange}
+                          className={inputClass + ' bg-white appearance-none pr-10'}>
+                          <option value="">Sélectionner...</option>
+                          {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Résumé */}
                   <div className="mb-5">
                     <label className={labelClass}>Description de l'entreprise</label>
                     <p className="text-xs text-gray-400 mb-2">
                       Décrivez vos services, valeurs et ce qui vous rend unique. L'IA l'utilisera dans chaque publication.
                     </p>
                     <textarea name="service_description" value={form.service_description} onChange={handleChange}
-                      rows={5} placeholder="ex. Nous sommes un salon de coiffure et esthetique situe a Sherbrooke..."
+                      rows={5} placeholder="ex. Nous sommes un salon de coiffure et esthétique situé à Sherbrooke..."
                       className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none" />
                   </div>
 
-                  {/* Clientele cible */}
                   <div className="mb-5">
-                    <label className={labelClass}>Clientele cible</label>
+                    <label className={labelClass}>Clientèle cible</label>
                     <input type="text" name="target_audience" value={form.target_audience} onChange={handleChange}
                       placeholder="ex. Femmes 25-55 ans, professionnelles, aiment le soin de soi"
                       className={inputClass} />
                   </div>
 
-                  {/* Voix de marque */}
                   <div className="mb-5">
                     <label className={labelClass}>Voix de marque</label>
-                    <p className="text-xs text-gray-400 mb-2">Selectionnez les tons qui definissent votre communication.</p>
+                    <p className="text-xs text-gray-400 mb-2">Sélectionnez les tons qui définissent votre communication.</p>
                     <ChipSelect options={BRAND_VOICE_OPTIONS} value={form.brand_voice}
                       onChange={(v) => setField('brand_voice', v)} />
                   </div>
 
-                  {/* Services */}
                   <div>
                     <label className={labelClass}>Services offerts</label>
-                    <p className="text-xs text-gray-400 mb-2">Appuyez sur Entree ou virgule pour ajouter.</p>
+                    <p className="text-xs text-gray-400 mb-2">Appuyez sur Entrée ou virgule pour ajouter.</p>
                     <TagInput value={form.services} onChange={(v) => setField('services', v)}
                       placeholder="ex. Coloration, Coupe, Balayage..." />
                   </div>
                 </div>
               </section>
 
-              {/* ── Style de contenu (Pro) ── */}
-              <section className={`rounded-2xl border p-6 space-y-5 transition-colors ${isPro ? 'bg-white border-gray-100' : 'bg-gray-50 border-gray-200'}`}>
+              {/* ── Style de contenu ── */}
+              <section className="rounded-2xl border border-gray-100 bg-white p-6 space-y-5">
                 <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Style de contenu</h2>
 
-                {!isPro && (
-                  <div className="flex items-center justify-between bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5">
-                    <div className="flex items-center gap-2 text-violet-700">
-                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      <span className="text-sm font-medium">Fonctionnalité Pro</span>
-                    </div>
-                    <Link href="/billing" className="text-sm font-semibold text-violet-600 hover:text-violet-800 transition-colors">
-                      Passer au Pro →
-                    </Link>
-                  </div>
-                )}
-
-                <div className={!isPro ? 'pointer-events-none opacity-40 select-none' : ''}>
-                  {/* Types de contenu */}
+                <div>
                   <div className="mb-5">
-                    <label className={labelClass}>Types de contenu preferes</label>
-                    <p className="text-xs text-gray-400 mb-2">L'IA privilegiera ces formats dans vos publications.</p>
+                    <label className={labelClass}>Types de contenu préférés</label>
+                    <p className="text-xs text-gray-400 mb-2">L'IA privilégiera ces formats dans vos publications.</p>
                     <ChipSelect options={CONTENT_PREFS_OPTIONS} value={form.content_preferences}
                       onChange={(v) => setField('content_preferences', v)} />
                   </div>
 
-                  {/* CTA */}
                   <div>
-                    <label className={labelClass}>Style d'appel a l'action</label>
+                    <label className={labelClass}>Style d'appel à l'action</label>
                     <p className="text-xs text-gray-400 mb-3">Chaque publication se terminera avec ce CTA.</p>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {CTA_OPTIONS.map((opt) => (
@@ -537,38 +629,22 @@ export default function SettingsPage() {
                 </div>
               </section>
 
-              {/* ── Vocabulaire (Pro) ── */}
-              <section className={`rounded-2xl border p-6 space-y-5 transition-colors ${isPro ? 'bg-white border-gray-100' : 'bg-gray-50 border-gray-200'}`}>
+              {/* ── Vocabulaire ── */}
+              <section className="rounded-2xl border border-gray-100 bg-white p-6 space-y-5">
                 <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Vocabulaire</h2>
 
-                {!isPro && (
-                  <div className="flex items-center justify-between bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5">
-                    <div className="flex items-center gap-2 text-violet-700">
-                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      <span className="text-sm font-medium">Fonctionnalité Pro</span>
-                    </div>
-                    <Link href="/billing" className="text-sm font-semibold text-violet-600 hover:text-violet-800 transition-colors">
-                      Passer au Pro →
-                    </Link>
-                  </div>
-                )}
-
-                <div className={!isPro ? 'pointer-events-none opacity-40 select-none' : ''}>
-                  {/* Expressions favorites */}
+                <div>
                   <div className="mb-5">
                     <label className={labelClass}>Expressions favorites</label>
                     <p className="text-xs text-gray-400 mb-2">
-                      Mots ou formulations que vous aimez. L'IA les integrera naturellement.
+                      Mots ou formulations que vous aimez. L'IA les intégrera naturellement.
                     </p>
                     <TagInput value={form.favorite_phrases} onChange={(v) => setField('favorite_phrases', v)}
-                      placeholder="ex. Prenez soin de vous, Sublimez votre beaute..." />
+                      placeholder="ex. Prenez soin de vous, Sublimez votre beauté..." />
                   </div>
 
-                  {/* Mots a eviter */}
                   <div>
-                    <label className={labelClass}>Mots a eviter</label>
+                    <label className={labelClass}>Mots à éviter</label>
                     <p className="text-xs text-gray-400 mb-2">
                       Expressions ou mots que l'IA ne doit jamais utiliser.
                     </p>
@@ -586,38 +662,10 @@ export default function SettingsPage() {
                 <div className="flex justify-end">
                   <button type="submit" disabled={saving}
                     className="bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
-                    {saving ? 'Sauvegarde...' : saved ? 'Sauvegarde ✓' : 'Sauvegarder'}
+                    {saving ? 'Sauvegarde...' : saved ? 'Sauvegardé ✓' : 'Sauvegarder'}
                   </button>
                 </div>
               </section>
-            </form>
-
-            {/* ── Mot de passe ── */}
-            <form onSubmit={handlePasswordChange} className="mt-6 space-y-5 bg-white rounded-2xl border border-gray-100 p-6">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Changer le mot de passe</h2>
-              <div>
-                <label className={labelClass}>Nouveau mot de passe</label>
-                <input type="password" value={newPassword}
-                  onChange={(e) => { setNewPassword(e.target.value); setPwMessage(null); }}
-                  placeholder="Minimum 8 caracteres" className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Confirmer le mot de passe</label>
-                <input type="password" value={confirmPassword}
-                  onChange={(e) => { setConfirmPassword(e.target.value); setPwMessage(null); }}
-                  placeholder="Repetez le mot de passe" className={inputClass} />
-              </div>
-              {pwMessage && (
-                <p className={`text-sm ${pwMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
-                  {pwMessage.text}
-                </p>
-              )}
-              <div className="flex justify-end">
-                <button type="submit" disabled={pwSaving || !newPassword}
-                  className="bg-gray-800 hover:bg-gray-900 disabled:opacity-40 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
-                  {pwSaving ? 'Mise a jour...' : 'Mettre a jour'}
-                </button>
-              </div>
             </form>
 
             <div className="mt-6 flex justify-center">

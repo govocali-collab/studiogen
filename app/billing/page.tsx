@@ -2,10 +2,12 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { PRICING } from '@/lib/config/pricing';
 import { TIER_LIMITS } from '@/lib/config/tier-limits';
 import type { Profile } from '@/lib/supabase/types';
 import AppHeader from '@/components/AppHeader';
+import { createClient } from '@/lib/supabase/client';
 
 export default function BillingPage() {
   return <Suspense><BillingPageInner /></Suspense>;
@@ -23,11 +25,15 @@ interface Invoice {
 
 function BillingPageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState('');
   const [toast, setToast] = useState('');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [cancelConfirm, setCancelConfirm] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
 
   useEffect(() => {
     fetch('/api/me').then((r) => r.json()).then((d) => {
@@ -68,6 +74,19 @@ function BillingPageInner() {
     window.location.href = url;
   };
 
+  const handleCancel = async () => {
+    setCancelLoading(true);
+    const res = await fetch('/api/stripe/cancel-subscription', { method: 'POST' });
+    const { error } = await res.json();
+    if (error) { setToast(error); setCancelLoading(false); setCancelConfirm(false); return; }
+    setCancelled(true);
+    setCancelConfirm(false);
+    setTimeout(async () => {
+      await createClient().auth.signOut();
+      router.push('/');
+    }, 8000);
+  };
+
   const handlePortal = async () => {
     setActionLoading('portal');
     const res = await fetch('/api/stripe/create-portal', { method: 'POST' });
@@ -80,6 +99,39 @@ function BillingPageInner() {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (cancelled) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-6">
+        <div className="max-w-sm w-full text-center space-y-6">
+          <div className="w-16 h-16 rounded-full bg-violet-50 flex items-center justify-center mx-auto">
+            <svg className="w-8 h-8 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Merci d'avoir essayé StudioGen</h2>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Votre abonnement a été annulé. Nous espérons vous revoir bientôt.
+            </p>
+            <p className="text-xs text-gray-400 mt-3">
+              Vous pouvez vous reconnecter en tout temps pour consulter ou télécharger vos reçus.
+            </p>
+          </div>
+          <p className="text-xs text-gray-400">Déconnexion dans quelques secondes...</p>
+          <button
+            onClick={async () => {
+              await createClient().auth.signOut();
+              router.push('/');
+            }}
+            className="w-full py-2.5 rounded-xl text-sm font-semibold bg-gray-900 text-white hover:bg-gray-700 transition-colors"
+          >
+            Se déconnecter maintenant
+          </button>
+        </div>
       </div>
     );
   }
@@ -195,6 +247,54 @@ function BillingPageInner() {
           </div>
         )}
 
+        {/* Cancel subscription */}
+        {isSubscribed && status !== 'canceled' && (
+          <div className="pt-2">
+            {!cancelConfirm ? (
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setCancelConfirm(true)}
+                  className="text-xs text-gray-400 hover:text-red-500 transition-colors underline underline-offset-2"
+                >
+                  Annuler mon abonnement
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white border border-red-100 rounded-2xl p-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">Confirmer l'annulation</p>
+                    <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                      Votre abonnement sera annulé immédiatement. Vous serez déconnecté et pourrez vous reconnecter pour télécharger vos reçus.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <button
+                    onClick={() => setCancelConfirm(false)}
+                    disabled={cancelLoading}
+                    className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2 rounded-xl transition-colors"
+                  >
+                    Garder mon abonnement
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    disabled={cancelLoading}
+                    className="text-sm font-semibold text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 px-5 py-2 rounded-xl transition-colors"
+                  >
+                    {cancelLoading ? 'Annulation...' : 'Oui, annuler'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Plan selection */}
         <div className="grid gap-5 sm:grid-cols-2">
           {(['essentiel', 'pro'] as const).map((t) => {
@@ -213,11 +313,7 @@ function BillingPageInner() {
                     : 'bg-white border-2 border-gray-200'
                 }`}
               >
-                {isPro && (
-                  <div className="absolute top-4 right-4 bg-violet-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                    Recommandé
-                  </div>
-                )}
+
                 <div>
                   <div className={`text-sm font-semibold mb-1 ${isPro ? 'text-gray-400' : 'text-gray-500'}`}>{p.name}</div>
                   <div className={`text-3xl font-extrabold ${isPro ? 'text-white' : 'text-gray-900'}`}>

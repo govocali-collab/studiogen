@@ -9,6 +9,10 @@ export interface Profile {
   business_name: string | null;
   website: string | null;
   service_description: string | null;
+  phone: string | null;
+  email_consent: boolean;
+  sms_consent: boolean;
+  consent_at: string | null;
   city: string | null;
   province: string | null;
   target_audience: string | null;

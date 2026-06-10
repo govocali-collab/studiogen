@@ -100,6 +100,10 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
       if (storedSettings) setLogoSettings(JSON.parse(storedSettings));
     } catch { /* ignore */ }
     setHydrated(true);
+    // Fetch fresh profile to pick up latest brand_voice and other settings
+    fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((data) => {
+      if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
+    });
   }, []);
 
   useEffect(() => {
@@ -353,6 +357,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 onPostsChange={setPosts}
                 tier={effectiveTier}
                 onUpgradeClick={() => openUpgrade('La génération simultanée Facebook + Instagram est réservée au plan Pro.')}
+                brandVoice={profile?.brand_voice}
               />
             </Card>
           </div>
