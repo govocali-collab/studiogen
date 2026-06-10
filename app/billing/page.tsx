@@ -109,32 +109,23 @@ function BillingPageInner() {
           </div>
         )}
 
-        {/* Current plan */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-900">Plan actuel</h2>
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${statusColor[status] ?? statusColor.trialing}`}>
+        {/* Status + usage */}
+        <div className="bg-white rounded-2xl border border-gray-200 px-6 py-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-3 flex-1">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full border whitespace-nowrap ${statusColor[status] ?? statusColor.trialing}`}>
               {statusLabel[status] ?? status}
             </span>
-          </div>
-
-          <div className="flex items-end gap-2">
-            <span className="text-3xl font-extrabold text-gray-900">
+            <span className="text-sm font-semibold text-gray-700">
               {tier === 'pro' ? PRICING.pro.name : PRICING.essentiel.name}
             </span>
-            <span className="text-sm text-gray-400 mb-1">
-              {tier === 'pro' ? `${PRICING.pro.price} $ CA/mois` : `${PRICING.essentiel.price} $ CA/mois`}
-            </span>
           </div>
-
-          {/* Generations usage */}
-          <div>
-            <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
               <span>Générations ce mois-ci</span>
               <span className="font-semibold tabular-nums text-gray-700">{generationsUsed} / {generationsMax}</span>
             </div>
             {limits.generationsPerMonth !== Infinity && (
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all ${generationsPct > 85 ? 'bg-amber-500' : 'bg-violet-600'}`}
                   style={{ width: `${generationsPct}%` }}
@@ -142,26 +133,13 @@ function BillingPageInner() {
               </div>
             )}
           </div>
-
-          {/* Features list */}
-          <ul className="space-y-2">
-            {PRICING[tier].features.map((f) => (
-              <li key={f} className="flex items-center gap-2.5 text-sm text-gray-600">
-                <svg className="w-4 h-4 text-violet-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                </svg>
-                {f}
-              </li>
-            ))}
-          </ul>
-
           {profile?.stripe_customer_id && status !== 'trialing' && (
             <button
               onClick={handlePortal}
               disabled={actionLoading === 'portal'}
-              className="text-sm text-violet-600 hover:text-violet-800 font-medium transition-colors"
+              className="text-sm text-violet-600 hover:text-violet-800 font-medium transition-colors whitespace-nowrap"
             >
-              {actionLoading === 'portal' ? 'Chargement…' : 'Gérer le paiement (Stripe) →'}
+              {actionLoading === 'portal' ? 'Chargement…' : 'Gérer le paiement →'}
             </button>
           )}
         </div>
