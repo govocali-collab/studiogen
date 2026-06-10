@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
       'Content-Type': 'application/json',
       'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     },
-    body: JSON.stringify({ token, type: 'magiclink', email }),
+    body: JSON.stringify({ token, type: 'email', email }),
   });
 
   if (!verifyRes.ok) {
