@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -177,6 +177,7 @@ export default function SettingsPage() {
 
 function SettingsPageInner() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [form, setForm] = useState<Form>(EMPTY);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -298,6 +299,7 @@ function SettingsPageInner() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
       setSaved(true);
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
