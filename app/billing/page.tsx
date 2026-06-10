@@ -211,7 +211,7 @@ function BillingPageInner() {
         <div className="grid gap-5 sm:grid-cols-2">
           {(['essentiel', 'pro'] as const).map((t) => {
             const p = PRICING[t];
-            const isCurrent = tier === t && status === 'active';
+            const isCurrent = tier === t && (status === 'active' || status === 'trialing');
             const isUpgrade = t === 'pro' && tier === 'essentiel';
             const isDowngrade = t === 'essentiel' && tier === 'pro';
             const isPro = t === 'pro';
