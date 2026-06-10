@@ -188,7 +188,6 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             {/* Desktop nav */}
             <span className="hidden sm:contents">
               <BillingBadge profile={profile} />
-              <GenerationCounter genInfo={displayGenInfo} />
             </span>
             <Link href="/settings" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Paramètres</Link>
             <Link href="/billing" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Facturation</Link>
@@ -212,7 +211,6 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
           <div className="sm:hidden absolute top-14 left-0 right-0 bg-white border-b border-gray-100 shadow-lg z-20 py-2">
             <div className="px-4 py-2 border-b border-gray-100 flex items-center gap-3">
               <BillingBadge profile={profile} />
-              <GenerationCounter genInfo={displayGenInfo} />
             </div>
             <Link href="/settings" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
               <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
