@@ -366,236 +366,215 @@ export default function SettingsPage() {
               </section>
 
               {/* ── Votre marque (Pro) ── */}
-              <section className={`bg-white rounded-2xl border p-6 space-y-5 relative ${isPro ? 'border-gray-100' : 'border-gray-100'}`}>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Votre marque</h2>
-                  {!isPro && (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-full">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      Plan Pro
-                    </span>
-                  )}
-                </div>
+              <section className={`rounded-2xl border p-6 space-y-5 transition-colors ${isPro ? 'bg-white border-gray-100' : 'bg-gray-50 border-gray-200'}`}>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Votre marque</h2>
 
                 {!isPro && (
-                  <div className="absolute inset-0 rounded-2xl bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10">
-                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                    <p className="text-sm text-gray-500 font-medium">Disponible avec le plan Pro</p>
-                    <Link href="/billing"
-                      className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-colors">
+                  <div className="flex items-center justify-between bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5">
+                    <div className="flex items-center gap-2 text-violet-700">
+                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      <span className="text-sm font-medium">Fonctionnalité Pro</span>
+                    </div>
+                    <Link href="/billing" className="text-sm font-semibold text-violet-600 hover:text-violet-800 transition-colors">
                       Passer au Pro →
                     </Link>
                   </div>
                 )}
 
-                {/* Nom d'entreprise */}
-                <div>
-                  <label className={labelClass}>Nom de l'entreprise</label>
-                  <input type="text" name="business_name" value={form.business_name} onChange={handleChange}
-                    placeholder="ex. Salon Beauté Lumière" className={inputClass} />
-                </div>
-
-                {/* Site internet + bouton Analyser */}
-                <div>
-                  <label className={labelClass}>Site internet</label>
-                  <div className="flex gap-2">
-                    <input type="url" name="website" value={form.website} onChange={handleChange}
-                      placeholder="https://monentreprise.com"
-                      className="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
-                    <button
-                      type="button"
-                      onClick={handleAnalyze}
-                      disabled={analyzing || !form.website.trim()}
-                      className="shrink-0 flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
-                    >
-                      {analyzing ? (
-                        <>
-                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                          </svg>
-                          <span>Analyse...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                          </svg>
-                          <span>Analyser mon site</span>
-                        </>
-                      )}
-                    </button>
+                <div className={!isPro ? 'pointer-events-none opacity-40 select-none' : ''}>
+                  {/* Nom d'entreprise */}
+                  <div className="mb-5">
+                    <label className={labelClass}>Nom de l'entreprise</label>
+                    <input type="text" name="business_name" value={form.business_name} onChange={handleChange}
+                      placeholder="ex. Salon Beauté Lumière" className={inputClass} />
                   </div>
-                  {analyzeError && <p className="text-xs text-red-500 mt-1.5">{analyzeError}</p>}
-                  {analyzeSuccess && (
-                    <p className="text-xs text-violet-600 mt-1.5 font-medium">
-                      Profil extrait avec succes. Verifiez les champs ci-dessous et sauvegardez.
+
+                  {/* Site internet + bouton Analyser */}
+                  <div className="mb-5">
+                    <label className={labelClass}>Site internet</label>
+                    <div className="flex gap-2">
+                      <input type="url" name="website" value={form.website} onChange={handleChange}
+                        placeholder="https://monentreprise.com"
+                        className="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
+                      <button
+                        type="button"
+                        onClick={handleAnalyze}
+                        disabled={analyzing || !form.website.trim()}
+                        className="shrink-0 flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                      >
+                        {analyzing ? (
+                          <>
+                            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                            <span>Analyse...</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                            </svg>
+                            <span>Analyser mon site</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    {analyzeError && <p className="text-xs text-red-500 mt-1.5">{analyzeError}</p>}
+                    {analyzeSuccess && (
+                      <p className="text-xs text-violet-600 mt-1.5 font-medium">
+                        Profil extrait avec succes. Verifiez les champs ci-dessous et sauvegardez.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Ville + Province */}
+                  <div className="grid grid-cols-2 gap-4 mb-5">
+                    <div>
+                      <label className={labelClass}>Ville</label>
+                      <input type="text" name="city" value={form.city} onChange={handleChange}
+                        placeholder="ex. Sherbrooke" className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Province</label>
+                      <select name="province" value={form.province} onChange={handleChange}
+                        className={inputClass + ' bg-white'}>
+                        <option value="">Sélectionner...</option>
+                        {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Résumé */}
+                  <div className="mb-5">
+                    <label className={labelClass}>Description de l'entreprise</label>
+                    <p className="text-xs text-gray-400 mb-2">
+                      Décrivez vos services, valeurs et ce qui vous rend unique. L'IA l'utilisera dans chaque publication.
                     </p>
-                  )}
-                </div>
-
-                {/* Ville + Province */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className={labelClass}>Ville</label>
-                    <input type="text" name="city" value={form.city} onChange={handleChange}
-                      placeholder="ex. Sherbrooke" className={inputClass} />
+                    <textarea name="service_description" value={form.service_description} onChange={handleChange}
+                      rows={5} placeholder="ex. Nous sommes un salon de coiffure et esthetique situe a Sherbrooke..."
+                      className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none" />
                   </div>
-                  <div>
-                    <label className={labelClass}>Province</label>
-                    <select name="province" value={form.province} onChange={handleChange}
-                      className={inputClass + ' bg-white'}>
-                      <option value="">Sélectionner...</option>
-                      {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
-                    </select>
+
+                  {/* Clientele cible */}
+                  <div className="mb-5">
+                    <label className={labelClass}>Clientele cible</label>
+                    <input type="text" name="target_audience" value={form.target_audience} onChange={handleChange}
+                      placeholder="ex. Femmes 25-55 ans, professionnelles, aiment le soin de soi"
+                      className={inputClass} />
                   </div>
-                </div>
 
-                {/* Résumé */}
-                <div>
-                  <label className={labelClass}>Description de l'entreprise</label>
-                  <p className="text-xs text-gray-400 mb-2">
-                    Décrivez vos services, valeurs et ce qui vous rend unique. L'IA l'utilisera dans chaque publication.
-                  </p>
-                  <textarea name="service_description" value={form.service_description} onChange={handleChange}
-                    rows={5} placeholder="ex. Nous sommes un salon de coiffure et esthetique situe a Sherbrooke..."
-                    className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none" />
-                </div>
+                  {/* Voix de marque */}
+                  <div className="mb-5">
+                    <label className={labelClass}>Voix de marque</label>
+                    <p className="text-xs text-gray-400 mb-2">Selectionnez les tons qui definissent votre communication.</p>
+                    <ChipSelect options={BRAND_VOICE_OPTIONS} value={form.brand_voice}
+                      onChange={(v) => setField('brand_voice', v)} />
+                  </div>
 
-                {/* Clientele cible */}
-                <div>
-                  <label className={labelClass}>Clientele cible</label>
-                  <input type="text" name="target_audience" value={form.target_audience} onChange={handleChange}
-                    placeholder="ex. Femmes 25-55 ans, professionnelles, aiment le soin de soi"
-                    className={inputClass} />
-                </div>
-
-                {/* Voix de marque */}
-                <div>
-                  <label className={labelClass}>Voix de marque</label>
-                  <p className="text-xs text-gray-400 mb-2">Selectionnez les tons qui definissent votre communication.</p>
-                  <ChipSelect options={BRAND_VOICE_OPTIONS} value={form.brand_voice}
-                    onChange={(v) => setField('brand_voice', v)} />
-                </div>
-
-                {/* Services */}
-                <div>
-                  <label className={labelClass}>Services offerts</label>
-                  <p className="text-xs text-gray-400 mb-2">Appuyez sur Entree ou virgule pour ajouter.</p>
-                  <TagInput value={form.services} onChange={(v) => setField('services', v)}
-                    placeholder="ex. Coloration, Coupe, Balayage..." />
+                  {/* Services */}
+                  <div>
+                    <label className={labelClass}>Services offerts</label>
+                    <p className="text-xs text-gray-400 mb-2">Appuyez sur Entree ou virgule pour ajouter.</p>
+                    <TagInput value={form.services} onChange={(v) => setField('services', v)}
+                      placeholder="ex. Coloration, Coupe, Balayage..." />
+                  </div>
                 </div>
               </section>
 
               {/* ── Style de contenu (Pro) ── */}
-              <section className={`bg-white rounded-2xl border p-6 space-y-5 relative ${isPro ? 'border-gray-100' : 'border-gray-100'}`}>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Style de contenu</h2>
-                  {!isPro && (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-full">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      Plan Pro
-                    </span>
-                  )}
-                </div>
+              <section className={`rounded-2xl border p-6 space-y-5 transition-colors ${isPro ? 'bg-white border-gray-100' : 'bg-gray-50 border-gray-200'}`}>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Style de contenu</h2>
 
                 {!isPro && (
-                  <div className="absolute inset-0 rounded-2xl bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10">
-                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                    <p className="text-sm text-gray-500 font-medium">Disponible avec le plan Pro</p>
-                    <Link href="/billing"
-                      className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-colors">
+                  <div className="flex items-center justify-between bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5">
+                    <div className="flex items-center gap-2 text-violet-700">
+                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      <span className="text-sm font-medium">Fonctionnalité Pro</span>
+                    </div>
+                    <Link href="/billing" className="text-sm font-semibold text-violet-600 hover:text-violet-800 transition-colors">
                       Passer au Pro →
                     </Link>
                   </div>
                 )}
 
-                {/* Types de contenu */}
-                <div>
-                  <label className={labelClass}>Types de contenu preferes</label>
-                  <p className="text-xs text-gray-400 mb-2">L'IA privilegiera ces formats dans vos publications.</p>
-                  <ChipSelect options={CONTENT_PREFS_OPTIONS} value={form.content_preferences}
-                    onChange={(v) => setField('content_preferences', v)} />
-                </div>
+                <div className={!isPro ? 'pointer-events-none opacity-40 select-none' : ''}>
+                  {/* Types de contenu */}
+                  <div className="mb-5">
+                    <label className={labelClass}>Types de contenu preferes</label>
+                    <p className="text-xs text-gray-400 mb-2">L'IA privilegiera ces formats dans vos publications.</p>
+                    <ChipSelect options={CONTENT_PREFS_OPTIONS} value={form.content_preferences}
+                      onChange={(v) => setField('content_preferences', v)} />
+                  </div>
 
-                {/* CTA */}
-                <div>
-                  <label className={labelClass}>Style d'appel a l'action</label>
-                  <p className="text-xs text-gray-400 mb-3">Chaque publication se terminera avec ce CTA.</p>
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {CTA_OPTIONS.map((opt) => (
-                      <label key={opt.value}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${
-                          form.cta_style === opt.value
-                            ? 'border-violet-500 bg-violet-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}>
-                        <input type="radio" name="cta_style" value={opt.value}
-                          checked={form.cta_style === opt.value}
-                          onChange={handleChange}
-                          className="accent-violet-600" />
-                        <span className={`text-sm font-medium ${form.cta_style === opt.value ? 'text-violet-700' : 'text-gray-700'}`}>
-                          {opt.label}
-                        </span>
-                      </label>
-                    ))}
+                  {/* CTA */}
+                  <div>
+                    <label className={labelClass}>Style d'appel a l'action</label>
+                    <p className="text-xs text-gray-400 mb-3">Chaque publication se terminera avec ce CTA.</p>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {CTA_OPTIONS.map((opt) => (
+                        <label key={opt.value}
+                          className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${
+                            form.cta_style === opt.value
+                              ? 'border-violet-500 bg-violet-50'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}>
+                          <input type="radio" name="cta_style" value={opt.value}
+                            checked={form.cta_style === opt.value}
+                            onChange={handleChange}
+                            className="accent-violet-600" />
+                          <span className={`text-sm font-medium ${form.cta_style === opt.value ? 'text-violet-700' : 'text-gray-700'}`}>
+                            {opt.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </section>
 
               {/* ── Vocabulaire (Pro) ── */}
-              <section className={`bg-white rounded-2xl border p-6 space-y-5 relative ${isPro ? 'border-gray-100' : 'border-gray-100'}`}>
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Vocabulaire</h2>
-                  {!isPro && (
-                    <span className="flex items-center gap-1 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-full">
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      Plan Pro
-                    </span>
-                  )}
-                </div>
+              <section className={`rounded-2xl border p-6 space-y-5 transition-colors ${isPro ? 'bg-white border-gray-100' : 'bg-gray-50 border-gray-200'}`}>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Vocabulaire</h2>
 
                 {!isPro && (
-                  <div className="absolute inset-0 rounded-2xl bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10">
-                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                    <p className="text-sm text-gray-500 font-medium">Disponible avec le plan Pro</p>
-                    <Link href="/billing"
-                      className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-colors">
+                  <div className="flex items-center justify-between bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5">
+                    <div className="flex items-center gap-2 text-violet-700">
+                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      <span className="text-sm font-medium">Fonctionnalité Pro</span>
+                    </div>
+                    <Link href="/billing" className="text-sm font-semibold text-violet-600 hover:text-violet-800 transition-colors">
                       Passer au Pro →
                     </Link>
                   </div>
                 )}
 
-                {/* Expressions favorites */}
-                <div>
-                  <label className={labelClass}>Expressions favorites</label>
-                  <p className="text-xs text-gray-400 mb-2">
-                    Mots ou formulations que vous aimez. L'IA les integrera naturellement.
-                  </p>
-                  <TagInput value={form.favorite_phrases} onChange={(v) => setField('favorite_phrases', v)}
-                    placeholder="ex. Prenez soin de vous, Sublimez votre beaute..." />
-                </div>
+                <div className={!isPro ? 'pointer-events-none opacity-40 select-none' : ''}>
+                  {/* Expressions favorites */}
+                  <div className="mb-5">
+                    <label className={labelClass}>Expressions favorites</label>
+                    <p className="text-xs text-gray-400 mb-2">
+                      Mots ou formulations que vous aimez. L'IA les integrera naturellement.
+                    </p>
+                    <TagInput value={form.favorite_phrases} onChange={(v) => setField('favorite_phrases', v)}
+                      placeholder="ex. Prenez soin de vous, Sublimez votre beaute..." />
+                  </div>
 
-                {/* Mots a eviter */}
-                <div>
-                  <label className={labelClass}>Mots a eviter</label>
-                  <p className="text-xs text-gray-400 mb-2">
-                    Expressions ou mots que l'IA ne doit jamais utiliser.
-                  </p>
-                  <TagInput value={form.avoid_phrases} onChange={(v) => setField('avoid_phrases', v)}
-                    placeholder="ex. Pas cher, Discount, Cheap..." />
+                  {/* Mots a eviter */}
+                  <div>
+                    <label className={labelClass}>Mots a eviter</label>
+                    <p className="text-xs text-gray-400 mb-2">
+                      Expressions ou mots que l'IA ne doit jamais utiliser.
+                    </p>
+                    <TagInput value={form.avoid_phrases} onChange={(v) => setField('avoid_phrases', v)}
+                      placeholder="ex. Pas cher, Discount, Cheap..." />
+                  </div>
                 </div>
               </section>
 
