@@ -5,9 +5,8 @@ import { useCallback, useRef, useState } from 'react';
 interface PhotoUploaderProps {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
+  maxPhotos?: number;
 }
-
-const MAX_PHOTOS = 10;
 
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -18,14 +17,14 @@ function fileToDataUrl(file: File): Promise<string> {
   });
 }
 
-export default function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
+export default function PhotoUploader({ photos, onPhotosChange, maxPhotos = 10 }: PhotoUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addFiles = useCallback(
     async (files: FileList | File[]) => {
       const imageFiles = Array.from(files).filter((f) => f.type.startsWith('image/'));
-      const remaining = MAX_PHOTOS - photos.length;
+      const remaining = maxPhotos - photos.length;
       const toProcess = imageFiles.slice(0, remaining);
       if (!toProcess.length) return;
       const dataUrls = await Promise.all(toProcess.map(fileToDataUrl));
@@ -54,13 +53,13 @@ export default function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderP
     onPhotosChange(next);
   };
 
-  const full = photos.length >= MAX_PHOTOS;
+  const full = photos.length >= maxPhotos;
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="section-title">Photos</h2>
-        <span className="text-xs text-gray-400 tabular-nums">{photos.length}/{MAX_PHOTOS}</span>
+        <span className="text-xs text-gray-400 tabular-nums">{photos.length}/{maxPhotos}</span>
       </div>
 
       {/* Drop zone */}

@@ -11,6 +11,7 @@ export const TIER_LIMITS = {
   essentiel: {
     generationsPerMonth: 30,
     maxLogos: 1,
+    maxPhotos: 3,
     availableLayouts: ESSENTIEL_LAYOUTS,
     platforms: ['fb'] as const,
     postHistory: false,
@@ -18,6 +19,7 @@ export const TIER_LIMITS = {
   pro: {
     generationsPerMonth: Infinity,
     maxLogos: Infinity,
+    maxPhotos: 10,
     availableLayouts: 'all' as const,
     platforms: ['fb', 'ig'] as const,
     postHistory: true,

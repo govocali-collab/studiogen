@@ -14,6 +14,7 @@ import UpgradeModal from '@/components/UpgradeModal';
 import GenerationCounter from '@/components/GenerationCounter';
 import GenerationWarning from '@/components/GenerationWarning';
 import { PRICING } from '@/lib/config/pricing';
+import { TIER_LIMITS } from '@/lib/config/tier-limits';
 import { FORMATS, getLayout, suggestLayout } from '@/lib/layouts';
 import {
   FormatType,
@@ -279,7 +280,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
           <div className="space-y-4">
             <Card>
-              <PhotoUploader photos={photos} onPhotosChange={setPhotos} />
+              <PhotoUploader photos={photos} onPhotosChange={setPhotos} maxPhotos={TIER_LIMITS[tier].maxPhotos} />
             </Card>
 
             <Card>
