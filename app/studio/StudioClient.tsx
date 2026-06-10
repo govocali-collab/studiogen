@@ -131,13 +131,11 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
       const data = await res.json();
       if (!res.ok) {
         if (data.code === 'TRIAL_EXPIRED') {
-          const t = (profile?.subscription_tier ?? 'essentiel') as 'essentiel' | 'pro';
-          setUpgradeModal({ reason: "Ton essai gratuit de 7 jours est terminé. Active ton plan pour continuer.", tier: t });
+          setUpgradeModal({ reason: "Ton essai gratuit de 7 jours est terminé. Choisis ton abonnement pour continuer.", tier: 'pro' });
           return;
         }
         if (data.code === 'TRIAL_LIMIT_REACHED') {
-          const t = (profile?.subscription_tier ?? 'essentiel') as 'essentiel' | 'pro';
-          setUpgradeModal({ reason: `Tu as utilisé tes ${PRICING[t].trialGenerations} générations d'essai. Active ton plan pour continuer.`, tier: t });
+          setUpgradeModal({ reason: `Tu as utilisé tes ${PRICING.pro.trialGenerations} générations d'essai. Choisis ton abonnement pour continuer.`, tier: 'pro' });
           return;
         }
         if (data.code === 'LIMIT_REACHED') {
@@ -257,7 +255,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 </span>
               </div>
               <button
-                onClick={() => setUpgradeModal({ reason: displayGenInfo.daysLeftInTrial === 0 ? "Ton essai gratuit de 7 jours est terminé. Active ton plan pour continuer." : `Tu as utilisé tes ${trialLimitNum} générations d'essai. Active ton plan pour continuer.`, tier })}
+                onClick={() => setUpgradeModal({ reason: displayGenInfo.daysLeftInTrial === 0 ? "Ton essai gratuit de 7 jours est terminé. Choisis ton abonnement pour continuer." : `Tu as utilisé tes ${trialLimitNum} générations d'essai. Choisis ton abonnement pour continuer.`, tier: 'pro' })}
                 className="text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Activer →

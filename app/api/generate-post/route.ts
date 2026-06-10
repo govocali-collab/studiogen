@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
   const profile = profileData as any;
   const tier = (profile?.subscription_tier ?? 'essentiel') as 'essentiel' | 'pro';
   const status = profile?.subscription_status ?? 'trialing';
+  const effectiveTier: 'essentiel' | 'pro' = status === 'trialing' ? 'pro' : tier;
   const generationsUsed = (profile?.generations_used ?? 0) as number;
   const trialGenerationsUsed = (profile?.trial_generations_used ?? 0) as number;
   const businessName = (profile?.business_name as string | null)?.trim() || 'votre entreprise';
@@ -179,7 +180,7 @@ export async function POST(request: NextRequest) {
   }
 
   // ── Monthly limit (active subscriptions only) ─────────────────────────────
-  const limits = getTierLimits(tier);
+  const limits = getTierLimits(effectiveTier);
 
   if (status === 'active' && generationsUsed >= limits.generationsPerMonth) {
     const msg = tier === 'essentiel'
@@ -218,8 +219,8 @@ export async function POST(request: NextRequest) {
 
   const spec = LENGTH_SPECS[length] ?? LENGTH_SPECS.moyen;
 
-  // Essentiel only gets Facebook
-  const igInstruction = tier === 'essentiel'
+  // Essentiel only gets Facebook (trial always gets Pro/IG)
+  const igInstruction = effectiveTier === 'essentiel'
     ? '- Instagram : retourne une chaîne vide "" pour la clé "ig".'
     : `- ${spec.ig}`;
 
@@ -284,7 +285,7 @@ Rappel : retourne UNIQUEMENT le JSON avec les clés "fb" et "ig".`;
     }
 
     // ── Save to history (Pro only) ───────────────────────────────────────────
-    if (tier === 'pro' && limits.postHistory) {
+    if (effectiveTier === 'pro' && limits.postHistory) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await admin.from('post_history').insert({
         user_id: user.id,
