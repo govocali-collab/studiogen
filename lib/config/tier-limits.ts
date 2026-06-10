@@ -10,10 +10,10 @@ export const ESSENTIEL_LAYOUTS: LayoutType[] = [
 export const TIER_LIMITS = {
   essentiel: {
     generationsPerMonth: 50,
-    maxLogos: 1,
-    maxPhotos: 3,
-    availableLayouts: ESSENTIEL_LAYOUTS,
-    platforms: ['fb'] as const,
+    maxLogos: Infinity,
+    maxPhotos: 6,
+    availableLayouts: 'all' as const,
+    platforms: ['fb', 'ig'] as const,
     postHistory: false,
   },
   pro: {

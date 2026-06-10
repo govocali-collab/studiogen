@@ -1,30 +1,31 @@
 export const PRICING = {
   essentiel: {
     name: 'Essentiel',
-    price: 47, // CAD, monthly
+    price: 57, // CAD, monthly
     trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_ESSENTIEL,
     description: 'Pour bien commencer',
     features: [
-      '50 générations / mois',
-      '1 logo',
-      '4 formats de montage auto',
-      'Post Facebook prêt à copier',
+      '50 posts / mois',
+      'Accès complet à toutes les fonctionnalités',
+      'Toutes les mises en page',
+      'Facebook + Instagram simultanément',
+      'Logos illimités',
       'Montages photo automatiques (JPG 1080px)',
     ],
   },
   pro: {
     name: 'Pro',
-    price: 97, // CAD, monthly
+    price: 127, // CAD, monthly
     trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_PRO,
-    description: 'Pour les équipes actives',
+    description: 'Pour les salons actifs',
     features: [
-      '150 générations / mois',
-      'Logos illimités',
-      'Tous les formats de montage',
+      '150 posts / mois',
+      'Accès complet à toutes les fonctionnalités',
+      'Toutes les mises en page',
       'Facebook + Instagram simultanément',
-      'Historique des publications',
+      'Logos illimités',
       'Montages photo automatiques (JPG 1080px)',
       'Priorité de support',
     ],
