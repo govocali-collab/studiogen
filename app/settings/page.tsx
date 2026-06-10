@@ -103,7 +103,8 @@ export default function SettingsPage() {
           service_description: form.service_description,
         }),
       });
-      if (!res.ok) throw new Error('Erreur lors de la sauvegarde');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
       setSaved(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue');

@@ -4,13 +4,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const { data } = await supabase
+  const admin = createAdminClient();
+  const { data } = await admin
     .from('profiles')
     .select('first_name, last_name, business_name, website, service_description, email, subscription_tier, subscription_status')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single();
 
   return NextResponse.json(data ?? {});
@@ -18,8 +19,8 @@ export async function GET() {
 
 export async function PATCH(request: NextRequest) {
   const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
   let body: Record<string, string>;
   try {
@@ -35,7 +36,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   const admin = createAdminClient();
-  const { error } = await admin.from('profiles').update(update).eq('id', session.user.id);
+  const { error } = await admin.from('profiles').update(update).eq('id', user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json({ ok: true });
