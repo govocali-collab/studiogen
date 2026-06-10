@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       'Content-Type': 'application/json',
       'apikey': anonKey,
     },
-    body: JSON.stringify({ auth_code: code, code_verifier: '' }),
+    body: JSON.stringify({ auth_code: code }),
   });
 
   if (!tokenRes.ok) {
