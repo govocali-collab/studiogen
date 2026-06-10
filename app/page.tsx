@@ -32,7 +32,7 @@ const features = [
       </svg>
     ),
     title: 'Rédaction IA en français québécois',
-    desc: 'Claude AI génère du contenu authentique, adapté à ta clientèle locale. Ton ton, ta voix, tes expressions.',
+    desc: "L'IA génère du contenu authentique, adapté à ta clientèle locale. Ton ton, ta voix, tes expressions.",
     badge: null,
   },
   {

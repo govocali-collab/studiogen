@@ -74,7 +74,7 @@ export default function PolitiqueConfidentialitePage() {
             <ul className="list-disc pl-6 mt-3 space-y-2">
               <li><strong>Supabase</strong> — hebergement de la base de donnees et authentification. Donnees stockees au Canada ou aux Etats-Unis.</li>
               <li><strong>Stripe</strong> — traitement des paiements. Stripe est certifie PCI DSS niveau 1.</li>
-              <li><strong>Anthropic (Claude AI)</strong> — generation de textes pour vos publications. Seule la description de votre entreprise est transmise lors de la generation.</li>
+              <li><strong>Moteur IA</strong> — generation de textes pour vos publications. Seule la description de votre entreprise est transmise lors de la generation.</li>
               <li><strong>Vercel</strong> — hebergement de l application.</li>
             </ul>
           </section>
