@@ -176,8 +176,8 @@ const jsonLd = {
   url: 'https://studiogen.ca',
   description: 'Générateur de publications Facebook et Instagram pour salons québécois. Montages photo automatiques et textes rédigés par IA en français québécois.',
   offers: [
-    { '@type': 'Offer', name: 'Essentiel', price: '47', priceCurrency: 'CAD', billingIncrement: 'P1M' },
-    { '@type': 'Offer', name: 'Pro', price: '97', priceCurrency: 'CAD', billingIncrement: 'P1M' },
+    { '@type': 'Offer', name: 'Essentiel', price: '57', priceCurrency: 'CAD', billingIncrement: 'P1M' },
+    { '@type': 'Offer', name: 'Pro', price: '127', priceCurrency: 'CAD', billingIncrement: 'P1M' },
   ],
   publisher: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
 };
@@ -547,7 +547,7 @@ export default async function LandingPage() {
             {!isActive && <div className="bg-white rounded-2xl border border-gray-200 p-8">
               <div className="text-sm font-semibold text-gray-500 mb-1">Essentiel</div>
               <div className="flex items-end gap-1 mb-6">
-                <span className="text-4xl font-black text-gray-900">47 $</span>
+                <span className="text-4xl font-black text-gray-900">57 $</span>
                 <span className="text-gray-500 mb-1">CA / mois</span>
               </div>
               <ul className="space-y-3 mb-8">
@@ -572,7 +572,7 @@ export default async function LandingPage() {
               </div>
               <div className="text-sm font-semibold text-gray-400 mb-1">Pro</div>
               <div className="flex items-end gap-1 mb-6">
-                <span className="text-4xl font-black text-white">97 $</span>
+                <span className="text-4xl font-black text-white">127 $</span>
                 <span className="text-gray-400 mb-1">CA / mois</span>
               </div>
               <ul className="space-y-3 mb-8">
