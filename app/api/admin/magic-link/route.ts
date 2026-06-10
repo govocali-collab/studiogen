@@ -23,12 +23,18 @@ export async function POST(request: NextRequest) {
   const { data, error } = await admin.auth.admin.generateLink({
     type: 'magiclink',
     email,
-    options: { redirectTo: `${origin}/auth/callback` },
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const link = (data as any)?.properties?.action_link;
+  const props = (data as any)?.properties;
+  const hashedToken = props?.hashed_token
+    ?? new URL(props?.action_link ?? 'http://x').searchParams.get('token');
+
+  if (!hashedToken) return NextResponse.json({ error: 'Token introuvable' }, { status: 500 });
+
+  // Build our own proxy link — session is established server-side, no PKCE needed
+  const link = `${origin}/api/auth/magic-verify?token=${encodeURIComponent(hashedToken)}&email=${encodeURIComponent(email)}`;
   return NextResponse.json({ link });
 }
