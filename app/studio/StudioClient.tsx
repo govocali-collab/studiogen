@@ -87,6 +87,8 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
   const genInfo = computeGenInfo(profile);
   const tier = genInfo.tier;
+  // During trial: full Pro access for all features
+  const effectiveTier: 'essentiel' | 'pro' = genInfo.isTrialing ? 'pro' : tier;
   const displayGenInfo = { ...genInfo, used: genInfo.used + usedOffset };
   const trialLimitNum = displayGenInfo.limit ?? 0;
 
@@ -276,7 +278,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 layout={layoutType}
                 suggestedLayout={suggested}
                 onLayoutChange={setLayoutType}
-                tier={tier}
+                tier={effectiveTier}
                 onUpgradeClick={() => openUpgrade('Les mises en page avancées sont réservées au plan Pro.')}
               />
             </Card>
@@ -284,7 +286,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
           <div className="space-y-4">
             <Card>
-              <PhotoUploader photos={photos} onPhotosChange={setPhotos} maxPhotos={TIER_LIMITS[tier].maxPhotos} />
+              <PhotoUploader photos={photos} onPhotosChange={setPhotos} maxPhotos={TIER_LIMITS[effectiveTier].maxPhotos} />
             </Card>
 
             <Card>
@@ -333,7 +335,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 onLogosChange={setLogos}
                 logoSettings={logoSettings}
                 onLogoSettingsChange={setLogoSettings}
-                tier={tier}
+                tier={effectiveTier}
                 onUpgradeClick={() => openUpgrade('Les logos illimités sont réservés au plan Pro. Le plan Essentiel permet 1 logo.')}
               />
             </Card>
@@ -351,7 +353,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 posts={posts}
                 onGenerate={handleGenerate}
                 onPostsChange={setPosts}
-                tier={tier}
+                tier={effectiveTier}
                 onUpgradeClick={() => openUpgrade('La génération simultanée Facebook + Instagram est réservée au plan Pro.')}
               />
             </Card>

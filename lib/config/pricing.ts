@@ -2,7 +2,7 @@ export const PRICING = {
   essentiel: {
     name: 'Essentiel',
     price: 47, // CAD, monthly
-    trialGenerations: 10,
+    trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_ESSENTIEL,
     description: 'Pour bien commencer',
     features: [
@@ -16,7 +16,7 @@ export const PRICING = {
   pro: {
     name: 'Pro',
     price: 97, // CAD, monthly
-    trialGenerations: 10,
+    trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_PRO,
     description: 'Pour les équipes actives',
     features: [
