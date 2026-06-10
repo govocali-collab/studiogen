@@ -11,17 +11,31 @@ export default function BillingPage() {
   return <Suspense><BillingPageInner /></Suspense>;
 }
 
+interface Invoice {
+  id: string;
+  number: string | null;
+  date: number;
+  amount: number;
+  currency: string;
+  pdf: string | null;
+  url: string | null;
+}
+
 function BillingPageInner() {
   const searchParams = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState('');
   const [toast, setToast] = useState('');
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
   useEffect(() => {
     fetch('/api/me').then((r) => r.json()).then((d) => {
       setProfile(d?.profile ?? null);
       setLoading(false);
+    });
+    fetch('/api/stripe/invoices').then((r) => r.json()).then((d) => {
+      setInvoices(d?.invoices ?? []);
     });
     if (searchParams.get('success')) setToast('Abonnement activé avec succès !');
     if (searchParams.get('canceled')) setToast('Paiement annulé.');
@@ -84,7 +98,7 @@ function BillingPageInner() {
       <main className="max-w-screen-md mx-auto px-6 py-12 space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Facturation</h1>
-          <p className="text-sm text-gray-400 mt-1">Gérez votre abonnement à Studio Gen.</p>
+          <p className="text-sm text-gray-400 mt-1">Gérez votre abonnement StudioGen.</p>
         </div>
 
         {/* Toast */}
@@ -151,6 +165,47 @@ function BillingPageInner() {
             </button>
           )}
         </div>
+
+        {/* Invoices */}
+        {invoices.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 space-y-4 shadow-sm">
+            <h2 className="text-sm font-semibold text-gray-900">Historique des paiements</h2>
+            <div className="divide-y divide-gray-100">
+              {invoices.map((inv) => {
+                const date = new Date(inv.date * 1000).toLocaleDateString('fr-CA', {
+                  year: 'numeric', month: 'long', day: 'numeric',
+                });
+                const amount = (inv.amount / 100).toLocaleString('fr-CA', {
+                  style: 'currency', currency: inv.currency.toUpperCase(),
+                });
+                return (
+                  <div key={inv.id} className="flex items-center justify-between py-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">{date}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{inv.number ?? inv.id}</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-semibold text-gray-700">{amount}</span>
+                      {inv.pdf && (
+                        <a
+                          href={inv.pdf}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                          </svg>
+                          PDF
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Plan selection */}
         <div className={`grid gap-5 ${status === 'active' || status === 'trialing' ? 'max-w-sm' : 'sm:grid-cols-2'}`}>

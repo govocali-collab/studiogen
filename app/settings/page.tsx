@@ -360,7 +360,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className={labelClass}>Courriel du compte</label>
-                  <input type="email" value={form.email} disabled placeholder="votre@courriel.com"
+                  <input type="email" value="" disabled placeholder="votre@courriel.com"
                     className="w-full rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-400 cursor-not-allowed" />
                 </div>
               </section>
