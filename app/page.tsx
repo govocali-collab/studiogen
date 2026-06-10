@@ -214,8 +214,11 @@ export default async function LandingPage() {
                 <Link href="/auth/login" className="hidden sm:inline text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors px-3 py-1.5">
                   Connexion
                 </Link>
-                <Link href="/auth/signup" className="text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
+                <Link href="/auth/signup" className="hidden sm:inline text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
                   Essai gratuit →
+                </Link>
+                <Link href="/auth/login" className="sm:hidden text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
+                  Connexion
                 </Link>
               </>
             )}
