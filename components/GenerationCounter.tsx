@@ -25,13 +25,9 @@ export default function GenerationCounter({ genInfo }: GenerationCounterProps) {
     remainingPct > 0.3 ? 'text-amber-600' :
     'text-red-600';
 
-  const daysStr = daysLeftInTrial !== null
-    ? ` · ${daysLeftInTrial}j restant${daysLeftInTrial !== 1 ? 's' : ''}`
-    : '';
-
-  const label = isTrialing
-    ? `${used} / ${limit} essai${daysStr}`
-    : `${used} / ${limit} ce mois`;
+  const label = isTrialing && daysLeftInTrial !== null
+    ? `${remaining} post${remaining !== 1 ? 's' : ''} · ${daysLeftInTrial}j d'essai`
+    : `${used} / ${limit} gén.`;
 
   return (
     <Link
