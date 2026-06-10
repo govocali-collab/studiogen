@@ -18,7 +18,7 @@ function baseTemplate(content: string) {
       <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px">
 
         <!-- Header -->
-        <tr><td style="background:#0f0a1e;border-radius:16px 16px 0 0;padding:28px 40px;text-align:center">
+        <tr><td style="background:#ffffff;border-radius:16px 16px 0 0;padding:24px 40px;text-align:center;border-bottom:1px solid #e5e7eb">
           <img src="${LOGO_URL}" alt="StudioGen" height="32" style="height:32px;width:auto;display:inline-block" />
         </td></tr>
 
