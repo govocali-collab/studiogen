@@ -1,4 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendWelcomeEmail } from '@/lib/emails';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -34,6 +35,10 @@ export async function POST(request: NextRequest) {
     .eq('id', user.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  if (user.email) {
+    sendWelcomeEmail(user.email, first_name?.trim()).catch(() => {});
+  }
 
   return NextResponse.json({ ok: true });
 }
