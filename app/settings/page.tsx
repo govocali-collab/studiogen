@@ -15,7 +15,7 @@ export default async function SettingsPage() {
     .eq('id', user.id)
     .single();
 
-  if (!profile) redirect('/auth/login');
+  if (!profile) redirect('/auth/login?redirect=/settings');
 
   return <SettingsClient profile={profile} email={user.email ?? ''} />;
 }
