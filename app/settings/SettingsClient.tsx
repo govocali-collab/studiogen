@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/supabase/types';
+import AppHeader from '@/components/AppHeader';
 
 interface Props {
   profile: Profile;
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export default function SettingsClient({ profile, email }: Props) {
-  const router = useRouter();
   const supabase = createClient();
 
   const effectiveTier = profile.subscription_status === 'trialing' ? 'pro' : profile.subscription_tier;
@@ -115,26 +113,9 @@ export default function SettingsClient({ profile, email }: Props) {
     setPwSaving(false);
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-        <div className="max-w-screen-xl mx-auto px-5 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/studio">
-              <Image src="/logo-black.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" priority />
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/billing" className="text-xs text-gray-400 hover:text-gray-700 transition-colors">Facturation</Link>
-            <button onClick={handleSignOut} className="text-xs text-gray-400 hover:text-gray-700 transition-colors">Déconnexion</button>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       <main className="max-w-2xl mx-auto px-4 py-10">
         <div className="mb-8">
