@@ -19,5 +19,7 @@ export default async function StudioPage() {
   const adminEmails = (process.env.ADMIN_EMAILS ?? '').split(',').map(e => e.trim().toLowerCase());
   const isAdmin = adminEmails.includes((user.email ?? '').toLowerCase());
 
+  if (isAdmin) redirect('/admin');
+
   return <StudioClient profile={profile} isAdmin={isAdmin} />;
 }
