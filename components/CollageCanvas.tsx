@@ -457,7 +457,7 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
     const selectedIdx = selectedPhotoSrc ? photos.indexOf(selectedPhotoSrc) : -1;
 
     return (
-      <div className="relative">
+      <div className="relative overflow-hidden">
         <canvas
           ref={canvasRef}
           width={canvasWidth}
