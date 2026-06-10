@@ -2,7 +2,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/admin';
 
 export const metadata: Metadata = {
   title: 'Studio Gen - Posts Facebook & Instagram pour salons québécois en 30 secondes',
@@ -185,14 +184,8 @@ const jsonLd = {
 
 export default async function LandingPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  let isActive = false;
-  if (user) {
-    const admin = createAdminClient();
-    const { data } = await admin.from('profiles').select('subscription_status').eq('id', user.id).single();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    isActive = (data as any)?.subscription_status === 'active';
-  }
+  const { data: { session } } = await supabase.auth.getSession();
+  const isActive = !!session?.user;
   return (
     <div className="min-h-screen bg-white text-gray-900">
       <script
