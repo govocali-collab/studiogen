@@ -34,11 +34,6 @@ export default function BillingBadge({ profile }: BillingBadgeProps) {
       }`}>
         {isPro ? '⚡ Pro' : 'Essentiel'}
       </span>
-      {!isPro && max !== Infinity && (
-        <span className="text-[10px] text-gray-400 tabular-nums hidden sm:block">
-          {used}/{max} gén.
-        </span>
-      )}
     </Link>
   );
 }
