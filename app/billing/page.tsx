@@ -208,8 +208,8 @@ function BillingPageInner() {
         )}
 
         {/* Plan selection */}
-        <div className={`grid gap-5 ${status === 'active' || status === 'trialing' ? 'max-w-sm' : 'sm:grid-cols-2'}`}>
-          {(['essentiel', 'pro'] as const).filter((t) => !(t === tier && (status === 'active' || status === 'trialing'))).map((t) => {
+        <div className="grid gap-5 sm:grid-cols-2">
+          {(['essentiel', 'pro'] as const).map((t) => {
             const p = PRICING[t];
             const isCurrent = tier === t && status === 'active';
             const isUpgrade = t === 'pro' && tier === 'essentiel';
