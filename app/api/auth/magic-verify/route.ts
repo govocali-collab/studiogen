@@ -5,30 +5,16 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const token = searchParams.get('token');
   const email = searchParams.get('email');
-  const type = searchParams.get('type') ?? 'magiclink';
+  const type = (searchParams.get('type') ?? 'magiclink') as
+    | 'signup'
+    | 'magiclink'
+    | 'recovery'
+    | 'email'
+    | 'email_change';
 
   if (!token || !email) {
     return NextResponse.redirect(new URL('/auth/login?error=invalid', request.url));
   }
-
-  const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    },
-    body: JSON.stringify({ token, type, email }),
-  });
-
-  if (!verifyRes.ok) {
-    console.error('Magic verify failed:', await verifyRes.text());
-    return NextResponse.redirect(new URL('/auth/login?error=link_invalid', request.url));
-  }
-
-  const { access_token, refresh_token } = await verifyRes.json() as {
-    access_token: string;
-    refresh_token: string;
-  };
 
   const response = NextResponse.redirect(new URL('/studio', request.url));
 
@@ -47,7 +33,12 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  await supabase.auth.setSession({ access_token, refresh_token });
+  const { error } = await supabase.auth.verifyOtp({ email, token, type });
+
+  if (error) {
+    console.error('Magic verify failed — type:', type, '| error:', error.message, '| status:', error.status);
+    return NextResponse.redirect(new URL('/auth/login?error=link_invalid', request.url));
+  }
 
   return response;
 }
