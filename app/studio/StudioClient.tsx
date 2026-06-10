@@ -226,38 +226,40 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
         )}
       </header>
 
-      <main className="max-w-screen-xl mx-auto px-4 py-4">
+      <main className="w-full max-w-screen-xl mx-auto px-4 py-4 overflow-x-hidden">
         {/* Trial banner */}
         {displayGenInfo.isTrialing && (
-          <div className={`mb-4 flex items-center justify-between gap-4 rounded-2xl px-5 py-3 text-sm ${
+          <div className={`mb-4 rounded-2xl px-4 py-3 text-sm ${
             displayGenInfo.daysLeftInTrial === 0 || displayGenInfo.used >= trialLimitNum
               ? 'bg-red-50 border border-red-200'
               : displayGenInfo.daysLeftInTrial === 1 || displayGenInfo.used >= trialLimitNum - 1
               ? 'bg-amber-50 border border-amber-200'
               : 'bg-violet-50 border border-violet-200'
           }`}>
-            <div className="flex items-center gap-2.5">
-              <svg className="w-4 h-4 text-violet-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-              </svg>
-              <span className={displayGenInfo.daysLeftInTrial === 0 || displayGenInfo.used >= trialLimitNum ? 'text-red-700 font-medium' : 'text-violet-700'}>
-                {displayGenInfo.daysLeftInTrial === 0
-                  ? "Ton essai gratuit est terminé. Active ton plan pour continuer."
-                  : displayGenInfo.used >= trialLimitNum
-                  ? "Limite d'essai atteinte. Active ton plan pour continuer."
-                  : `Essai gratuit · ${displayGenInfo.used}/${trialLimitNum} générations · ${displayGenInfo.daysLeftInTrial ?? 7}j restants`}
-              </span>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <svg className="w-4 h-4 text-violet-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                </svg>
+                <span className={`truncate ${displayGenInfo.daysLeftInTrial === 0 || displayGenInfo.used >= trialLimitNum ? 'text-red-700 font-medium' : 'text-violet-700'}`}>
+                  {displayGenInfo.daysLeftInTrial === 0
+                    ? "Essai terminé. Active ton plan."
+                    : displayGenInfo.used >= trialLimitNum
+                    ? "Limite atteinte. Active ton plan."
+                    : `Essai gratuit · ${displayGenInfo.used}/${trialLimitNum} génér. · ${displayGenInfo.daysLeftInTrial ?? 7}j`}
+                </span>
+              </div>
+              <button
+                onClick={() => setUpgradeModal({ reason: displayGenInfo.daysLeftInTrial === 0 ? "Ton essai gratuit de 7 jours est terminé. Active ton plan pour continuer." : `Tu as utilisé tes ${trialLimitNum} générations d'essai. Active ton plan pour continuer.`, tier })}
+                className="text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0"
+              >
+                Activer →
+              </button>
             </div>
-            <button
-              onClick={() => setUpgradeModal({ reason: displayGenInfo.daysLeftInTrial === 0 ? "Ton essai gratuit de 7 jours est terminé. Active ton plan pour continuer." : `Tu as utilisé tes ${trialLimitNum} générations d'essai. Active ton plan pour continuer.`, tier })}
-              className="text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0"
-            >
-              Activer mon plan →
-            </button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_340px] gap-4 items-start">
+        <div className="space-y-4 lg:grid lg:grid-cols-[260px_1fr_340px] lg:gap-4 lg:space-y-0 lg:items-start">
 
           <div className="space-y-4">
             <Card>
