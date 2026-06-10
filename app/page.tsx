@@ -545,7 +545,7 @@ export default async function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 max-w-3xl gap-6 mx-auto">
             {/* Essentiel */}
             <div className="bg-white rounded-2xl border border-gray-200 p-8 flex flex-col">
-              <div className="text-sm font-semibold text-gray-500 mb-1">Essentiel</div>
+              <div className="text-xl font-bold text-gray-800 mb-1">Essentiel</div>
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-4xl font-black text-gray-900">57 $</span>
                 <span className="text-gray-500 mb-1">CA / mois</span>
@@ -570,7 +570,7 @@ export default async function LandingPage() {
               <div className="absolute top-4 right-4 bg-violet-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
                 Recommandé
               </div>
-              <div className="text-sm font-semibold text-gray-400 mb-1">Pro</div>
+              <div className="text-xl font-bold text-gray-300 mb-1">Pro</div>
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-4xl font-black text-white">127 $</span>
                 <span className="text-gray-400 mb-1">CA / mois</span>
