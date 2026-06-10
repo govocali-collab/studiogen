@@ -43,10 +43,17 @@ function BillingPageInner() {
 
   const tier = profile?.subscription_tier ?? 'essentiel';
   const status = profile?.subscription_status ?? 'trialing';
-  const generationsUsed = profile?.generations_used ?? 0;
-  const limits = TIER_LIMITS[tier];
-  const generationsMax = limits.generationsPerMonth === Infinity ? '∞' : limits.generationsPerMonth;
-  const generationsPct = limits.generationsPerMonth === Infinity ? 0
+  const effectiveTier = status === 'trialing' ? 'pro' : tier;
+  const isTrialing = status === 'trialing';
+  const generationsUsed = isTrialing
+    ? (profile?.trial_generations_used ?? 0)
+    : (profile?.generations_used ?? 0);
+  const limits = TIER_LIMITS[effectiveTier];
+  const trialMax = 7;
+  const generationsMax = isTrialing ? trialMax : (limits.generationsPerMonth === Infinity ? '∞' : limits.generationsPerMonth);
+  const generationsPct = isTrialing
+    ? Math.min(100, (generationsUsed / trialMax) * 100)
+    : limits.generationsPerMonth === Infinity ? 0
     : Math.min(100, (generationsUsed / limits.generationsPerMonth) * 100);
 
   const handleCheckout = async (targetTier: 'essentiel' | 'pro') => {
@@ -116,8 +123,11 @@ function BillingPageInner() {
               {statusLabel[status] ?? status}
             </span>
             <span className="text-sm font-semibold text-gray-700">
-              {tier === 'pro' ? PRICING.pro.name : PRICING.essentiel.name}
+              {PRICING[effectiveTier].name}
             </span>
+            {isTrialing && (
+              <span className="text-xs text-gray-400">· essai 7 jours</span>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
@@ -189,7 +199,7 @@ function BillingPageInner() {
         <div className="grid gap-5 sm:grid-cols-2">
           {(['essentiel', 'pro'] as const).map((t) => {
             const p = PRICING[t];
-            const isCurrent = tier === t && (status === 'active' || status === 'trialing');
+            const isCurrent = effectiveTier === t && (status === 'active' || status === 'trialing');
             const isUpgrade = t === 'pro' && tier === 'essentiel';
             const isDowngrade = t === 'essentiel' && tier === 'pro';
             const isPro = t === 'pro';
@@ -237,6 +247,8 @@ function BillingPageInner() {
                 >
                   {actionLoading === t
                     ? 'Redirection…'
+                    : isCurrent && isTrialing
+                    ? 'Essai en cours'
                     : isCurrent
                     ? 'Plan actuel'
                     : isUpgrade
