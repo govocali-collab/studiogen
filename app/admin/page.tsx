@@ -3,10 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface AdminUser {
   id: string;
   email: string;
+  first_name: string | null;
+  last_name: string | null;
   created_at: string;
   last_sign_in_at: string | null;
   subscription_tier: 'essentiel' | 'pro';
@@ -60,7 +63,11 @@ export default function AdminPage() {
   };
 
   const filtered = users.filter(u => {
-    const matchSearch = u.email?.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    const matchSearch = !q ||
+      u.email?.toLowerCase().includes(q) ||
+      u.first_name?.toLowerCase().includes(q) ||
+      u.last_name?.toLowerCase().includes(q);
     const matchStatus = filterStatus === 'all' || u.subscription_status === filterStatus;
     return matchSearch && matchStatus;
   });
@@ -96,12 +103,7 @@ export default function AdminPage() {
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-screen-xl mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-violet-600 flex items-center justify-center flex-shrink-0">
-              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <span className="text-sm font-bold text-gray-900">Studio Gen</span>
+            <Image src="/logo-black.png" alt="Studio Gen" width={120} height={32} className="h-7 w-auto" />
             <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">Admin</span>
           </div>
           <button
@@ -199,6 +201,7 @@ export default function AdminPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-400 font-medium">
+                  <th className="px-5 py-3 text-left">Nom</th>
                   <th className="px-5 py-3 text-left">Courriel</th>
                   <th className="px-4 py-3 text-left">Plan</th>
                   <th className="px-4 py-3 text-left">Statut</th>
@@ -211,7 +214,12 @@ export default function AdminPage() {
               <tbody className="divide-y divide-gray-50">
                 {filtered.map(u => (
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3 font-medium text-gray-800">{u.email}</td>
+                    <td className="px-5 py-3 text-gray-800">
+                      {u.first_name || u.last_name
+                        ? <span className="font-medium">{[u.first_name, u.last_name].filter(Boolean).join(' ')}</span>
+                        : <span className="text-gray-300">—</span>}
+                    </td>
+                    <td className="px-5 py-3 text-gray-500 text-xs">{u.email}</td>
                     <td className="px-4 py-3"><TierBadge tier={u.subscription_tier} /></td>
                     <td className="px-4 py-3"><StatusBadge status={u.subscription_status} /></td>
                     <td className="px-4 py-3 text-gray-500 tabular-nums">
@@ -236,7 +244,7 @@ export default function AdminPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-5 py-10 text-center text-sm text-gray-400">
+                    <td colSpan={8} className="px-5 py-10 text-center text-sm text-gray-400">
                       Aucun utilisateur trouvé
                     </td>
                   </tr>
