@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       subscription_data: {
-        trial_period_days: 7,
         metadata: { supabase_user_id: user.id, tier },
       },
       success_url: `${appUrl}/billing?success=1`,
