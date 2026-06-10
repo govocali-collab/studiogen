@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
@@ -182,7 +183,14 @@ const jsonLd = {
   publisher: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
 };
 
-export default async function LandingPage() {
+export default async function LandingPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string>>;
+}) {
+  const params = await searchParams;
+  if (params.code) redirect(`/auth/callback?code=${params.code}`);
+
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
   const isActive = !!session?.user;
