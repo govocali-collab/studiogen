@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET() {
@@ -33,7 +34,8 @@ export async function PATCH(request: NextRequest) {
     if (key in body) update[key] = body[key];
   }
 
-  const { error } = await supabase.from('profiles').update(update).eq('id', session.user.id);
+  const admin = createAdminClient();
+  const { error } = await admin.from('profiles').update(update).eq('id', session.user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json({ ok: true });
