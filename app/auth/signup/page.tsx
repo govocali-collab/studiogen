@@ -59,17 +59,17 @@ export default function SignupPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-sm bg-white rounded-2xl border border-gray-200 shadow-sm p-8 text-center">
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-fuchsia-600 to-violet-600 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-violet-200">
+            <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h2 className="text-base font-bold text-gray-900 mb-2">Vérifiez votre courriel</h2>
-          <p className="text-sm text-gray-500">
-            Un lien de confirmation a été envoyé à <strong>{email}</strong>.
+          <h2 className="text-lg font-bold text-gray-900 mb-2">Vérifiez votre courriel</h2>
+          <p className="text-sm text-gray-500 leading-relaxed">
+            Un lien de confirmation a été envoyé à <strong className="text-gray-800">{email}</strong>.{' '}
             Cliquez sur le lien pour activer votre compte.
           </p>
-          <Link href="/auth/login" className="mt-6 block text-xs text-gray-500 hover:text-gray-700">
+          <Link href="/auth/login" className="mt-6 block text-xs text-violet-500 hover:text-violet-700 font-medium transition-colors">
             Retour à la connexion
           </Link>
         </div>
