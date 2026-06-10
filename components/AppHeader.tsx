@@ -46,7 +46,7 @@ export default function AppHeader() {
     <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-5 h-14 flex items-center justify-between">
         <Link href="/studio">
-          <Image src="/logo-black.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" priority />
+          <Image src="/logo-black.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" priority />
         </Link>
 
         {/* Desktop nav */}

@@ -15,6 +15,7 @@ interface AdminUser {
   subscription_tier: 'essentiel' | 'pro';
   subscription_status: string;
   generations_used: number;
+  trial_generations_used: number;
   stripe_customer_id: string | null;
 }
 
@@ -103,7 +104,7 @@ export default function AdminPage() {
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-10">
         <div className="max-w-screen-xl mx-auto px-5 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/logo-black.png" alt="Studio Gen" width={120} height={32} className="h-7 w-auto" />
+            <Image src="/logo-black.png" alt="StudioGen" width={120} height={32} className="h-7 w-auto" />
             <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">Admin</span>
           </div>
           <button
@@ -222,10 +223,14 @@ export default function AdminPage() {
                       {u.last_name ? <span className="font-medium">{u.last_name}</span> : <span className="text-gray-300">—</span>}
                     </td>
                     <td className="px-5 py-3 text-gray-500 text-xs">{u.email}</td>
-                    <td className="px-4 py-3"><TierBadge tier={u.subscription_tier} /></td>
+                    <td className="px-4 py-3"><TierBadge tier={u.subscription_tier} status={u.subscription_status} /></td>
                     <td className="px-4 py-3"><StatusBadge status={u.subscription_status} /></td>
                     <td className="px-4 py-3 text-gray-500 tabular-nums">
-                      {u.generations_used ?? 0}{u.subscription_tier === 'essentiel' ? ' / 30' : ''}
+                      {u.subscription_status === 'trialing'
+                        ? `${u.trial_generations_used ?? 0} / 7`
+                        : u.subscription_tier === 'pro'
+                          ? `${u.generations_used ?? 0} / 150`
+                          : `${u.generations_used ?? 0} / 50`}
                     </td>
                     <td className="px-4 py-3 text-gray-400 text-xs">
                       {u.created_at ? new Date(u.created_at).toLocaleDateString('fr-CA') : '—'}
@@ -315,8 +320,9 @@ function StatCard({ label, value, color = 'gray', subtitle }: {
   );
 }
 
-function TierBadge({ tier }: { tier: string }) {
-  return tier === 'pro'
+function TierBadge({ tier, status }: { tier: string; status: string }) {
+  const isPro = tier === 'pro' || status === 'trialing';
+  return isPro
     ? <span className="text-xs font-semibold bg-gradient-to-r from-fuchsia-600 to-violet-600 text-white px-2 py-0.5 rounded-full">Pro</span>
     : <span className="text-xs font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Essentiel</span>;
 }

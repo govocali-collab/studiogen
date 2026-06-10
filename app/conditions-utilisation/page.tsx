@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: "Conditions d'utilisation",
-  description: "Conditions d'utilisation de Studio Gen - Les regles qui encadrent l'utilisation de notre service.",
+  description: "Conditions d'utilisation de StudioGen - Les regles qui encadrent l'utilisation de notre service.",
   robots: { index: true, follow: true },
 };
 
@@ -14,7 +14,7 @@ export default function ConditionsUtilisationPage() {
       <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/">
-            <Image src="/logo-black.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" priority />
+            <Image src="/logo-black.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" priority />
           </Link>
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
             Retour au site
@@ -31,8 +31,8 @@ export default function ConditionsUtilisationPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">1. Acceptation des conditions</h2>
             <p>
-              En creant un compte et en utilisant Studio Gen, vous acceptez les presentes conditions d utilisation.
-              Studio Gen est un produit de <strong>Astrova</strong>, entreprise basee au Quebec, Canada.
+              En creant un compte et en utilisant StudioGen, vous acceptez les presentes conditions d utilisation.
+              StudioGen est un produit de <strong>Astrova</strong>, entreprise basee au Quebec, Canada.
               Si vous n acceptez pas ces conditions, veuillez ne pas utiliser le service.
             </p>
           </section>
@@ -40,7 +40,7 @@ export default function ConditionsUtilisationPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">2. Description du service</h2>
             <p>
-              Studio Gen est une application web qui permet aux professionnels de creer des publications
+              StudioGen est une application web qui permet aux professionnels de creer des publications
               pour Facebook et Instagram a l aide de l intelligence artificielle. Le service inclut :
             </p>
             <ul className="list-disc pl-6 mt-3 space-y-2">
@@ -83,7 +83,7 @@ export default function ConditionsUtilisationPage() {
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">6. Utilisation acceptable</h2>
-            <p>En utilisant Studio Gen, vous vous engagez a ne pas :</p>
+            <p>En utilisant StudioGen, vous vous engagez a ne pas :</p>
             <ul className="list-disc pl-6 mt-3 space-y-2">
               <li>Utiliser le service a des fins illegales ou frauduleuses.</li>
               <li>Importer des images dont vous ne detenez pas les droits.</li>
@@ -96,7 +96,7 @@ export default function ConditionsUtilisationPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">7. Propriete intellectuelle</h2>
             <p>
-              Le code, le design, les algorithmes et la marque Studio Gen sont la propriete exclusive d Astrova.
+              Le code, le design, les algorithmes et la marque StudioGen sont la propriete exclusive d Astrova.
               Les publications generees a partir de vos informations vous appartiennent entierement.
               Vous conservez tous les droits sur les photos que vous importez dans le service.
             </p>
@@ -105,7 +105,7 @@ export default function ConditionsUtilisationPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">8. Disponibilite du service</h2>
             <p>
-              Nous faisons tout notre possible pour maintenir Studio Gen accessible en permanence.
+              Nous faisons tout notre possible pour maintenir StudioGen accessible en permanence.
               Toutefois, des interruptions de service peuvent survenir pour maintenance, mises a jour ou
               raisons techniques. Nous ne garantissons pas une disponibilite ininterrompue.
             </p>
@@ -114,7 +114,7 @@ export default function ConditionsUtilisationPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">9. Limitation de responsabilite</h2>
             <p>
-              Studio Gen est fourni "tel quel". Dans les limites permises par la loi, Astrova ne peut etre
+              StudioGen est fourni "tel quel". Dans les limites permises par la loi, Astrova ne peut etre
               tenu responsable des dommages indirects, pertes de revenus ou interruptions d activite
               decoulant de l utilisation du service. Notre responsabilite totale est limitee au montant
               paye pour le mois en cours.

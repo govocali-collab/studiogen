@@ -4,8 +4,8 @@ import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: 'Studio Gen - Posts Facebook & Instagram pour salons québécois en 30 secondes',
-  description: 'Studio Gen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Essai gratuit 7 jours, aucune carte requise.',
+  title: 'StudioGen - Posts Facebook & Instagram pour salons québécois en 30 secondes',
+  description: 'StudioGen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Essai gratuit 7 jours, aucune carte requise.',
   alternates: {
     canonical: 'https://studiogen.ca',
   },
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: 'Fais tes posts Facebook & Instagram en 30 sec!',
     description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
     url: 'https://studiogen.ca',
-    siteName: 'Studio Gen',
+    siteName: 'StudioGen',
     locale: 'fr_CA',
     type: 'website',
   },
@@ -147,7 +147,7 @@ const steps = [
 const faqs = [
   {
     q: 'Est-ce que je dois avoir des compétences en design ou en rédaction ?',
-    a: "Non, aucune. Studio Gen gère le design et les textes automatiquement. Tu importes tes photos, tu choisis ton type de publication, et l'IA s'occupe du reste.",
+    a: "Non, aucune. StudioGen gère le design et les textes automatiquement. Tu importes tes photos, tu choisis ton type de publication, et l'IA s'occupe du reste.",
   },
   {
     q: 'En combien de temps je peux créer et publier un post ?',
@@ -155,7 +155,7 @@ const faqs = [
   },
   {
     q: 'Quelle est la différence entre le plan Essentiel et le plan Pro ?',
-    a: "Essentiel inclut 30 générations par mois, 1 logo et les posts Facebook. Pro offre des générations illimitées, des logos illimités, Facebook + Instagram simultanément et l'historique des publications.",
+    a: "Essentiel inclut 50 posts par mois avec accès complet à toutes les fonctionnalités. Pro offre 150 posts par mois avec priorité de support.",
   },
   {
     q: 'Puis-je annuler mon abonnement en tout temps ?',
@@ -170,7 +170,7 @@ const faqs = [
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'Studio Gen',
+  name: 'StudioGen',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: 'https://studiogen.ca',
@@ -196,7 +196,7 @@ export default async function LandingPage() {
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Image src="/logo-black.png" alt="Studio Gen" width={200} height={40} className="h-10 w-auto" priority />
+          <Image src="/logo-black.png" alt="StudioGen" width={200} height={40} className="h-10 w-auto" priority />
           <div className="flex items-center gap-3">
             {isActive ? (
               <Link href="/studio" className="text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
@@ -365,7 +365,7 @@ export default async function LandingPage() {
               Tu te reconnais là-dedans ?
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              La plupart des propriétaires de salons vivent les mêmes frustrations. Studio Gen a été conçu pour les éliminer.
+              La plupart des propriétaires de salons vivent les mêmes frustrations. StudioGen a été conçu pour les éliminer.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -392,7 +392,7 @@ export default async function LandingPage() {
               Tout ce qu'il te faut pour briller en ligne
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              Studio Gen combine création visuelle et rédaction IA dans un seul outil pensé pour les professionnels de la beauté.
+              StudioGen combine création visuelle et rédaction IA dans un seul outil pensé pour les professionnels de la beauté.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -443,16 +443,16 @@ export default async function LandingPage() {
           <div className="text-center mb-12">
             <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Comparaison</div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Studio Gen vs Canva
+              StudioGen vs Canva
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              Canva est un outil de design généraliste. Studio Gen est fait pour les salons québécois, et ça change tout.
+              Canva est un outil de design généraliste. StudioGen est fait pour les salons québécois, et ça change tout.
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="grid grid-cols-3 text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest border-b border-gray-100">
               <div className="py-3 sm:py-4 px-3 sm:px-4 text-left text-gray-500">Fonctionnalité</div>
-              <div className="py-3 sm:py-4 px-3 sm:px-4 bg-violet-600 text-white">Studio Gen</div>
+              <div className="py-3 sm:py-4 px-3 sm:px-4 bg-violet-600 text-white">StudioGen</div>
               <div className="py-3 sm:py-4 px-3 sm:px-4 text-gray-500">Canva</div>
             </div>
             {comparisonRows.map((row, i) => (
@@ -544,14 +544,14 @@ export default async function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 max-w-3xl gap-6 mx-auto">
             {/* Essentiel */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-8">
+            <div className="bg-white rounded-2xl border border-gray-200 p-8 flex flex-col">
               <div className="text-sm font-semibold text-gray-500 mb-1">Essentiel</div>
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-4xl font-black text-gray-900">57 $</span>
                 <span className="text-gray-500 mb-1">CA / mois</span>
               </div>
-              <ul className="space-y-3 mb-8">
-                {['30 générations / mois', '1 logo', '4 formats de montage auto', 'Post Facebook prêt à copier', 'Montages photo automatiques (JPG 1080px)'].map(item => (
+              <ul className="space-y-3 mb-8 flex-1">
+                {['50 posts / mois', 'Accès complet à toutes les fonctionnalités', 'Toutes les mises en page', 'Facebook + Instagram simultanément', 'Logos illimités', 'Montages photo automatiques (JPG 1080px)'].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-600">
                     <svg className="w-4 h-4 text-violet-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -560,13 +560,13 @@ export default async function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth/signup" className="block w-full text-center py-3 rounded-xl border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-violet-400 hover:text-violet-600 transition-colors">
+              <Link href="/auth/signup" className="block w-full text-center py-3 rounded-xl border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-violet-400 hover:text-violet-600 transition-colors mt-auto">
                 Démarrer l'essai →
               </Link>
             </div>
 
             {/* Pro */}
-            <div className="bg-gradient-to-br from-fuchsia-950 to-violet-950 rounded-2xl border border-fuchsia-900/40 p-8 relative overflow-hidden">
+            <div className="bg-gradient-to-br from-fuchsia-950 to-violet-950 rounded-2xl border border-fuchsia-900/40 p-8 relative overflow-hidden flex flex-col">
               <div className="absolute top-4 right-4 bg-violet-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
                 Recommandé
               </div>
@@ -575,8 +575,8 @@ export default async function LandingPage() {
                 <span className="text-4xl font-black text-white">127 $</span>
                 <span className="text-gray-400 mb-1">CA / mois</span>
               </div>
-              <ul className="space-y-3 mb-8">
-                {['Générations illimitées', 'Logos illimités', 'Tous les formats de montage', 'Facebook + Instagram simultanément', 'Historique des publications', 'Montages photo automatiques (JPG 1080px)', 'Priorité de support'].map(item => (
+              <ul className="space-y-3 mb-8 flex-1">
+                {['150 posts / mois', 'Accès complet à toutes les fonctionnalités', 'Toutes les mises en page', 'Facebook + Instagram simultanément', 'Logos illimités', 'Montages photo automatiques (JPG 1080px)', 'Priorité de support'].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-300">
                     <svg className="w-4 h-4 text-violet-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -586,11 +586,11 @@ export default async function LandingPage() {
                 ))}
               </ul>
               {isActive ? (
-                <Link href="/billing" className="block w-full text-center py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-semibold text-white transition-colors shadow-lg shadow-violet-900/50">
+                <Link href="/billing" className="block w-full text-center py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-semibold text-white transition-colors shadow-lg shadow-violet-900/50 mt-auto">
                   Passer au Pro →
                 </Link>
               ) : (
-                <Link href="/auth/signup" className="block w-full text-center py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-semibold text-white transition-colors shadow-lg shadow-violet-900/50">
+                <Link href="/auth/signup" className="block w-full text-center py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-semibold text-white transition-colors shadow-lg shadow-violet-900/50 mt-auto">
                   Démarrer l'essai →
                 </Link>
               )}
@@ -676,7 +676,7 @@ export default async function LandingPage() {
       <footer className="bg-gradient-to-br from-fuchsia-950 via-violet-950 to-fuchsia-950 py-10 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <Image src="/logo-white.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" />
+            <Image src="/logo-white.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" />
             <span className="text-gray-500 text-sm">par Astrova</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-gray-500">

@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialite',
-  description: 'Politique de confidentialite de Studio Gen - Comment nous collectons, utilisons et protecons vos donnees personnelles.',
+  description: 'Politique de confidentialite de StudioGen - Comment nous collectons, utilisons et protecons vos donnees personnelles.',
   robots: { index: true, follow: true },
 };
 
@@ -14,7 +14,7 @@ export default function PolitiqueConfidentialitePage() {
       <nav className="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/">
-            <Image src="/logo-black.png" alt="Studio Gen" width={180} height={36} className="h-9 w-auto" priority />
+            <Image src="/logo-black.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" priority />
           </Link>
           <Link href="/" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
             Retour au site
@@ -31,8 +31,8 @@ export default function PolitiqueConfidentialitePage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">1. Qui sommes-nous</h2>
             <p>
-              Studio Gen est un produit de <strong>Astrova</strong>, une entreprise basee au Quebec, Canada.
-              Studio Gen est un outil en ligne permettant aux professionnels de la beaute de creer des publications
+              StudioGen est un produit de <strong>Astrova</strong>, une entreprise basee au Quebec, Canada.
+              StudioGen est un outil en ligne permettant aux professionnels de la beaute de creer des publications
               pour les reseaux sociaux Facebook et Instagram.
             </p>
             <p className="mt-2">
@@ -43,7 +43,7 @@ export default function PolitiqueConfidentialitePage() {
 
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">2. Donnees que nous collectons</h2>
-            <p>Lors de votre utilisation de Studio Gen, nous collectons les donnees suivantes :</p>
+            <p>Lors de votre utilisation de StudioGen, nous collectons les donnees suivantes :</p>
             <ul className="list-disc pl-6 mt-3 space-y-2">
               <li><strong>Compte :</strong> adresse courriel et mot de passe (chiffre).</li>
               <li><strong>Profil entreprise :</strong> nom, prenom, nom de l entreprise, site internet et description des services. Ces informations sont utilisees par l IA pour personnaliser vos publications.</li>
@@ -57,7 +57,7 @@ export default function PolitiqueConfidentialitePage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">3. Comment nous utilisons vos donnees</h2>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Fournir et ameliorer le service Studio Gen.</li>
+              <li>Fournir et ameliorer le service StudioGen.</li>
               <li>Personnaliser les publications generees par l IA a partir de votre description d entreprise.</li>
               <li>Gerer votre abonnement et votre facturation via Stripe.</li>
               <li>Vous contacter en cas de probleme lié a votre compte.</li>

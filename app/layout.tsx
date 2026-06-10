@@ -11,10 +11,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://studiogen.ca'),
   title: {
-    default: 'Studio Gen - Posts Facebook & Instagram en 30 secondes',
-    template: '%s | Studio Gen',
+    default: 'StudioGen - Posts Facebook & Instagram en 30 secondes',
+    template: '%s | StudioGen',
   },
-  description: 'Studio Gen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Essai gratuit 7 jours, aucune carte requise.',
+  description: 'StudioGen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Essai gratuit 7 jours, aucune carte requise.',
   robots: {
     index: true,
     follow: true,

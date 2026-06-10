@@ -32,7 +32,7 @@ function computeGenInfo(profile: Profile | null): GenerationInfo {
 
   const limit: number | null = isTrialing
     ? PRICING[tier].trialGenerations
-    : tier === 'pro' ? null : 50;
+    : tier === 'pro' ? 150 : 50;
 
   const daysLeftInTrial = isTrialing && profile?.created_at
     ? Math.max(0, Math.ceil(

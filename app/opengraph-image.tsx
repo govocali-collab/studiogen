@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 
-export const alt = 'Studio Gen';
+export const alt = 'StudioGen';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -23,7 +23,7 @@ export default async function Image() {
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={logoSrc} style={{ height: 210, objectFit: 'contain' }} alt="Studio Gen" />
+        <img src={logoSrc} style={{ height: 210, objectFit: 'contain' }} alt="StudioGen" />
       </div>
     ),
     { ...size },
