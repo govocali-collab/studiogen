@@ -35,8 +35,10 @@ function LoginPageInner() {
     }
 
     const me = await fetch('/api/me').then(r => r.json());
-    router.push(me?.is_admin ? '/admin' : redirect);
+    const dest = me?.is_admin ? '/admin' : redirect;
+    router.push(dest);
     router.refresh();
+    window.scrollTo(0, 0);
   };
 
   return (
