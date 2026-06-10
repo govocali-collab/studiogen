@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import AuthHashHandler from '@/components/AuthHashHandler';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -26,7 +27,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr-CA">
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <AuthHashHandler />
+        {children}
+      </body>
     </html>
   );
 }
