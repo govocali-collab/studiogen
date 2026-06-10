@@ -186,9 +186,6 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
               </Link>
             )}
             {/* Desktop nav */}
-            <span className="hidden sm:contents">
-              <BillingBadge profile={profile} />
-            </span>
             <Link href="/studio" className="hidden sm:inline text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">Studio</Link>
             <Link href="/settings" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Paramètres</Link>
             <Link href="/billing" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Facturation</Link>
@@ -210,9 +207,6 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
         {/* Mobile dropdown */}
         {mobileMenuOpen && (
           <div className="sm:hidden absolute top-14 left-0 right-0 bg-white border-b border-gray-100 shadow-lg z-20 py-2">
-            <div className="px-4 py-2 border-b border-gray-100 flex items-center gap-3">
-              <BillingBadge profile={profile} />
-            </div>
             <Link href="/studio" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm font-semibold text-violet-600 hover:bg-violet-50 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
@@ -317,6 +311,9 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
         <div className="space-y-4 lg:grid lg:grid-cols-[260px_1fr_340px] lg:gap-4 lg:space-y-0 lg:items-start">
 
           <div className="space-y-4">
+            <div className="px-1">
+              <BillingBadge profile={profile} />
+            </div>
             <Card>
               <FormatPicker format={format} onFormatChange={setFormat} />
             </Card>
