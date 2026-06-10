@@ -70,7 +70,7 @@ export default function AdminPage() {
   const canceledUsers  = users.filter(u => u.subscription_status === 'canceled');
   const proUsers       = users.filter(u => u.subscription_tier === 'pro' && u.subscription_status === 'active');
   const essentielUsers = users.filter(u => u.subscription_tier === 'essentiel' && u.subscription_status === 'active');
-  const mrr            = proUsers.length * 97 + essentielUsers.length * 47;
+  const mrr            = proUsers.length * 127 + essentielUsers.length * 57;
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -165,7 +165,7 @@ export default function AdminPage() {
               <span className="text-sm text-gray-400 pb-1">$ CA/mois</span>
             </div>
             <div className="text-xs text-gray-400 mt-1">
-              {essentielUsers.length} × 47 $ + {proUsers.length} × 97 $
+              {essentielUsers.length} × 57 $ + {proUsers.length} × 127 $
             </div>
           </div>
         </div>
