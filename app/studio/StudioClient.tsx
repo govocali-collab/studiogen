@@ -82,6 +82,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
   const [upgradeModal, setUpgradeModal] = useState<{ reason: string; tier: 'essentiel' | 'pro' } | null>(null);
   const [usedOffset, setUsedOffset] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [iabannerDismissed, setIaBannerDismissed] = useState(false);
 
   const canvasRef = useRef<CollageCanvasHandle>(null);
 
@@ -98,6 +99,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
       if (storedLogos) setLogos(JSON.parse(storedLogos));
       const storedSettings = localStorage.getItem(LOGO_SETTINGS_KEY);
       if (storedSettings) setLogoSettings(JSON.parse(storedSettings));
+      if (localStorage.getItem('ia-banner-dismissed') === '1') setIaBannerDismissed(true);
     } catch { /* ignore */ }
     setHydrated(true);
     // Fetch fresh profile to pick up latest brand_voice and other settings
@@ -236,6 +238,45 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
       </header>
 
       <main className="w-full max-w-screen-xl mx-auto px-4 py-4 overflow-x-hidden">
+        {/* IA profile nudge banner */}
+        {hydrated && !iabannerDismissed && !profile?.service_description && !profile?.brand_voice?.length && (
+          <div className="mb-4 bg-violet-50 border border-violet-200 rounded-2xl px-4 py-3 flex items-start sm:items-center justify-between gap-3">
+            <div className="flex items-start sm:items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-violet-900">Personnalisez vos publications</p>
+                <p className="text-xs text-violet-700 mt-0.5">
+                  Complétez votre profil IA pour que l'IA écrive dans votre ton, avec vos services et votre style.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/settings?tab=ia"
+                className="text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+              >
+                Compléter mon profil →
+              </Link>
+              <button
+                onClick={() => {
+                  setIaBannerDismissed(true);
+                  try { localStorage.setItem('ia-banner-dismissed', '1'); } catch { /* ignore */ }
+                }}
+                className="text-violet-400 hover:text-violet-600 transition-colors p-1"
+                aria-label="Fermer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Trial banner */}
         {displayGenInfo.isTrialing && (
           <div className={`mb-4 rounded-2xl px-4 py-3 text-sm ${
