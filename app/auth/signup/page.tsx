@@ -29,7 +29,7 @@ export default function SignupPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -43,11 +43,14 @@ export default function SignupPage() {
       return;
     }
 
-    await fetch('/api/auth/register-consent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, first_name: firstName, last_name: lastName, phone, email_consent: emailConsent, sms_consent: smsConsent }),
-    });
+    const userId = signUpData.user?.id;
+    if (userId) {
+      await fetch('/api/auth/register-consent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, first_name: firstName, last_name: lastName, phone, email_consent: emailConsent, sms_consent: smsConsent }),
+      });
+    }
 
     setDone(true);
   };

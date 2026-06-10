@@ -2,20 +2,20 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  let body: { email: string; first_name?: string; last_name?: string; phone?: string; email_consent: boolean; sms_consent: boolean };
+  let body: { user_id: string; first_name?: string; last_name?: string; phone?: string; email_consent: boolean; sms_consent: boolean };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Corps invalide' }, { status: 400 });
   }
 
-  const { email, first_name, last_name, phone, email_consent, sms_consent } = body;
-  if (!email) return NextResponse.json({ error: 'Courriel requis' }, { status: 400 });
+  const { user_id, first_name, last_name, phone, email_consent, sms_consent } = body;
+  if (!user_id) return NextResponse.json({ error: 'user_id requis' }, { status: 400 });
 
   const admin = createAdminClient();
 
-  const { data: user, error: lookupError } = await admin.auth.admin.getUserByEmail(email);
-  if (lookupError || !user?.user) {
+  const { data: { user }, error: lookupError } = await admin.auth.admin.getUserById(user_id);
+  if (lookupError || !user) {
     return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 });
   }
 
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   const { error } = await admin
     .from('profiles')
     .update(update)
-    .eq('id', user.user.id);
+    .eq('id', user.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
