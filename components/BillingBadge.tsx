@@ -13,12 +13,11 @@ export default function BillingBadge({ profile }: BillingBadgeProps) {
 
   const tier = profile.subscription_tier;
   const status = profile.subscription_status;
-  const used = profile.generations_used;
-  const limits = TIER_LIMITS[tier];
-  const max = limits.generationsPerMonth;
-  const isPro = tier === 'pro';
+  const isTrialing = status === 'trialing';
   const isPastDue = status === 'past_due';
   const isCanceled = status === 'canceled';
+  const effectiveTier = isTrialing ? 'pro' : tier;
+  const isPro = effectiveTier === 'pro';
 
   return (
     <Link href="/billing" className="flex items-center gap-2 group">
