@@ -161,12 +161,6 @@ export default function StudioPage() {
             <Link href="/billing" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">
               Facturation
             </Link>
-            <button
-              onClick={handleSignOut}
-              className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
-            >
-              Déco
-            </button>
           </div>
         </div>
       </header>
