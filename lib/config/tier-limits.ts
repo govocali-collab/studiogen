@@ -19,7 +19,7 @@ export const TIER_LIMITS = {
   pro: {
     generationsPerMonth: Infinity,
     maxLogos: Infinity,
-    maxPhotos: 10,
+    maxPhotos: 6,
     availableLayouts: 'all' as const,
     platforms: ['fb', 'ig'] as const,
     postHistory: true,
