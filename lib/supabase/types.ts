@@ -9,6 +9,15 @@ export interface Profile {
   business_name: string | null;
   website: string | null;
   service_description: string | null;
+  city: string | null;
+  province: string | null;
+  target_audience: string | null;
+  brand_voice: string[] | null;
+  services: string[] | null;
+  favorite_phrases: string[] | null;
+  avoid_phrases: string[] | null;
+  content_preferences: string[] | null;
+  cta_style: string | null;
   stripe_customer_id: string | null;
   subscription_tier: SubscriptionTier;
   subscription_status: SubscriptionStatus;

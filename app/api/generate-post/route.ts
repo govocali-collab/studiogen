@@ -8,19 +8,69 @@ import { GeneratePostRequest } from '@/lib/types';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-function buildSystemPrompt(businessName: string, website: string | null, serviceDescription: string | null): string {
-  const siteRef = website ? ` (${website})` : '';
-  const identity = serviceDescription?.trim()
-    ? `\n\nDescription de l'entreprise et des services :\n${serviceDescription.trim()}`
-    : '';
+interface BrandProfile {
+  businessName: string;
+  website: string | null;
+  city: string | null;
+  province: string | null;
+  businessSummary: string | null;
+  targetAudience: string | null;
+  brandVoice: string[] | null;
+  services: string[] | null;
+  favoritePhrases: string[] | null;
+  avoidPhrases: string[] | null;
+  ctaStyle: string | null;
+}
 
-  return `Tu es le rédacteur de contenu officiel de ${businessName}${siteRef}.${identity}
+const VOICE_LABELS: Record<string, string> = {
+  chaleureux: 'chaleureux et proche',
+  professionnel: 'professionnel et expert',
+  luxueux: 'luxueux et exclusif',
+  moderne: 'moderne et dynamique',
+  éducatif: 'éducatif et informatif',
+  inspirant: 'inspirant et motivant',
+  familial: 'familial et accessible',
+  haut_de_gamme: 'haut de gamme et raffiné',
+};
 
+function buildSystemPrompt(p: BrandProfile): string {
+  const location = [p.city, p.province].filter(Boolean).join(', ');
+  let prompt = `Tu es le rédacteur de contenu officiel de ${p.businessName}`;
+  if (location) prompt += `, basé à ${location}`;
+  if (p.website) prompt += ` (${p.website})`;
+  prompt += '.\n';
+
+  if (p.businessSummary?.trim()) {
+    prompt += `\nDescription de l'entreprise :\n${p.businessSummary.trim()}\n`;
+  }
+  if (p.targetAudience?.trim()) {
+    prompt += `\nClientèle cible : ${p.targetAudience.trim()}\n`;
+  }
+  if (p.brandVoice?.length) {
+    const voices = p.brandVoice.map(v => VOICE_LABELS[v] ?? v).join(', ');
+    prompt += `\nVoix de marque : ${voices}\n`;
+  }
+  if (p.services?.length) {
+    prompt += `\nServices offerts : ${p.services.join(', ')}\n`;
+  }
+  if (p.favoritePhrases?.length) {
+    prompt += `\nExpressions à utiliser naturellement : ${p.favoritePhrases.join(', ')}\n`;
+  }
+  if (p.avoidPhrases?.length) {
+    prompt += `\nMots et expressions à ÉVITER absolument : ${p.avoidPhrases.join(', ')}\n`;
+  }
+  if (p.ctaStyle) {
+    prompt += `\nAppel à l'action préféré : "${p.ctaStyle}"\n`;
+  }
+
+  prompt += `
 Directives importantes :
 - Écris toujours en français québécois naturel et authentique (pas du français européen)
 - N'invente JAMAIS de statistiques, de chiffres précis, ni de faits non vérifiables
-- Inclus toujours un appel à l'action (CTA) clair et engageant
-- Le contenu doit refléter l'identité et les valeurs de ${businessName}
+- Utilise les expressions favorites naturellement dans le texte
+- N'utilise JAMAIS les mots/expressions à éviter
+- Utilise le style de CTA préféré dans chaque publication
+- Le contenu doit refléter exactement l'identité et les valeurs de ${p.businessName}
 - Utilise des expressions québécoises naturelles
 - Pour Instagram, utilise exactement 8 hashtags pertinents pour le Québec et le domaine de l'entreprise
 - Respecte STRICTEMENT les longueurs de texte demandées
@@ -37,6 +87,8 @@ Format de réponse : retourne UNIQUEMENT un objet JSON valide avec exactement ce
 
 Dans les valeurs JSON, représente les sauts de paragraphe avec \\n\\n (deux backslash-n).
 Ne retourne rien d'autre que le JSON.`;
+
+  return prompt;
 }
 
 const LENGTH_SPECS: Record<string, { fb: string; ig: string; maxTokens: number }> = {
@@ -76,7 +128,7 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
   const { data: profileData } = await admin
     .from('profiles')
-    .select('subscription_tier, subscription_status, generations_used, trial_generations_used, business_name, website, service_description, created_at')
+    .select('subscription_tier, subscription_status, generations_used, trial_generations_used, business_name, website, service_description, city, province, target_audience, brand_voice, services, favorite_phrases, avoid_phrases, content_preferences, cta_style, created_at')
     .eq('id', user.id)
     .single();
 
@@ -89,6 +141,14 @@ export async function POST(request: NextRequest) {
   const businessName = (profile?.business_name as string | null)?.trim() || 'votre entreprise';
   const businessWebsite = (profile?.website as string | null) ?? null;
   const serviceDescription = (profile?.service_description as string | null) ?? null;
+  const city = (profile?.city as string | null) ?? null;
+  const province = (profile?.province as string | null) ?? null;
+  const targetAudience = (profile?.target_audience as string | null) ?? null;
+  const brandVoice = (profile?.brand_voice as string[] | null) ?? null;
+  const servicesList = (profile?.services as string[] | null) ?? null;
+  const favoritePhrases = (profile?.favorite_phrases as string[] | null) ?? null;
+  const avoidPhrases = (profile?.avoid_phrases as string[] | null) ?? null;
+  const ctaStyle = (profile?.cta_style as string | null) ?? null;
 
   // ── Trial expiration (7 days from account creation) ──────────────────────
   if (status === 'trialing' && profile?.created_at) {
@@ -180,7 +240,19 @@ Rappel : retourne UNIQUEMENT le JSON avec les clés "fb" et "ig".`;
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: spec.maxTokens,
-      system: buildSystemPrompt(businessName, businessWebsite, serviceDescription),
+      system: buildSystemPrompt({
+        businessName,
+        website: businessWebsite,
+        city,
+        province,
+        businessSummary: serviceDescription,
+        targetAudience,
+        brandVoice,
+        services: servicesList,
+        favoritePhrases,
+        avoidPhrases,
+        ctaStyle,
+      }),
       messages: [{ role: 'user', content: userPrompt }],
     });
 

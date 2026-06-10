@@ -5,12 +5,141 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import AppHeader from '@/components/AppHeader';
 
+// ── Chip multi-select ─────────────────────────────────────────────────────────
+
+function ChipSelect({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: string; label: string }[];
+  value: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const toggle = (v: string) =>
+    onChange(value.includes(v) ? value.filter((x) => x !== v) : [...value, v]);
+  return (
+    <div className="flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => toggle(opt.value)}
+          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            value.includes(opt.value)
+              ? 'bg-violet-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Tag input ─────────────────────────────────────────────────────────────────
+
+function TagInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string[];
+  onChange: (v: string[]) => void;
+  placeholder?: string;
+}) {
+  const [input, setInput] = useState('');
+
+  const add = () => {
+    const trimmed = input.trim().replace(/,$/, '');
+    if (trimmed && !value.includes(trimmed)) onChange([...value, trimmed]);
+    setInput('');
+  };
+
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(); }
+    else if (e.key === 'Backspace' && !input && value.length > 0) onChange(value.slice(0, -1));
+  };
+
+  return (
+    <div className="min-h-[46px] rounded-xl border border-gray-200 px-3 py-2 focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent">
+      <div className="flex flex-wrap gap-1.5 mb-1">
+        {value.map((tag, i) => (
+          <span key={i} className="inline-flex items-center gap-1 bg-violet-50 text-violet-700 text-xs font-medium px-2.5 py-1 rounded-full">
+            {tag}
+            <button type="button" onClick={() => onChange(value.filter((_, j) => j !== i))} className="text-violet-400 hover:text-violet-600 leading-none">×</button>
+          </span>
+        ))}
+      </div>
+      <input
+        type="text"
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={handleKey}
+        onBlur={add}
+        placeholder={value.length === 0 ? placeholder : 'Ajouter...'}
+        className="w-full text-sm outline-none placeholder-gray-300 bg-transparent"
+      />
+    </div>
+  );
+}
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+
+const BRAND_VOICE_OPTIONS = [
+  { value: 'chaleureux', label: 'Chaleureux' },
+  { value: 'professionnel', label: 'Professionnel' },
+  { value: 'luxueux', label: 'Luxueux' },
+  { value: 'moderne', label: 'Moderne' },
+  { value: 'éducatif', label: 'Éducatif' },
+  { value: 'inspirant', label: 'Inspirant' },
+  { value: 'familial', label: 'Familial' },
+  { value: 'haut_de_gamme', label: 'Haut de gamme' },
+];
+
+const CONTENT_PREFS_OPTIONS = [
+  { value: 'résultats', label: 'Résultats' },
+  { value: 'avant_apres', label: 'Avant / Après' },
+  { value: 'éducatif', label: 'Éducatif' },
+  { value: 'promo', label: 'Promotions' },
+  { value: 'produits', label: 'Produits' },
+  { value: 'témoignages', label: 'Témoignages' },
+  { value: 'formations', label: 'Formations' },
+  { value: 'astuces', label: 'Astuces' },
+];
+
+const CTA_OPTIONS = [
+  { value: 'réservez maintenant', label: 'Réservez maintenant' },
+  { value: 'contactez-nous', label: 'Contactez-nous' },
+  { value: 'écrivez-nous', label: 'Écrivez-nous' },
+  { value: 'demandez une consultation', label: 'Demandez une consultation' },
+  { value: 'appelez-nous', label: 'Appelez-nous' },
+];
+
+const PROVINCES = [
+  'Québec', 'Ontario', 'Alberta', 'Colombie-Britannique',
+  'Manitoba', 'Saskatchewan', 'Nouvelle-Écosse', 'Nouveau-Brunswick',
+  'Terre-Neuve-et-Labrador', 'Île-du-Prince-Édouard',
+];
+
+// ── Form state ────────────────────────────────────────────────────────────────
+
 interface Form {
   first_name: string;
   last_name: string;
   business_name: string;
   website: string;
   service_description: string;
+  city: string;
+  province: string;
+  target_audience: string;
+  brand_voice: string[];
+  services: string[];
+  favorite_phrases: string[];
+  avoid_phrases: string[];
+  content_preferences: string[];
+  cta_style: string;
   email: string;
   subscription_tier: string;
   subscription_status: string;
@@ -22,10 +151,21 @@ const EMPTY: Form = {
   business_name: '',
   website: '',
   service_description: '',
+  city: '',
+  province: '',
+  target_audience: '',
+  brand_voice: [],
+  services: [],
+  favorite_phrases: [],
+  avoid_phrases: [],
+  content_preferences: [],
+  cta_style: '',
   email: '',
   subscription_tier: 'essentiel',
   subscription_status: 'trialing',
 };
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
   const [form, setForm] = useState<Form>(EMPTY);
@@ -34,9 +174,9 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [scraping, setScraping] = useState(false);
-  const [scrapeError, setScrapeError] = useState<string | null>(null);
-  const [scrapeSuccess, setScrapeSuccess] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [analyzeSuccess, setAnalyzeSuccess] = useState(false);
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -47,28 +187,45 @@ export default function SettingsPage() {
     Promise.all([
       fetch('/api/profile').then((r) => (r.ok ? r.json() : null)),
       createClient().auth.getSession(),
-    ]).then(([profileData, { data: { session } }]) => {
-      const email = session?.user?.email ?? '';
-      if (profileData) setForm({ ...EMPTY, ...profileData, email });
-      else if (email) setForm((prev) => ({ ...prev, email }));
-    }).finally(() => setLoading(false));
+    ])
+      .then(([profileData, { data: { session } }]) => {
+        const email = session?.user?.email ?? '';
+        if (profileData) {
+          setForm({
+            ...EMPTY,
+            ...profileData,
+            email,
+            brand_voice: profileData.brand_voice ?? [],
+            services: profileData.services ?? [],
+            favorite_phrases: profileData.favorite_phrases ?? [],
+            avoid_phrases: profileData.avoid_phrases ?? [],
+            content_preferences: profileData.content_preferences ?? [],
+          });
+        } else if (email) {
+          setForm((prev) => ({ ...prev, email }));
+        }
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const effectiveTier = form.subscription_status === 'trialing' ? 'pro' : form.subscription_tier;
-  const canScrape = effectiveTier === 'pro';
+  const isPro = effectiveTier === 'pro';
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const setField = (name: keyof Form, value: unknown) => {
+    setForm((prev) => ({ ...prev, [name]: value }));
     setSaved(false);
-    setScrapeSuccess(false);
   };
 
-  const handleScrape = async () => {
-    setScrapeError(null);
-    setScrapeSuccess(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    setField(e.target.name as keyof Form, e.target.value);
+  };
+
+  const handleAnalyze = async () => {
+    setAnalyzeError(null);
+    setAnalyzeSuccess(false);
     const url = form.website.trim();
-    if (!url) { setScrapeError("Entrez d'abord votre site internet."); return; }
-    setScraping(true);
+    if (!url) { setAnalyzeError("Entrez d'abord votre site internet."); return; }
+    setAnalyzing(true);
     try {
       const res = await fetch('/api/scrape-description', {
         method: 'POST',
@@ -76,14 +233,26 @@ export default function SettingsPage() {
         body: JSON.stringify({ url }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? 'Erreur lors de la génération');
-      setForm((prev) => ({ ...prev, service_description: data.description }));
-      setScrapeSuccess(true);
+      if (!res.ok) throw new Error(data.error ?? "Erreur lors de l'analyse");
+      setForm((prev) => ({
+        ...prev,
+        service_description: data.business_summary || prev.service_description,
+        city: data.city || prev.city,
+        province: data.province || prev.province,
+        target_audience: data.target_audience || prev.target_audience,
+        brand_voice: data.brand_voice?.length ? data.brand_voice : prev.brand_voice,
+        services: data.services?.length ? data.services : prev.services,
+        favorite_phrases: data.favorite_phrases?.length ? data.favorite_phrases : prev.favorite_phrases,
+        avoid_phrases: data.avoid_phrases?.length ? data.avoid_phrases : prev.avoid_phrases,
+        content_preferences: data.content_preferences?.length ? data.content_preferences : prev.content_preferences,
+        cta_style: data.cta_style || prev.cta_style,
+      }));
+      setAnalyzeSuccess(true);
       setSaved(false);
     } catch (err) {
-      setScrapeError(err instanceof Error ? err.message : 'Erreur inconnue');
+      setAnalyzeError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
-      setScraping(false);
+      setAnalyzing(false);
     }
   };
 
@@ -101,6 +270,15 @@ export default function SettingsPage() {
           business_name: form.business_name,
           website: form.website,
           service_description: form.service_description,
+          city: form.city,
+          province: form.province,
+          target_audience: form.target_audience,
+          brand_voice: form.brand_voice,
+          services: form.services,
+          favorite_phrases: form.favorite_phrases,
+          avoid_phrases: form.avoid_phrases,
+          content_preferences: form.content_preferences,
+          cta_style: form.cta_style,
         }),
       });
       const data = await res.json();
@@ -136,6 +314,9 @@ export default function SettingsPage() {
     setPwSaving(false);
   };
 
+  const inputClass = 'w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent';
+  const labelClass = 'block text-sm font-medium text-gray-700 mb-1.5';
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AppHeader />
@@ -143,141 +324,324 @@ export default function SettingsPage() {
       <main className="max-w-2xl mx-auto px-4 py-10">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Paramètres du profil</h1>
-          <p className="text-sm text-gray-500 mt-1">Ces informations sont utilisées par l'IA pour personnaliser vos publications à votre image.</p>
+          <p className="text-sm text-gray-500 mt-1">
+            Ces informations personnalisent vos publications. Plus c'est complet, plus l'IA vous ressemble.
+          </p>
         </div>
 
         {loading ? (
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-              <div className="h-4 w-40 bg-gray-100 rounded animate-pulse" />
-              <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
+                <div className="h-4 w-40 bg-gray-100 rounded animate-pulse" />
                 <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
                 <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
               </div>
-              <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
-            </div>
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
-              <div className="h-4 w-32 bg-gray-100 rounded animate-pulse" />
-              <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
-              <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
-              <div className="h-36 bg-gray-100 rounded-xl animate-pulse" />
-            </div>
+            ))}
           </div>
         ) : (
           <>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Informations personnelles</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Prénom</label>
-                  <input type="text" name="first_name" value={form.first_name} onChange={handleChange} placeholder="ex. Marie"
-                    className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
+            <form onSubmit={handleSubmit} className="space-y-6">
+
+              {/* ── Informations personnelles ── */}
+              <section className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Informations personnelles</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Prénom</label>
+                    <input type="text" name="first_name" value={form.first_name} onChange={handleChange}
+                      placeholder="ex. Marie" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Nom</label>
+                    <input type="text" name="last_name" value={form.last_name} onChange={handleChange}
+                      placeholder="ex. Tremblay" className={inputClass} />
+                  </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom</label>
-                  <input type="text" name="last_name" value={form.last_name} onChange={handleChange} placeholder="ex. Tremblay"
-                    className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
+                  <label className={labelClass}>Courriel du compte</label>
+                  <input type="email" value={form.email} disabled
+                    className="w-full rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-400 cursor-not-allowed" />
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Courriel du compte</label>
-                <input type="email" value={form.email} disabled
-                  className="w-full rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-400 cursor-not-allowed" />
-              </div>
-            </div>
+              </section>
 
-            <div className={`bg-white rounded-2xl border p-6 space-y-5 relative ${canScrape ? 'border-gray-100' : 'border-gray-100'}`}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Votre entreprise</h2>
-                {!canScrape && (
-                  <span className="flex items-center gap-1 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-full">
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
-                    Plan Pro
-                  </span>
-                )}
-              </div>
-
-              {!canScrape && (
-                <div className="absolute inset-0 rounded-2xl bg-white/70 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10">
-                  <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                  </svg>
-                  <p className="text-sm text-gray-500 font-medium">Disponible avec le plan Pro</p>
-                  <Link href="/billing" className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-colors">
-                    Passer au Pro →
-                  </Link>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom de l'entreprise</label>
-                <input type="text" name="business_name" value={form.business_name} onChange={handleChange} placeholder="ex. Salon Beauté Lumière"
-                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Site internet</label>
-                <div className="flex gap-2">
-                  <input type="url" name="website" value={form.website} onChange={handleChange} placeholder="ex. https://monbusiness.com"
-                    className="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
-                  {canScrape && (
-                    <button type="button" onClick={handleScrape} disabled={scraping || !form.website.trim()}
-                      className="shrink-0 flex items-center gap-1.5 bg-violet-50 hover:bg-violet-100 disabled:opacity-50 disabled:cursor-not-allowed text-violet-700 text-sm font-medium px-4 py-2.5 rounded-xl transition-colors border border-violet-200">
-                      {scraping ? (
-                        <><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg><span>Analyse…</span></>
-                      ) : (
-                        <><svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg><span>Générer</span></>
-                      )}
-                    </button>
+              {/* ── Votre marque (Pro) ── */}
+              <section className={`bg-white rounded-2xl border p-6 space-y-5 relative ${isPro ? 'border-gray-100' : 'border-gray-100'}`}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Votre marque</h2>
+                  {!isPro && (
+                    <span className="flex items-center gap-1 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-full">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      Plan Pro
+                    </span>
                   )}
                 </div>
-                {scrapeError && <p className="text-xs text-red-500 mt-1.5">{scrapeError}</p>}
-                {scrapeSuccess && <p className="text-xs text-violet-600 mt-1.5">Description générée. Vérifiez et sauvegardez.</p>}
+
+                {!isPro && (
+                  <div className="absolute inset-0 rounded-2xl bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10">
+                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    <p className="text-sm text-gray-500 font-medium">Disponible avec le plan Pro</p>
+                    <Link href="/billing"
+                      className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-colors">
+                      Passer au Pro →
+                    </Link>
+                  </div>
+                )}
+
+                {/* Nom d'entreprise */}
+                <div>
+                  <label className={labelClass}>Nom de l'entreprise</label>
+                  <input type="text" name="business_name" value={form.business_name} onChange={handleChange}
+                    placeholder="ex. Salon Beauté Lumière" className={inputClass} />
+                </div>
+
+                {/* Site internet + bouton Analyser */}
+                <div>
+                  <label className={labelClass}>Site internet</label>
+                  <div className="flex gap-2">
+                    <input type="url" name="website" value={form.website} onChange={handleChange}
+                      placeholder="https://monentreprise.com"
+                      className="flex-1 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
+                    <button
+                      type="button"
+                      onClick={handleAnalyze}
+                      disabled={analyzing || !form.website.trim()}
+                      className="shrink-0 flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
+                    >
+                      {analyzing ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          <span>Analyse...</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                          </svg>
+                          <span>Analyser mon site</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  {analyzeError && <p className="text-xs text-red-500 mt-1.5">{analyzeError}</p>}
+                  {analyzeSuccess && (
+                    <p className="text-xs text-violet-600 mt-1.5 font-medium">
+                      Profil extrait avec succes. Verifiez les champs ci-dessous et sauvegardez.
+                    </p>
+                  )}
+                </div>
+
+                {/* Ville + Province */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Ville</label>
+                    <input type="text" name="city" value={form.city} onChange={handleChange}
+                      placeholder="ex. Sherbrooke" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Province</label>
+                    <select name="province" value={form.province} onChange={handleChange}
+                      className={inputClass + ' bg-white'}>
+                      <option value="">Sélectionner...</option>
+                      {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Résumé */}
+                <div>
+                  <label className={labelClass}>Description de l'entreprise</label>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Décrivez vos services, valeurs et ce qui vous rend unique. L'IA l'utilisera dans chaque publication.
+                  </p>
+                  <textarea name="service_description" value={form.service_description} onChange={handleChange}
+                    rows={5} placeholder="ex. Nous sommes un salon de coiffure et esthetique situe a Sherbrooke..."
+                    className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none" />
+                </div>
+
+                {/* Clientele cible */}
+                <div>
+                  <label className={labelClass}>Clientele cible</label>
+                  <input type="text" name="target_audience" value={form.target_audience} onChange={handleChange}
+                    placeholder="ex. Femmes 25-55 ans, professionnelles, aiment le soin de soi"
+                    className={inputClass} />
+                </div>
+
+                {/* Voix de marque */}
+                <div>
+                  <label className={labelClass}>Voix de marque</label>
+                  <p className="text-xs text-gray-400 mb-2">Selectionnez les tons qui definissent votre communication.</p>
+                  <ChipSelect options={BRAND_VOICE_OPTIONS} value={form.brand_voice}
+                    onChange={(v) => setField('brand_voice', v)} />
+                </div>
+
+                {/* Services */}
+                <div>
+                  <label className={labelClass}>Services offerts</label>
+                  <p className="text-xs text-gray-400 mb-2">Appuyez sur Entree ou virgule pour ajouter.</p>
+                  <TagInput value={form.services} onChange={(v) => setField('services', v)}
+                    placeholder="ex. Coloration, Coupe, Balayage..." />
+                </div>
+              </section>
+
+              {/* ── Style de contenu (Pro) ── */}
+              <section className={`bg-white rounded-2xl border p-6 space-y-5 relative ${isPro ? 'border-gray-100' : 'border-gray-100'}`}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Style de contenu</h2>
+                  {!isPro && (
+                    <span className="flex items-center gap-1 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-full">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      Plan Pro
+                    </span>
+                  )}
+                </div>
+
+                {!isPro && (
+                  <div className="absolute inset-0 rounded-2xl bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10">
+                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    <p className="text-sm text-gray-500 font-medium">Disponible avec le plan Pro</p>
+                    <Link href="/billing"
+                      className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-colors">
+                      Passer au Pro →
+                    </Link>
+                  </div>
+                )}
+
+                {/* Types de contenu */}
+                <div>
+                  <label className={labelClass}>Types de contenu preferes</label>
+                  <p className="text-xs text-gray-400 mb-2">L'IA privilegiera ces formats dans vos publications.</p>
+                  <ChipSelect options={CONTENT_PREFS_OPTIONS} value={form.content_preferences}
+                    onChange={(v) => setField('content_preferences', v)} />
+                </div>
+
+                {/* CTA */}
+                <div>
+                  <label className={labelClass}>Style d'appel a l'action</label>
+                  <p className="text-xs text-gray-400 mb-3">Chaque publication se terminera avec ce CTA.</p>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {CTA_OPTIONS.map((opt) => (
+                      <label key={opt.value}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors ${
+                          form.cta_style === opt.value
+                            ? 'border-violet-500 bg-violet-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}>
+                        <input type="radio" name="cta_style" value={opt.value}
+                          checked={form.cta_style === opt.value}
+                          onChange={handleChange}
+                          className="accent-violet-600" />
+                        <span className={`text-sm font-medium ${form.cta_style === opt.value ? 'text-violet-700' : 'text-gray-700'}`}>
+                          {opt.label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* ── Vocabulaire (Pro) ── */}
+              <section className={`bg-white rounded-2xl border p-6 space-y-5 relative ${isPro ? 'border-gray-100' : 'border-gray-100'}`}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Vocabulaire</h2>
+                  {!isPro && (
+                    <span className="flex items-center gap-1 text-xs font-semibold text-violet-600 bg-violet-50 border border-violet-200 px-2.5 py-1 rounded-full">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      Plan Pro
+                    </span>
+                  )}
+                </div>
+
+                {!isPro && (
+                  <div className="absolute inset-0 rounded-2xl bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center gap-3 z-10">
+                    <svg className="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    <p className="text-sm text-gray-500 font-medium">Disponible avec le plan Pro</p>
+                    <Link href="/billing"
+                      className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-xl transition-colors">
+                      Passer au Pro →
+                    </Link>
+                  </div>
+                )}
+
+                {/* Expressions favorites */}
+                <div>
+                  <label className={labelClass}>Expressions favorites</label>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Mots ou formulations que vous aimez. L'IA les integrera naturellement.
+                  </p>
+                  <TagInput value={form.favorite_phrases} onChange={(v) => setField('favorite_phrases', v)}
+                    placeholder="ex. Prenez soin de vous, Sublimez votre beaute..." />
+                </div>
+
+                {/* Mots a eviter */}
+                <div>
+                  <label className={labelClass}>Mots a eviter</label>
+                  <p className="text-xs text-gray-400 mb-2">
+                    Expressions ou mots que l'IA ne doit jamais utiliser.
+                  </p>
+                  <TagInput value={form.avoid_phrases} onChange={(v) => setField('avoid_phrases', v)}
+                    placeholder="ex. Pas cher, Discount, Cheap..." />
+                </div>
+              </section>
+
+              {/* ── Actions ── */}
+              {error && (
+                <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
+              )}
+
+              <div className="flex items-center justify-between">
+                <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
+                  ← Retour au studio
+                </Link>
+                <button type="submit" disabled={saving}
+                  className="bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                  {saving ? 'Sauvegarde...' : saved ? 'Sauvegarde ✓' : 'Sauvegarder'}
+                </button>
+              </div>
+            </form>
+
+            {/* ── Mot de passe ── */}
+            <form onSubmit={handlePasswordChange} className="mt-6 space-y-5 bg-white rounded-2xl border border-gray-100 p-6">
+              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Changer le mot de passe</h2>
+              <div>
+                <label className={labelClass}>Nouveau mot de passe</label>
+                <input type="password" value={newPassword}
+                  onChange={(e) => { setNewPassword(e.target.value); setPwMessage(null); }}
+                  placeholder="Minimum 8 caracteres" className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description détaillée de vos services</label>
-                <p className="text-xs text-gray-400 mb-2">Décrivez vos services, votre clientèle cible, votre style, vos valeurs. L'IA utilisera cette description pour créer des publications qui vous ressemblent vraiment.</p>
-                <textarea name="service_description" value={form.service_description} onChange={handleChange} rows={6}
-                  placeholder="ex. Nous sommes un salon de coiffure et d'esthétique situé à Sherbrooke…"
-                  className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none" />
+                <label className={labelClass}>Confirmer le mot de passe</label>
+                <input type="password" value={confirmPassword}
+                  onChange={(e) => { setConfirmPassword(e.target.value); setPwMessage(null); }}
+                  placeholder="Repetez le mot de passe" className={inputClass} />
               </div>
-            </div>
-
-            {error && <p className="text-sm text-red-500">{error}</p>}
-
-            <div className="flex items-center justify-between">
-              <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">← Retour au studio</Link>
-              <button type="submit" disabled={saving}
-                className="bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
-                {saving ? 'Sauvegarde…' : saved ? 'Sauvegardé ✓' : 'Sauvegarder'}
-              </button>
-            </div>
-          </form>
-
-          <form onSubmit={handlePasswordChange} className="mt-6 space-y-5 bg-white rounded-2xl border border-gray-100 p-6">
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Changer le mot de passe</h2>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nouveau mot de passe</label>
-              <input type="password" value={newPassword} onChange={(e) => { setNewPassword(e.target.value); setPwMessage(null); }} placeholder="Minimum 8 caractères"
-                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Confirmer le mot de passe</label>
-              <input type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setPwMessage(null); }} placeholder="Répétez le mot de passe"
-                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent" />
-            </div>
-            {pwMessage && (
-              <p className={`text-sm ${pwMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>{pwMessage.text}</p>
-            )}
-            <div className="flex justify-end">
-              <button type="submit" disabled={pwSaving || !newPassword}
-                className="bg-gray-800 hover:bg-gray-900 disabled:opacity-40 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
-                {pwSaving ? 'Mise à jour…' : 'Mettre à jour'}
-              </button>
-            </div>
-          </form>
+              {pwMessage && (
+                <p className={`text-sm ${pwMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
+                  {pwMessage.text}
+                </p>
+              )}
+              <div className="flex justify-end">
+                <button type="submit" disabled={pwSaving || !newPassword}
+                  className="bg-gray-800 hover:bg-gray-900 disabled:opacity-40 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
+                  {pwSaving ? 'Mise a jour...' : 'Mettre a jour'}
+                </button>
+              </div>
+            </form>
           </>
         )}
       </main>

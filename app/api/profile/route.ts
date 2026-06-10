@@ -2,6 +2,13 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { NextRequest, NextResponse } from 'next/server';
 
+const SELECT_FIELDS = [
+  'first_name', 'last_name', 'business_name', 'website', 'service_description',
+  'city', 'province', 'target_audience', 'brand_voice', 'services',
+  'favorite_phrases', 'avoid_phrases', 'content_preferences', 'cta_style',
+  'email', 'subscription_tier', 'subscription_status',
+].join(', ');
+
 export async function GET() {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
@@ -10,7 +17,7 @@ export async function GET() {
   const admin = createAdminClient();
   const { data } = await admin
     .from('profiles')
-    .select('first_name, last_name, business_name, website, service_description, email, subscription_tier, subscription_status')
+    .select(SELECT_FIELDS)
     .eq('id', session.user.id)
     .single();
 
@@ -22,15 +29,19 @@ export async function PATCH(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  let body: Record<string, string>;
+  let body: Record<string, unknown>;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Corps invalide' }, { status: 400 });
   }
 
-  const allowed = ['first_name', 'last_name', 'business_name', 'website', 'service_description'];
-  const update: Record<string, string> = {};
+  const allowed = [
+    'first_name', 'last_name', 'business_name', 'website', 'service_description',
+    'city', 'province', 'target_audience', 'brand_voice', 'services',
+    'favorite_phrases', 'avoid_phrases', 'content_preferences', 'cta_style',
+  ];
+  const update: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) update[key] = body[key];
   }
