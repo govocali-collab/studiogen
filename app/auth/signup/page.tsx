@@ -163,10 +163,11 @@ export default function SignupPage() {
                   type="checkbox"
                   checked={emailConsent}
                   onChange={(e) => setEmailConsent(e.target.checked)}
+                  required
                   className="mt-0.5 accent-violet-600 h-4 w-4 shrink-0"
                 />
                 <span className="text-xs text-gray-500 leading-relaxed">
-                  J'accepte de recevoir des communications par courriel de StudioGen (nouvelles fonctionnalités, conseils, offres).
+                  J'accepte de recevoir des communications par courriel de StudioGen (nouvelles fonctionnalités, conseils, offres). <span className="text-red-500">*</span>
                 </span>
               </label>
 
