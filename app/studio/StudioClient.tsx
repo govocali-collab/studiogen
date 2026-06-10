@@ -247,9 +247,9 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-violet-900">Personnalisez vos publications</p>
+                <p className="text-sm font-semibold text-violet-900">Des publications à votre image</p>
                 <p className="text-xs text-violet-700 mt-0.5">
-                  Complétez votre profil IA pour que l'IA écrive dans votre ton, avec vos services et votre style.
+                  Complétez votre profil et l'IA rédige dans votre ton, avec vos services.
                 </p>
               </div>
             </div>
