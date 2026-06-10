@@ -159,7 +159,7 @@ function BillingPageInner() {
 
       <main className="max-w-screen-md mx-auto px-6 py-12 space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Facturation</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Abonnement</h1>
           <p className="text-sm text-gray-400 mt-1">Gérez votre abonnement StudioGen.</p>
         </div>
 
@@ -288,7 +288,7 @@ function BillingPageInner() {
                     </button>
                     {isUpgrade && tier === 'essentiel' && status === 'active' && (
                       <p className={`text-[10px] text-center -mt-2 ${isPro ? 'text-gray-500' : 'text-gray-400'}`}>
-                        Facturation au prorata pour les jours restants
+                        Abonnement au prorata pour les jours restants
                       </p>
                     )}
                   </div>

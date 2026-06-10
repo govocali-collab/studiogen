@@ -53,7 +53,7 @@ export default function AppHeader() {
         <div className="hidden sm:flex items-center gap-5">
           {navLink('/studio', 'Studio')}
           {navLink('/settings', 'Paramètres')}
-          {navLink('/billing', 'Facturation')}
+          {navLink('/billing', 'Abonnement')}
           <button onClick={handleSignOut} className="text-xs font-medium text-gray-400 hover:text-gray-700 transition-colors">Déconnexion</button>
         </div>
 
@@ -83,7 +83,7 @@ export default function AppHeader() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             </svg>
           ))}
-          {mobileLink('/billing', 'Facturation', (
+          {mobileLink('/billing', 'Abonnement', (
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z" />
             </svg>
