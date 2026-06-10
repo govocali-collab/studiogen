@@ -201,6 +201,7 @@ export default function AdminPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-400 font-medium">
+                  <th className="px-5 py-3 text-left">Prénom</th>
                   <th className="px-5 py-3 text-left">Nom</th>
                   <th className="px-5 py-3 text-left">Courriel</th>
                   <th className="px-4 py-3 text-left">Plan</th>
@@ -215,9 +216,10 @@ export default function AdminPage() {
                 {filtered.map(u => (
                   <tr key={u.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-3 text-gray-800">
-                      {u.first_name || u.last_name
-                        ? <span className="font-medium">{[u.first_name, u.last_name].filter(Boolean).join(' ')}</span>
-                        : <span className="text-gray-300">—</span>}
+                      {u.first_name ? <span className="font-medium">{u.first_name}</span> : <span className="text-gray-300">—</span>}
+                    </td>
+                    <td className="px-5 py-3 text-gray-800">
+                      {u.last_name ? <span className="font-medium">{u.last_name}</span> : <span className="text-gray-300">—</span>}
                     </td>
                     <td className="px-5 py-3 text-gray-500 text-xs">{u.email}</td>
                     <td className="px-4 py-3"><TierBadge tier={u.subscription_tier} /></td>
@@ -244,7 +246,7 @@ export default function AdminPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-5 py-10 text-center text-sm text-gray-400">
+                    <td colSpan={9} className="px-5 py-10 text-center text-sm text-gray-400">
                       Aucun utilisateur trouvé
                     </td>
                   </tr>
