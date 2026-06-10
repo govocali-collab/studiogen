@@ -34,8 +34,8 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  // getUser validates the token and refreshes it if expired
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   if (!user) {
     const loginUrl = request.nextUrl.clone();
