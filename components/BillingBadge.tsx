@@ -31,7 +31,7 @@ export default function BillingBadge({ profile }: BillingBadgeProps) {
           ? 'text-white bg-violet-600 border-violet-600 group-hover:bg-violet-700 group-hover:border-violet-700'
           : 'text-violet-600 bg-violet-50 border-violet-200 group-hover:border-violet-400'
       }`}>
-        {isPro ? '⚡ Pro' : 'Essentiel'}
+        {isTrialing ? '⚡ Pro – Essai' : isPro ? '⚡ Pro' : 'Essentiel'}
       </span>
     </Link>
   );
