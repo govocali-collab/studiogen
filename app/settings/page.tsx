@@ -604,10 +604,7 @@ export default function SettingsPage() {
                 <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
               )}
 
-              <div className="flex items-center justify-between">
-                <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
-                  ← Retour au studio
-                </Link>
+              <div className="flex justify-end">
                 <button type="submit" disabled={saving}
                   className="bg-violet-600 hover:bg-violet-700 disabled:opacity-60 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-colors">
                   {saving ? 'Sauvegarde...' : saved ? 'Sauvegarde ✓' : 'Sauvegarder'}
@@ -642,6 +639,12 @@ export default function SettingsPage() {
                 </button>
               </div>
             </form>
+
+            <div className="mt-6 flex justify-center">
+              <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
+                ← Retour au studio
+              </Link>
+            </div>
           </>
         )}
       </main>
