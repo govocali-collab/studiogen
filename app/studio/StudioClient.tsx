@@ -55,7 +55,7 @@ function computeGenInfo(profile: Profile | null) {
 
   const limit: number | null = isTrialing
     ? PRICING[tier].trialGenerations
-    : tier === 'pro' ? null : 30;
+    : TIER_LIMITS[tier].generationsPerMonth;
 
   const daysLeftInTrial = isTrialing && profile?.created_at
     ? Math.max(0, Math.ceil(
@@ -139,7 +139,11 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
           return;
         }
         if (data.code === 'LIMIT_REACHED') {
-          setUpgradeModal({ reason: data.error, tier: 'pro' });
+          const t = (profile?.subscription_tier ?? 'essentiel') as 'essentiel' | 'pro';
+          const reason = t === 'essentiel'
+            ? `Tu as atteint ta limite de 50 générations ce mois-ci. Passe au plan Pro pour 150 générations par mois.`
+            : `Tu as atteint ta limite de 150 générations ce mois-ci.`;
+          setUpgradeModal({ reason, tier: 'pro' });
           return;
         }
         throw new Error(data.error ?? `Erreur ${res.status}`);
