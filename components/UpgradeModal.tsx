@@ -133,6 +133,10 @@ export default function UpgradeModal({ reason, onClose, checkoutTier = 'pro' }: 
               Fermer
             </button>
           )}
+
+          <p className="text-[10px] text-center text-gray-400">
+            La facturation apparaîtra sous le nom <span className="font-medium">Astrova</span> sur votre relevé bancaire.
+          </p>
         </div>
       </div>
     </div>

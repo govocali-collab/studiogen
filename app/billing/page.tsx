@@ -296,6 +296,10 @@ function BillingPageInner() {
               })}
             </div>
 
+            <p className="text-[11px] text-center text-gray-400">
+              La facturation apparaîtra sous le nom <span className="font-medium text-gray-500">Astrova</span> sur votre relevé bancaire et vos reçus.
+            </p>
+
             {/* Cancel subscription */}
             {isSubscribed && status !== 'canceled' && (
               <div className="pt-2">
