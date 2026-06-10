@@ -18,12 +18,12 @@ export async function POST(request: NextRequest) {
   if (!email) return NextResponse.json({ error: 'Email requis' }, { status: 400 });
 
   const admin = createAdminClient();
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+  const origin = request.headers.get('origin') ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
 
   const { data, error } = await admin.auth.admin.generateLink({
     type: 'magiclink',
     email,
-    options: { redirectTo: `${appUrl}/auth/callback` },
+    options: { redirectTo: `${origin}/auth/callback` },
   });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
