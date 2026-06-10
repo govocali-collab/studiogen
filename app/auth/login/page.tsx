@@ -1,7 +1,7 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
@@ -11,7 +11,6 @@ export default function LoginPage() {
 }
 
 function LoginPageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') ?? '/studio';
 
@@ -36,9 +35,7 @@ function LoginPageInner() {
 
     const me = await fetch('/api/me').then(r => r.json());
     const dest = me?.is_admin ? '/admin' : redirect;
-    router.push(dest);
-    router.refresh();
-    window.scrollTo(0, 0);
+    window.location.href = dest;
   };
 
   return (
