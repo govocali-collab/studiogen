@@ -542,9 +542,9 @@ export default async function LandingPage() {
             <p className="text-gray-500">7 jours d'essai gratuit · Aucune carte requise · Annulation en tout temps</p>
           </div>
 
-          <div className={`grid grid-cols-1 ${isActive ? 'max-w-sm' : 'md:grid-cols-2 max-w-3xl'} gap-6 mx-auto`}>
-            {/* Essentiel — masqué pour les abonnés actifs */}
-            {!isActive && <div className="bg-white rounded-2xl border border-gray-200 p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-3xl gap-6 mx-auto">
+            {/* Essentiel */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-8">
               <div className="text-sm font-semibold text-gray-500 mb-1">Essentiel</div>
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-4xl font-black text-gray-900">57 $</span>
@@ -563,7 +563,7 @@ export default async function LandingPage() {
               <Link href="/auth/signup" className="block w-full text-center py-3 rounded-xl border-2 border-gray-200 text-sm font-semibold text-gray-700 hover:border-violet-400 hover:text-violet-600 transition-colors">
                 Démarrer l'essai →
               </Link>
-            </div>}
+            </div>
 
             {/* Pro */}
             <div className="bg-gradient-to-br from-fuchsia-950 to-violet-950 rounded-2xl border border-fuchsia-900/40 p-8 relative overflow-hidden">
