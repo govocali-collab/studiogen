@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CalendarPost } from '@/lib/supabase/types';
+import { CalendarPost, PlannedContent } from '@/lib/supabase/types';
+import ContentPlanner from './ContentPlanner';
 
 // ── Dropdown filter ───────────────────────────────────────────────────────────
 function FilterDropdown<T extends string>({
@@ -97,11 +98,13 @@ const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Ao�
 const JOURS_FR = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 
 // ── Calendrier grille mensuelle ───────────────────────────────────────────────
-function MonthGrid({ year, month, posts, onDayClick, onDropPost }: {
+function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemClick, onDropPost }: {
   year: number;
   month: number;
   posts: CalendarPost[];
+  plannedItems: PlannedContent[];
   onDayClick: (post: CalendarPost) => void;
+  onPlanItemClick: (item: PlannedContent) => void;
   onDropPost: (postId: string, newDate: string) => void;
 }) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -126,6 +129,16 @@ function MonthGrid({ year, month, posts, onDayClick, onDropPost }: {
       const day = d.getDate();
       if (!postsByDay[day]) postsByDay[day] = [];
       postsByDay[day].push(p);
+    }
+  }
+
+  const plannedByDay: Record<number, PlannedContent[]> = {};
+  for (const pi of plannedItems) {
+    const d = toLocalDate(pi.suggested_date);
+    if (d.getFullYear() === year && d.getMonth() === month) {
+      const day = d.getDate();
+      if (!plannedByDay[day]) plannedByDay[day] = [];
+      plannedByDay[day].push(pi);
     }
   }
 
@@ -280,6 +293,35 @@ function MonthGrid({ year, month, posts, onDayClick, onDropPost }: {
                 {dayPosts.length > 3 && (
                   <span className="text-[10px] text-gray-400 px-1 font-medium">+{dayPosts.length - 3} autres</span>
                 )}
+
+                {/* Planned items */}
+                {(plannedByDay[day] ?? []).slice(0, 2).map(pi => {
+                  const c = typeColor(pi.content_type);
+                  const isCreated = pi.status === 'created';
+                  return (
+                    <button
+                      key={pi.id}
+                      type="button"
+                      onClick={() => !draggingId && onPlanItemClick(pi)}
+                      className={`w-full text-left rounded-md px-1.5 py-1 flex items-center gap-1 border-2 border-dashed transition-all hover:opacity-80
+                        ${isCreated ? 'border-green-200 bg-green-50' : 'border-violet-200 bg-violet-50'}
+                      `}
+                    >
+                      <span className="text-[9px] flex-shrink-0">{pi.requires_photo ? '📷' : '🟢'}</span>
+                      <span className={`text-[10px] font-medium leading-none truncate flex-1 ${isCreated ? 'text-green-700 line-through' : 'text-violet-700'}`}>
+                        {pi.title}
+                      </span>
+                      <span className={`text-[9px] font-bold flex-shrink-0 capitalize ${c.text}`}>
+                        {pi.content_type.slice(0, 4)}
+                      </span>
+                    </button>
+                  );
+                })}
+                {(plannedByDay[day]?.length ?? 0) > 2 && (
+                  <span className="text-[10px] text-violet-400 px-1 font-medium">
+                    +{(plannedByDay[day]?.length ?? 0) - 2} planifiés
+                  </span>
+                )}
               </div>
             </div>
           );
@@ -416,14 +458,120 @@ function PostDetailModal({ post, onClose, onDelete }: {
   );
 }
 
+// ── PlannedItemModal ──────────────────────────────────────────────────────────
+function PlannedItemModal({ item, onClose, onDelete, onMarkCreated }: {
+  item: PlannedContent;
+  onClose: () => void;
+  onDelete: (id: string) => void;
+  onMarkCreated: (id: string) => void;
+}) {
+  const [deleting, setDeleting] = useState(false);
+  const c = typeColor(item.content_type);
+  const detail = [item.service_focus, item.objective].filter(Boolean).join(' · ');
+
+  const createParams = new URLSearchParams();
+  createParams.set('ct', item.content_type);
+  const detailStr = [item.service_focus, item.objective].filter(Boolean).join('. ');
+  if (detailStr) createParams.set('details', detailStr);
+  const createUrl = `/studio?${createParams.toString()}`;
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await fetch(`/api/planned-content/${item.id}`, { method: 'DELETE' });
+    onDelete(item.id);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${c.bg} ${c.text}`}>
+              {item.content_type}
+            </span>
+            {(item.platform === 'fb' || item.platform === 'both') && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">Facebook</span>
+            )}
+            {(item.platform === 'ig' || item.platform === 'both') && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700">Instagram</span>
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-5 space-y-3">
+          <p className="text-xs text-gray-400 font-medium">{formatDateFr(item.suggested_date)}</p>
+
+          <h3 className="text-base font-bold text-gray-900">{item.title}</h3>
+
+          {detail && <p className="text-sm text-gray-500 leading-relaxed">{detail}</p>}
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm">{item.requires_photo ? '📷' : '🟢'}</span>
+            <span className="text-xs text-gray-500">
+              {item.requires_photo ? 'Photo requise' : 'Prêt à générer'}
+            </span>
+            {item.status === 'created' && (
+              <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
+                Créé
+              </span>
+            )}
+          </div>
+
+          <div className="flex gap-2 pt-1">
+            {item.status !== 'created' && (
+              <a
+                href={createUrl}
+                onClick={() => {
+                  fetch(`/api/planned-content/${item.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'created' }),
+                  });
+                }}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white transition-colors flex items-center justify-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Créer maintenant
+              </a>
+            )}
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="py-2.5 px-4 rounded-xl text-sm font-semibold border border-red-100 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+            >
+              {deleting ? '…' : 'Supprimer'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Page principale ───────────────────────────────────────────────────────────
 export default function CalendrierClient({ isPro = false }: { isPro?: boolean }) {
   const [posts, setPosts] = useState<CalendarPost[]>([]);
+  const [plannedItems, setPlannedItems] = useState<PlannedContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'calendrier' | 'liste'>('calendrier');
   const [filterType, setFilterType] = useState<string>('');
   const [filterPlatform, setFilterPlatform] = useState<'fb' | 'ig' | ''>('');
   const [selectedPost, setSelectedPost] = useState<CalendarPost | null>(null);
+  const [selectedPlanItem, setSelectedPlanItem] = useState<PlannedContent | null>(null);
 
   // Calendar navigation
   const now = new Date();
@@ -432,8 +580,12 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
-    const res = await fetch('/api/calendar');
-    if (res.ok) setPosts(await res.json());
+    const [calRes, planRes] = await Promise.allSettled([
+      fetch('/api/calendar'),
+      fetch('/api/planned-content'),
+    ]);
+    if (calRes.status === 'fulfilled' && calRes.value.ok) setPosts(await calRes.value.json());
+    if (planRes.status === 'fulfilled' && planRes.value.ok) setPlannedItems(await planRes.value.json());
     setLoading(false);
   }, []);
 
@@ -442,6 +594,21 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
   const handleDelete = (id: string) => {
     setPosts(prev => prev.filter(p => p.id !== id));
     setSelectedPost(null);
+  };
+
+  const handlePlanItemDelete = (id: string) => {
+    setPlannedItems(prev => prev.filter(pi => pi.id !== id));
+    setSelectedPlanItem(null);
+  };
+
+  const handleMarkCreated = async (id: string) => {
+    setPlannedItems(prev => prev.map(pi => pi.id === id ? { ...pi, status: 'created' as const } : pi));
+    setSelectedPlanItem(null);
+    await fetch(`/api/planned-content/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'created' }),
+    });
   };
 
   const handleDropPost = async (postId: string, newDate: string) => {
@@ -520,11 +687,11 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
       {/* ── Nav ── */}
       {nav}
 
-      <main className="max-w-screen-xl mx-auto px-4 py-6 space-y-5">
+      <main className="max-w-screen-xl mx-auto px-4 py-6 space-y-4">
         {/* Title + filters row */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
           <h1 className="text-xl font-bold text-gray-900 shrink-0">Calendrier de contenu</h1>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <FilterDropdown<'fb' | 'ig'>
               placeholder="Plateforme"
               value={filterPlatform}
@@ -559,6 +726,13 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
           </div>
         </div>
 
+        {/* AI Content Planner */}
+        <ContentPlanner
+          calYear={calYear}
+          calMonth={calMonth}
+          onPlanSaved={fetchPosts}
+        />
+
         {loading ? (
           <div className="flex justify-center py-16">
             <svg className="w-6 h-6 text-violet-500 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -578,7 +752,15 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
               </button>
             </div>
-            <MonthGrid year={calYear} month={calMonth} posts={filtered} onDayClick={setSelectedPost} onDropPost={handleDropPost} />
+            <MonthGrid
+              year={calYear}
+              month={calMonth}
+              posts={filtered}
+              plannedItems={plannedItems}
+              onDayClick={setSelectedPost}
+              onPlanItemClick={setSelectedPlanItem}
+              onDropPost={handleDropPost}
+            />
           </div>
         ) : (
           /* ── Vue liste ── */
@@ -634,6 +816,15 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
           post={selectedPost}
           onClose={() => setSelectedPost(null)}
           onDelete={handleDelete}
+        />
+      )}
+
+      {selectedPlanItem && (
+        <PlannedItemModal
+          item={selectedPlanItem}
+          onClose={() => setSelectedPlanItem(null)}
+          onDelete={handlePlanItemDelete}
+          onMarkCreated={handleMarkCreated}
         />
       )}
     </div>

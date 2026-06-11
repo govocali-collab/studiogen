@@ -215,6 +215,15 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
   const [allCopied, setAllCopied] = useState(false);
   const [editModal, setEditModal] = useState<{ field: 'fb' | 'ig'; text: string } | null>(null);
 
+  // Pre-fill from URL params (set by "Créer maintenant" in the calendar planner)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ct = params.get('ct') as ContentType | null;
+    const d = params.get('details');
+    if (ct && CONTENT_TYPES.some(c => c.id === ct)) setContentType(ct);
+    if (d) setDetails(d);
+  }, []);
+
   const activeBrandVoice = brandVoice?.length ? brandVoice : null;
   const effectiveTone: Tone = activeBrandVoice
     ? (activeBrandVoice.map((v) => BRAND_VOICE_TO_TONE[v]).find(Boolean) ?? 'chaleureux')

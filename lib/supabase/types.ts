@@ -58,6 +58,20 @@ export interface CalendarPost {
   created_at: string;
 }
 
+export interface PlannedContent {
+  id: string;
+  user_id: string;
+  title: string;
+  content_type: string;
+  service_focus: string | null;
+  objective: string | null;
+  suggested_date: string; // DATE — 'YYYY-MM-DD'
+  platform: 'fb' | 'ig' | 'both';
+  status: 'planned' | 'created';
+  requires_photo: boolean;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -75,6 +89,11 @@ export interface Database {
         Row: CalendarPost;
         Insert: Omit<CalendarPost, 'id' | 'created_at'>;
         Update: Partial<CalendarPost>;
+      };
+      planned_content: {
+        Row: PlannedContent;
+        Insert: Omit<PlannedContent, 'id' | 'created_at'>;
+        Update: Partial<PlannedContent>;
       };
     };
   };
