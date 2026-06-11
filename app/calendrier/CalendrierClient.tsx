@@ -98,7 +98,7 @@ const MOIS_FR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Ao�
 const JOURS_FR = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 
 // ── Calendrier grille mensuelle ───────────────────────────────────────────────
-function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemClick, onDropPost }: {
+function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemClick, onDropPost, onDropPlanItem }: {
   year: number;
   month: number;
   posts: CalendarPost[];
@@ -106,16 +106,20 @@ function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemCli
   onDayClick: (post: CalendarPost) => void;
   onPlanItemClick: (item: PlannedContent) => void;
   onDropPost: (postId: string, newDate: string) => void;
+  onDropPlanItem: (planItemId: string, newDate: string) => void;
 }) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
 
-  // Refs for touch drag (avoid stale closures in event listeners)
-  const touchDragIdRef = useRef<string | null>(null);
-  const dragOverDateRef = useRef<string | null>(null);
-  const ghostRef = useRef<HTMLDivElement | null>(null);
-  const onDropPostRef = useRef(onDropPost);
+  // Refs for touch drag
+  const touchDragIdRef   = useRef<string | null>(null);
+  const touchDragTypeRef = useRef<'post' | 'plan' | null>(null);
+  const dragOverDateRef  = useRef<string | null>(null);
+  const ghostRef         = useRef<HTMLDivElement | null>(null);
+  const onDropPostRef     = useRef(onDropPost);
+  const onDropPlanItemRef = useRef(onDropPlanItem);
   useEffect(() => { onDropPostRef.current = onDropPost; }, [onDropPost]);
+  useEffect(() => { onDropPlanItemRef.current = onDropPlanItem; }, [onDropPlanItem]);
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -169,16 +173,21 @@ function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemCli
   }, []);
 
   const handleTouchEnd = useCallback(() => {
-    const postId = touchDragIdRef.current;
-    const date   = dragOverDateRef.current;
-    touchDragIdRef.current  = null;
-    dragOverDateRef.current = null;
+    const id   = touchDragIdRef.current;
+    const type = touchDragTypeRef.current;
+    const date = dragOverDateRef.current;
+    touchDragIdRef.current   = null;
+    touchDragTypeRef.current = null;
+    dragOverDateRef.current  = null;
 
     if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
     setDraggingId(null);
     setDragOverDate(null);
 
-    if (postId && date) onDropPostRef.current(postId, date);
+    if (id && date) {
+      if (type === 'plan') onDropPlanItemRef.current(id, date);
+      else onDropPostRef.current(id, date);
+    }
   }, []);
 
   useEffect(() => {
@@ -192,7 +201,8 @@ function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemCli
 
   const startTouchDrag = (e: React.TouchEvent, p: CalendarPost) => {
     e.stopPropagation();
-    touchDragIdRef.current = p.id;
+    touchDragIdRef.current   = p.id;
+    touchDragTypeRef.current = 'post';
     setDraggingId(p.id);
 
     const touch = e.touches[0];
@@ -208,6 +218,27 @@ function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemCli
            : 'background:#fff1f2;border:2px solid #ef4444;color:#b91c1c',
     ].join(';');
     ghost.textContent = isFb ? 'FB' : 'IG';
+    document.body.appendChild(ghost);
+    ghostRef.current = ghost;
+  };
+
+  const startTouchDragPlan = (e: React.TouchEvent, pi: PlannedContent) => {
+    e.stopPropagation();
+    touchDragIdRef.current   = pi.id;
+    touchDragTypeRef.current = 'plan';
+    setDraggingId(pi.id);
+
+    const touch = e.touches[0];
+    const ghost = document.createElement('div');
+    ghost.style.cssText = [
+      'position:fixed', 'z-index:9999', 'pointer-events:none',
+      `left:${touch.clientX - 48}px`, `top:${touch.clientY - 28}px`,
+      'width:96px', 'padding:6px 8px', 'border-radius:10px',
+      'font-size:11px', 'font-weight:700', 'text-align:center',
+      'box-shadow:0 8px 24px rgba(0,0,0,0.25)', 'opacity:0.92',
+      'background:#f5f3ff;border:2px dashed #7c3aed;color:#6d28d9',
+    ].join(';');
+    ghost.textContent = '✨';
     document.body.appendChild(ghost);
     ghostRef.current = ghost;
   };
@@ -242,6 +273,8 @@ function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemCli
                 e.preventDefault();
                 setDragOverDate(null);
                 setDraggingId(null);
+                const planId = e.dataTransfer.getData('planItemId');
+                if (planId) { onDropPlanItem(planId, iso); return; }
                 const id = e.dataTransfer.getData('postId');
                 if (id) onDropPost(id, iso);
               }}
@@ -298,12 +331,22 @@ function MonthGrid({ year, month, posts, plannedItems, onDayClick, onPlanItemCli
                 {(plannedByDay[day] ?? []).slice(0, 2).map(pi => {
                   const c = typeColor(pi.content_type);
                   const isCreated = pi.status === 'created';
+                  const isDragging = draggingId === pi.id;
                   return (
                     <button
                       key={pi.id}
                       type="button"
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('planItemId', pi.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        setDraggingId(pi.id);
+                      }}
+                      onDragEnd={() => { setDraggingId(null); setDragOverDate(null); }}
+                      onTouchStart={(e) => startTouchDragPlan(e, pi)}
                       onClick={() => !draggingId && onPlanItemClick(pi)}
-                      className={`w-full text-left rounded-md px-1.5 py-1 flex items-center gap-1 border-2 border-dashed transition-all hover:opacity-80
+                      className={`w-full text-left rounded-md px-1.5 py-1 flex items-center gap-1 border-2 border-dashed transition-all cursor-grab active:cursor-grabbing
+                        ${isDragging ? 'opacity-40 scale-95' : 'hover:opacity-80'}
                         ${isCreated ? 'border-green-200 bg-green-50' : 'border-violet-200 bg-violet-50'}
                       `}
                     >
@@ -471,7 +514,7 @@ function PlannedItemModal({ item, onClose, onDelete, onMarkCreated }: {
 
   const createParams = new URLSearchParams();
   createParams.set('ct', item.content_type);
-  const detailStr = [item.service_focus, item.objective].filter(Boolean).join('. ');
+  const detailStr = [item.title, item.service_focus, item.objective].filter(Boolean).join('. ');
   if (detailStr) createParams.set('details', detailStr);
   const createUrl = `/studio?${createParams.toString()}`;
 
@@ -609,6 +652,16 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'created' }),
     });
+  };
+
+  const handleDropPlanItem = async (planItemId: string, newDate: string) => {
+    setPlannedItems(prev => prev.map(pi => pi.id === planItemId ? { ...pi, suggested_date: newDate } : pi));
+    const res = await fetch(`/api/planned-content/${planItemId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ suggested_date: newDate }),
+    });
+    if (!res.ok) fetchPosts();
   };
 
   const handleDropPost = async (postId: string, newDate: string) => {
@@ -760,6 +813,7 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
               onDayClick={setSelectedPost}
               onPlanItemClick={setSelectedPlanItem}
               onDropPost={handleDropPost}
+              onDropPlanItem={handleDropPlanItem}
             />
           </div>
         ) : (
