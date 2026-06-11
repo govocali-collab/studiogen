@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 import { HomeScreenSteps, MobileOS } from './AddToHomeScreenBanner';
 
 export default function HomeScreenInstructions() {
-  // Auto-detect device OS, default to 'ios' on desktop so the section is always visible
-  const [tab, setTab] = useState<MobileOS>('ios');
+  const [os, setOs] = useState<MobileOS | null>(null);
 
   useEffect(() => {
     const ua = navigator.userAgent;
-    if (/Android/.test(ua)) setTab('android');
-    // iOS stays as default; desktop users can switch manually
+    if (/iPhone|iPad|iPod/.test(ua)) setOs('ios');
+    else if (/Android/.test(ua)) setOs('android');
   }, []);
+
+  if (!os) return null;
 
   return (
     <section className="rounded-2xl border border-gray-100 bg-white p-6 space-y-4">
@@ -26,33 +27,11 @@ export default function HomeScreenInstructions() {
         Ajoutez StudioGen à votre écran d&apos;accueil pour un accès instantané, sans passer par le navigateur.
       </p>
 
-      {/* iOS / Android toggle */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
-        <button
-          type="button"
-          onClick={() => setTab('ios')}
-          className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            tab === 'ios' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          iPhone
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab('android')}
-          className={`px-4 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-            tab === 'android' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Android
-        </button>
-      </div>
-
       <div className="bg-gray-50 rounded-xl p-4">
         <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
-          {tab === 'ios' ? 'Dans Safari' : 'Dans Chrome'}
+          {os === 'ios' ? 'Sur iPhone — dans Safari' : 'Sur Android — dans Chrome'}
         </p>
-        <HomeScreenSteps os={tab} />
+        <HomeScreenSteps os={os} />
       </div>
     </section>
   );
