@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 export type MobileOS = 'ios' | 'android';
 
@@ -62,10 +63,13 @@ export default function AddToHomeScreenBanner() {
     if (localStorage.getItem('pwa_never_ask') === 'true') return;
     if (sessionStorage.getItem('pwa_shown') === 'true') return;
 
-    setOs(detectedOs);
-    sessionStorage.setItem('pwa_shown', 'true');
-    const timer = setTimeout(() => setVisible(true), 1200);
-    return () => clearTimeout(timer);
+    // Only show to authenticated users
+    createClient().auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      setOs(detectedOs);
+      sessionStorage.setItem('pwa_shown', 'true');
+      setTimeout(() => setVisible(true), 1200);
+    });
   }, []);
 
   const dismiss = () => setVisible(false);
