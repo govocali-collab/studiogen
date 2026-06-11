@@ -65,7 +65,7 @@ function BillingPageInner() {
     fetch('/api/stripe/invoices').then(r => r.json()).then(d => {
       setInvoices(d?.invoices ?? []);
     });
-    if (isSuccess) setToast('Abonnement activé avec succès !');
+    if (isSuccess || searchParams.get('activated')) setToast('Abonnement activé avec succès !');
     if (searchParams.get('canceled')) setToast('Paiement annulé.');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
