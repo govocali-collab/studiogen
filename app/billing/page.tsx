@@ -48,9 +48,12 @@ function BillingPageInner() {
       });
 
     if (isSuccess) {
-      // Sync subscription from Stripe in case webhook was delayed
-      fetch('/api/stripe/sync-subscription', { method: 'POST' })
-        .then(() => loadProfile());
+      const sessionId = searchParams.get('session_id');
+      fetch('/api/stripe/sync-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId }),
+      }).then(() => loadProfile());
     } else {
       loadProfile();
     }

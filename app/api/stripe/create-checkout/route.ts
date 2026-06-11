@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       subscription_data: {
         metadata: { supabase_user_id: user.id, tier },
       },
-      success_url: `${appUrl}/billing?success=1`,
+      success_url: `${appUrl}/billing?success=1&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/billing?canceled=1`,
       locale: 'fr',
     });
