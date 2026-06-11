@@ -47,8 +47,6 @@ function BillingPageInner() {
       body: JSON.stringify({ session_id: sessionId ?? null }),
     });
     const result = await res.json();
-    const d = await fetch('/api/me').then(r => r.json());
-    setProfile(d?.profile ?? null);
     setSyncing(false);
     return result;
   };
@@ -57,19 +55,23 @@ function BillingPageInner() {
     const isSuccess = !!searchParams.get('success');
 
     const loadProfile = () =>
-      fetch('/api/me').then((r) => r.json()).then((d) => {
+      fetch('/api/me', { cache: 'no-store' }).then((r) => r.json()).then((d) => {
         setProfile(d?.profile ?? null);
         setLoading(false);
       });
 
     if (isSuccess) {
       const sessionId = searchParams.get('session_id');
-      // Poll up to 3 times with increasing delays to handle Stripe processing lag
       const poll = async (attempt: number) => {
         const result = await syncSubscription(sessionId);
-        setLoading(false);
-        if (!result?.synced && attempt < 3) {
+        if (result?.synced) {
+          // Sync succeeded — redirect to clean /billing to force fresh data
+          window.location.replace('/billing');
+        } else if (attempt < 3) {
           setTimeout(() => poll(attempt + 1), attempt * 2000 + 1500);
+        } else {
+          // All retries exhausted — load whatever is in DB
+          loadProfile();
         }
       };
       poll(1);
