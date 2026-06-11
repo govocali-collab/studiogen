@@ -100,7 +100,7 @@ function BillingPageInner() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
       </div>
     );
@@ -154,13 +154,13 @@ function BillingPageInner() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <AppHeader />
 
       <main className="max-w-screen-md mx-auto px-6 py-12 space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Abonnement</h1>
-          <p className="text-sm text-gray-400 mt-1">Gérez votre abonnement StudioGen.</p>
+          <p className="text-sm text-gray-500 mt-1">Gérez votre plan et suivez vos publications ce mois-ci.</p>
         </div>
 
         {/* Tabs */}
@@ -206,7 +206,7 @@ function BillingPageInner() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
-                  <span>Générations ce mois-ci</span>
+                  <span>Publications ce mois-ci</span>
                   <span className="font-semibold tabular-nums text-gray-700">{generationsUsed} / {generationsMax}</span>
                 </div>
                 {limits.generationsPerMonth !== Infinity && (
@@ -248,7 +248,8 @@ function BillingPageInner() {
                     }`}
                   >
                     <div>
-                      <div className={`text-sm font-semibold mb-1 ${isPro ? 'text-gray-400' : 'text-gray-500'}`}>{p.name}</div>
+                      <div className={`text-sm font-semibold ${isPro ? 'text-gray-400' : 'text-gray-500'}`}>{p.name}</div>
+                      <div className={`text-xs mb-2 ${isPro ? 'text-fuchsia-300' : 'text-violet-500'}`}>{p.description}</div>
                       <div className={`text-3xl font-extrabold ${isPro ? 'text-white' : 'text-gray-900'}`}>
                         {p.price} $<span className={`text-sm font-normal ml-1 ${isPro ? 'text-gray-400' : 'text-gray-400'}`}>CA/mois</span>
                       </div>

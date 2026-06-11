@@ -317,7 +317,7 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
         <textarea
           value={details}
           onChange={(e) => setDetails(e.target.value)}
-          placeholder="Ex. : Nouveau service de kératine, prix de lancement à 120 $…"
+          placeholder="Ex. : Nouveau soin visage au collagène, promotion sur épilation laser à 89 $…"
           rows={3}
           className="w-full text-sm rounded-xl border border-gray-200 px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
         />

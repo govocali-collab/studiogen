@@ -62,7 +62,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string) {
         <tr>
           <td style="padding:8px 12px">
             <p style="margin:0 0 10px;font-size:13px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em">Avec ton essai gratuit</p>
-            ${['Crée tes premiers posts Facebook & Instagram', 'Génère des montages photo professionnels', 'Ajoute ton logo en un clic', 'Textes rédigés en français québécois par l\'IA'].map(f => `
+            ${['Crée des publications adaptées à ton entreprise', 'Génère des montages photo professionnels', 'Ajoute ton logo en un clic', 'Textes rédigés en français québécois par l\'IA'].map(f => `
             <p style="margin:0 0 8px;font-size:14px;color:#374151">
               <span style="color:#7c3aed;font-weight:700;margin-right:8px">✓</span>${f}
             </p>`).join('')}

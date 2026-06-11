@@ -209,6 +209,16 @@ function SettingsPageInner() {
             ...EMPTY,
             ...profileData,
             email,
+            first_name: profileData.first_name ?? '',
+            last_name: profileData.last_name ?? '',
+            phone: profileData.phone ?? '',
+            business_name: profileData.business_name ?? '',
+            website: profileData.website ?? '',
+            service_description: profileData.service_description ?? '',
+            city: profileData.city ?? '',
+            province: profileData.province ?? '',
+            target_audience: profileData.target_audience ?? '',
+            cta_style: profileData.cta_style ?? '',
             brand_voice: profileData.brand_voice ?? [],
             services: profileData.services ?? [],
             favorite_phrases: profileData.favorite_phrases ?? [],
@@ -340,6 +350,7 @@ function SettingsPageInner() {
       <main className="max-w-2xl mx-auto px-4 py-10">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
+          <p className="mt-1 text-sm text-gray-500">Plus votre profil est complet, plus l'IA crée des publications qui ressemblent à votre clinique.</p>
         </div>
 
         {/* Tabs */}
@@ -470,7 +481,7 @@ function SettingsPageInner() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-0.5 font-bold shrink-0">2.</span>
-                  <span><strong>Clientèle cible</strong> — Décrivez votre client idéal : âge, style de vie, valeurs. Ex. : <em>Femmes 30-50 ans qui valorisent le naturel et le bien-être.</em></span>
+                  <span><strong>Clientèle cible</strong> — Décrivez votre client idéal : âge, style de vie, valeurs. Ex. : <em>Femmes 28-55 ans qui s'intéressent aux soins esthétiques, au bien-être et à l'apparence naturelle.</em></span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-0.5 font-bold shrink-0">3.</span>
@@ -574,7 +585,7 @@ function SettingsPageInner() {
                   <div className="mb-5">
                     <label className={labelClass}>Clientèle cible</label>
                     <input type="text" name="target_audience" value={form.target_audience} onChange={handleChange}
-                      placeholder="ex. Femmes 25-55 ans, professionnelles, aiment le soin de soi"
+                      placeholder="ex. Femmes 28-55 ans, aiment les soins esthétiques et le bien-être"
                       className={inputClass} />
                   </div>
 
@@ -589,7 +600,7 @@ function SettingsPageInner() {
                     <label className={labelClass}>Services offerts</label>
                     <p className="text-xs text-gray-400 mb-2">Appuyez sur Entrée ou virgule pour ajouter.</p>
                     <TagInput value={form.services} onChange={(v) => setField('services', v)}
-                      placeholder="ex. Coloration, Coupe, Balayage..." />
+                      placeholder="ex. Soin visage, Épilation laser, Traitement au collagène..." />
                   </div>
                 </div>
               </section>
@@ -642,7 +653,7 @@ function SettingsPageInner() {
                       Mots ou formulations que vous aimez. L'IA les intégrera naturellement.
                     </p>
                     <TagInput value={form.favorite_phrases} onChange={(v) => setField('favorite_phrases', v)}
-                      placeholder="ex. Prenez soin de vous, Sublimez votre beauté..." />
+                      placeholder="ex. Peau lumineuse, Résultats naturels, Prenez soin de vous..." />
                   </div>
 
                   <div>
