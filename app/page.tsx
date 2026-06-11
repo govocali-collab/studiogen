@@ -108,22 +108,29 @@ const features = [
   },
 ];
 
+const SHOW_PAIN_POINT_4 = false;
+
 const painPoints = [
   {
     emoji: '⏰',
     title: 'Tu passes des heures sur ton contenu',
-    desc: 'Chercher des idées, rédiger les textes, créer les visuels... tout ça pour 3 publications par semaine. Tu as mieux à faire.',
+    desc: "Chaque semaine, c'est la même chose. Trouver une idée, rédiger le texte, créer le visuel et publier. Pendant ce temps-là, tu pourrais être avec tes clientes.",
   },
   {
     emoji: '💸',
     title: "L'agence coûte trop cher",
-    desc: "300 $ à 800 $ par mois pour de la gestion de réseaux sociaux ? Pour une clinique indépendante, c'est souvent injustifiable.",
+    desc: "300 $ à 800 $ par mois pour quelques publications ? Pour une clinique ou un salon indépendant, c'est souvent difficile à justifier.",
   },
   {
     emoji: '😩',
-    title: "Canva, c'est pas fait pour toi",
-    desc: "Des dizaines de templates génériques, du texte à écrire soi-même, aucune compréhension du secteur beauté. Résultat : contenu banal.",
+    title: "Canva n'est pas fait pour toi",
+    desc: "Des dizaines de modèles génériques, du texte à écrire soi-même et aucune compréhension du secteur beauté. Résultat : un contenu qui ne ressemble pas à ton entreprise.",
   },
+  ...(SHOW_PAIN_POINT_4 ? [{
+    emoji: '🤯',
+    title: 'Tu ne sais jamais quoi publier',
+    desc: "Résultats ? Promotion ? Témoignage ? Conseil beauté ? Trouver de nouvelles idées chaque semaine devient vite épuisant.",
+  }] : []),
 ];
 
 const comparisonRows = [
