@@ -461,33 +461,41 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
       {nav}
 
       <main className="max-w-screen-xl mx-auto px-4 py-6 space-y-5">
-        {/* Title + view toggle */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-gray-900">Calendrier de contenu</h1>
-          <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
-            {(['calendrier', 'liste'] as const).map(v => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-lg capitalize transition-colors ${view === v ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-              >
-                {v === 'calendrier' ? '📅 Calendrier' : '☰ Liste'}
-              </button>
-            ))}
+        {/* Title + controls row */}
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-xl font-bold text-gray-900 shrink-0">Calendrier de contenu</h1>
+          <div className="flex items-center gap-2">
+            {/* Platform toggle */}
+            <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+              {([['', 'Tous'], ['fb', 'Facebook'], ['ig', 'Instagram']] as const).map(([val, label]) => (
+                <button
+                  key={val}
+                  onClick={() => setFilterPlatform(val)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                    filterPlatform === val
+                      ? val === 'fb' ? 'bg-blue-600 text-white shadow-sm'
+                      : val === 'ig' ? 'bg-rose-500 text-white shadow-sm'
+                      : 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {/* View toggle */}
+            <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+              {(['calendrier', 'liste'] as const).map(v => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${view === v ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  {v === 'calendrier' ? '📅 Calendrier' : '☰ Liste'}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-
-        {/* Filter by platform */}
-        <div className="flex gap-1.5">
-          {([['', 'Tous'], ['fb', 'Facebook'], ['ig', 'Instagram']] as const).map(([val, label]) => (
-            <button
-              key={val}
-              onClick={() => setFilterPlatform(val)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${filterPlatform === val ? (val === 'fb' ? 'bg-blue-600 text-white border-blue-600' : val === 'ig' ? 'bg-rose-500 text-white border-rose-500' : 'bg-violet-600 text-white border-violet-600') : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}
-            >
-              {label}
-            </button>
-          ))}
         </div>
 
         {/* Filter by content type */}
