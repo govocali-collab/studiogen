@@ -246,7 +246,14 @@ function BillingPageInner() {
               )}
               {!syncing && isTrialing && (
                 <button
-                  onClick={() => { setSyncing(true); fetch('/api/me', { cache: 'no-store' }).then(r => r.json()).then(d => { setProfile(d?.profile ?? null); setSyncing(false); }); }}
+                  onClick={() => {
+                    setSyncing(true);
+                    fetch('/api/me', { cache: 'no-store' }).then(r => r.json()).then(d => {
+                      setProfile(d?.profile ?? null);
+                      setSyncing(false);
+                      alert('status: ' + d?.profile?.subscription_status + '\ncustomer: ' + d?.profile?.stripe_customer_id + '\ntier: ' + d?.profile?.subscription_tier);
+                    });
+                  }}
                   className="text-xs text-violet-500 hover:text-violet-700 font-medium transition-colors whitespace-nowrap underline underline-offset-2"
                 >
                   Rafraîchir
