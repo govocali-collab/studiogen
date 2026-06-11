@@ -301,7 +301,7 @@ export default async function LandingPage() {
             StudioGen crée automatiquement des publications qui ressemblent à ton entreprise, sans Canva, sans agence et sans y passer tes soirées.
           </p>
 
-          {/* Definition paragraph — visible to search engines and AI crawlers for GEO/AEO */}
+          {/* Definition paragraph - visible to search engines and AI crawlers for GEO/AEO */}
           <p className="text-sm text-gray-400 max-w-2xl mx-auto mb-6 leading-relaxed">
             StudioGen est un outil d&apos;intelligence artificielle conçu pour les professionnels de la beauté au Québec. Il génère des montages photo et des textes en français québécois pour Facebook et Instagram en moins de 2 minutes, à partir de tes photos et de ton profil de marque.
           </p>
@@ -691,7 +691,7 @@ export default async function LandingPage() {
         <div className="max-w-2xl mx-auto">
           <h2 className="text-lg font-bold text-gray-900 mb-3">Qu&apos;est-ce que StudioGen ?</h2>
           <p className="text-sm text-gray-600 leading-relaxed">
-            StudioGen est une application web québécoise d&apos;intelligence artificielle qui génère automatiquement des publications pour Facebook et Instagram. En moins de 2 minutes, les professionnels de la beauté — esthéticiennes, coiffeuses, cliniques esthétiques — obtiennent un montage photo professionnel et un texte personnalisé en français québécois, sans formation en design ni en rédaction. StudioGen mémorise le ton, les services et la clientèle cible de chaque entreprise pour produire un contenu cohérent avec leur marque à chaque utilisation.
+            StudioGen est une application web québécoise d&apos;intelligence artificielle qui génère automatiquement des publications pour Facebook et Instagram. En moins de 2 minutes, les professionnels de la beauté (esthéticiennes, coiffeuses, cliniques esthétiques) obtiennent un montage photo professionnel et un texte personnalisé en français québécois, sans formation en design ni en rédaction. StudioGen mémorise le ton, les services et la clientèle cible de chaque entreprise pour produire un contenu cohérent avec leur marque à chaque utilisation.
           </p>
         </div>
       </section>
