@@ -108,7 +108,7 @@ const features = [
   },
 ];
 
-const SHOW_PAIN_POINT_4 = false;
+const SHOW_PAIN_POINT_4 = true;
 
 const painPoints = [
   {
