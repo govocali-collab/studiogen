@@ -31,8 +31,9 @@ import type { Profile } from '@/lib/supabase/types';
 const LogoManager = dynamic(() => import('@/components/LogoManager'), { ssr: false });
 const PostGenerator = dynamic(() => import('@/components/PostGenerator'), { ssr: false });
 
-const LOGOS_KEY = 'station-beaute-logos';
-const LOGO_SETTINGS_KEY = 'station-beaute-logo-settings';
+const logosKey        = (uid: string) => `sg-logos-${uid}`;
+const logoSettingsKey = (uid: string) => `sg-logo-settings-${uid}`;
+const bannerKey       = (uid: string) => `sg-ia-banner-${uid}`;
 
 const DEFAULT_LOGO_SETTINGS: LogoSettings = {
   logoId: null,
@@ -122,7 +123,8 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
   useEffect(() => {
     const init = async () => {
-      if (localStorage.getItem('ia-banner-dismissed') === '1') setIaBannerDismissed(true);
+      const uid = initialProfile?.id ?? '';
+      if (localStorage.getItem(bannerKey(uid)) === '1') setIaBannerDismissed(true);
 
       try {
         // Load logos from server (source of truth — works on all devices)
@@ -149,7 +151,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             prevLogosRef.current = loaded;
 
             // Restore previously selected logo using saved db_id
-            const storedSettings = localStorage.getItem(LOGO_SETTINGS_KEY);
+            const storedSettings = localStorage.getItem(logoSettingsKey(uid));
             const parsed = storedSettings ? JSON.parse(storedSettings) : {};
             const savedDbId: string | undefined = parsed.selectedDbId;
             const target = savedDbId ? loaded.find((l) => l.db_id === savedDbId) : loaded[0];
@@ -172,13 +174,13 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
       // Fallback: localStorage (first use or no server logos yet)
       try {
-        const storedLogos = localStorage.getItem(LOGOS_KEY);
+        const storedLogos = localStorage.getItem(logosKey(uid));
         const parsedLogos: Logo[] = storedLogos ? JSON.parse(storedLogos) : [];
         if (parsedLogos.length) {
           setLogos(parsedLogos);
           prevLogosRef.current = parsedLogos;
         }
-        const storedSettings = localStorage.getItem(LOGO_SETTINGS_KEY);
+        const storedSettings = localStorage.getItem(logoSettingsKey(uid));
         const parsed: LogoSettings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_LOGO_SETTINGS;
         const selectedLogo = parsedLogos.find((l) => l.id === parsed.logoId);
         setLogoSettings({
@@ -200,7 +202,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
   useEffect(() => {
     if (!hydrated) return;
     // Save to localStorage as cache
-    localStorage.setItem(LOGOS_KEY, JSON.stringify(logos));
+    localStorage.setItem(logosKey(initialProfile?.id ?? ''), JSON.stringify(logos));
 
     const prev = prevLogosRef.current;
 
@@ -253,7 +255,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
     if (!hydrated) return;
     // Save settings + selected db_id to localStorage
     const selectedLogo = logos.find((l) => l.id === logoSettings.logoId);
-    localStorage.setItem(LOGO_SETTINGS_KEY, JSON.stringify({
+    localStorage.setItem(logoSettingsKey(initialProfile?.id ?? ''), JSON.stringify({
       ...logoSettings,
       selectedDbId: selectedLogo?.db_id,
     }));
@@ -506,7 +508,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
               <button
                 onClick={() => {
                   setIaBannerDismissed(true);
-                  try { localStorage.setItem('ia-banner-dismissed', '1'); } catch { /* ignore */ }
+                  try { localStorage.setItem(bannerKey(initialProfile?.id ?? ''), '1'); } catch { /* ignore */ }
                 }}
                 className="text-violet-400 hover:text-violet-600 transition-colors p-1"
                 aria-label="Fermer"
