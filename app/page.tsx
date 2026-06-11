@@ -686,6 +686,16 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* ── Définition extractable (featured snippet / GEO) ──────────────── */}
+      <section className="py-10 sm:py-14 px-4 sm:px-6 bg-gray-50 border-y border-gray-100">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-lg font-bold text-gray-900 mb-3">Qu&apos;est-ce que StudioGen ?</h2>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            StudioGen est une application web québécoise d&apos;intelligence artificielle qui génère automatiquement des publications pour Facebook et Instagram. En moins de 2 minutes, les professionnels de la beauté — esthéticiennes, coiffeuses, cliniques esthétiques — obtiennent un montage photo professionnel et un texte personnalisé en français québécois, sans formation en design ni en rédaction. StudioGen mémorise le ton, les services et la clientèle cible de chaque entreprise pour produire un contenu cohérent avec leur marque à chaque utilisation.
+          </p>
+        </div>
+      </section>
+
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-white overflow-hidden">
         <div className="absolute inset-0 pointer-events-none hidden sm:block">
