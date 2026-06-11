@@ -25,10 +25,9 @@ export function HomeScreenSteps({ os }: { os: MobileOS }) {
   const steps =
     os === 'ios'
       ? [
-          <>Ouvrir StudioGen dans <strong className="text-gray-900">Safari</strong></>,
-          <>Appuyer sur l&apos;icône <strong className="text-gray-900">Partager</strong> <span className="text-gray-700 font-bold">⬆</span> en bas de l&apos;écran</>,
-          <>Faire défiler et appuyer sur <strong className="text-gray-900">&quot;Sur l&apos;écran d&apos;accueil&quot;</strong></>,
-          <>Appuyer sur <strong className="text-gray-900">&quot;Ajouter&quot;</strong></>,
+          <>Dans Safari, appuyer sur <strong className="text-gray-900">...</strong> (3 points) en bas à droite</>,
+          <>Appuyer sur <strong className="text-gray-900">Partage</strong></>,
+          <>En bas, appuyer sur <strong className="text-gray-900">&quot;Ajouter à l&apos;écran d&apos;accueil&quot;</strong></>,
         ]
       : [
           <>Ouvrir StudioGen dans <strong className="text-gray-900">Chrome</strong></>,
