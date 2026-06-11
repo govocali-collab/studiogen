@@ -39,47 +39,30 @@ function BillingPageInner() {
   const [cancelled, setCancelled] = useState(false);
   const [syncing, setSyncing] = useState(false);
 
-  const syncSubscription = async (sessionId?: string | null) => {
-    setSyncing(true);
-    const res = await fetch('/api/stripe/sync-subscription', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ session_id: sessionId ?? null }),
-    });
-    const result = await res.json();
-    setSyncing(false);
-    return result;
-  };
-
   useEffect(() => {
     const isSuccess = !!searchParams.get('success');
 
-    const loadProfile = () =>
-      fetch('/api/me', { cache: 'no-store' }).then((r) => r.json()).then((d) => {
-        setProfile(d?.profile ?? null);
-        setLoading(false);
-      });
+    // /api/me now auto-syncs from Stripe if profile shows trialing + has customer ID.
+    // Poll it up to 5 times on success so the DB has time to reflect the payment.
+    const fetchProfile = () =>
+      fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
 
-    if (isSuccess) {
-      const sessionId = searchParams.get('session_id');
-      const poll = async (attempt: number) => {
-        const result = await syncSubscription(sessionId);
-        if (result?.synced) {
-          // Sync succeeded — redirect to clean /billing to force fresh data
-          window.location.replace('/billing');
-        } else if (attempt < 3) {
-          setTimeout(() => poll(attempt + 1), attempt * 2000 + 1500);
-        } else {
-          // All retries exhausted — load whatever is in DB
-          loadProfile();
-        }
-      };
-      poll(1);
-    } else {
-      loadProfile();
-    }
+    const pollProfile = async (attempt: number) => {
+      const d = await fetchProfile();
+      const p = d?.profile ?? null;
+      setProfile(p);
+      setLoading(false);
+      setSyncing(false);
+      if (isSuccess && p?.subscription_status === 'trialing' && attempt < 5) {
+        setSyncing(true);
+        setTimeout(() => pollProfile(attempt + 1), 1500);
+      }
+    };
 
-    fetch('/api/stripe/invoices').then((r) => r.json()).then((d) => {
+    setSyncing(isSuccess);
+    pollProfile(1);
+
+    fetch('/api/stripe/invoices').then(r => r.json()).then(d => {
       setInvoices(d?.invoices ?? []);
     });
     if (isSuccess) setToast('Abonnement activé avec succès !');
@@ -261,9 +244,9 @@ function BillingPageInner() {
                   Synchronisation…
                 </span>
               )}
-              {!syncing && isTrialing && searchParams.get('success') && (
+              {!syncing && isTrialing && (
                 <button
-                  onClick={() => syncSubscription(searchParams.get('session_id'))}
+                  onClick={() => { setSyncing(true); fetch('/api/me', { cache: 'no-store' }).then(r => r.json()).then(d => { setProfile(d?.profile ?? null); setSyncing(false); }); }}
                   className="text-xs text-violet-500 hover:text-violet-700 font-medium transition-colors whitespace-nowrap underline underline-offset-2"
                 >
                   Rafraîchir
