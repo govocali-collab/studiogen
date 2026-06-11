@@ -289,21 +289,20 @@ function BillingPageInner() {
 
                 // Plan currently paid for
                 const isPaidPlan = t === tier && isActive;
-                // Pro card during trial
-                const isTrialPlan = isPro && isTrialing;
                 // User is on Pro and looking at Essentiel (no downgrade via checkout)
                 const isLowerThanCurrent = t === 'essentiel' && tier === 'pro' && isActive;
                 // User is on Essentiel and can upgrade
                 const isUpgrade = isPro && tier === 'essentiel' && isActive;
-                // Can click to buy
-                const canBuy = !isPaidPlan && !isTrialPlan && !isLowerThanCurrent;
+                // During trial: both plans are purchasable
+                const canBuy = !isPaidPlan && !isLowerThanCurrent;
 
-                const showActiveBadge = isPaidPlan || isTrialPlan;
+                // Badge: show "Essai" on Pro during trial, "Actif" on paid plan
+                const showTrialBadge = isPro && isTrialing;
+                const showActiveBadge = isPaidPlan || showTrialBadge;
 
                 let btnLabel = `S'abonner · ${p.price} $/mois`;
                 if (actionLoading === t) btnLabel = 'Redirection…';
                 else if (isPaidPlan) btnLabel = 'Plan actuel';
-                else if (isTrialPlan) btnLabel = 'Essai en cours';
                 else if (isLowerThanCurrent) btnLabel = 'Inclus dans votre Pro';
                 else if (isUpgrade) btnLabel = 'Passer au Pro →';
 
@@ -316,7 +315,7 @@ function BillingPageInner() {
                         : 'bg-white border-2 border-gray-200'
                     } ${showActiveBadge ? (isPro ? 'ring-2 ring-violet-400/60' : 'ring-2 ring-violet-400') : ''}`}
                   >
-                    {/* Active badge */}
+                    {/* Active / trial badge */}
                     {showActiveBadge && (
                       <div className={`absolute top-4 right-4 flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         isPro
@@ -326,7 +325,7 @@ function BillingPageInner() {
                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
-                        {isTrialPlan ? 'Essai' : 'Actif'}
+                        {showTrialBadge ? 'Essai' : 'Actif'}
                       </div>
                     )}
 
