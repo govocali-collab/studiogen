@@ -724,7 +724,7 @@ export default async function LandingPage() {
             <Link href="#tarifs" className="hover:text-gray-300 transition-colors">Tarifs</Link>
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-600">
-            <Link href="/politique-confidentialite" className="hover:text-gray-400 transition-colors">Confidentialite</Link>
+            <Link href="/politique-confidentialite" className="hover:text-gray-400 transition-colors">Confidentialité</Link>
             <Link href="/conditions-utilisation" className="hover:text-gray-400 transition-colors">Conditions</Link>
             <span>© {new Date().getFullYear()} Astrova.</span>
           </div>

@@ -11,6 +11,7 @@ interface PostGeneratorProps {
   tier?: 'essentiel' | 'pro';
   onUpgradeClick?: () => void;
   brandVoice?: string[] | null;
+  onSchedule?: (platform: 'fb' | 'ig', content: string, contentType: string) => void;
 }
 
 const BRAND_VOICE_LABELS: Record<string, string> = {
@@ -205,7 +206,7 @@ function EditModal({ field, text, onClose, onSave }: EditModalProps) {
   );
 }
 
-export default function PostGenerator({ isGenerating, posts, onGenerate, onPostsChange, tier = 'essentiel', onUpgradeClick, brandVoice }: PostGeneratorProps) {
+export default function PostGenerator({ isGenerating, posts, onGenerate, onPostsChange, tier = 'essentiel', onUpgradeClick, brandVoice, onSchedule }: PostGeneratorProps) {
   const [contentType, setContentType] = useState<ContentType>('résultats clients');
   const [tone, setTone] = useState<Tone>('chaleureux');
   const [length, setLength] = useState<TextLength>('moyen');
@@ -373,6 +374,18 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
               <div className="flex items-center gap-1.5">
                 <EditButton onClick={() => openEdit('fb')} />
                 <CopyButton text={posts.fb} />
+                {onSchedule && (
+                  <button
+                    type="button"
+                    onClick={() => onSchedule('fb', posts.fb, contentType)}
+                    title="Planifier au calendrier"
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
             <pre
@@ -395,6 +408,18 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
                 <div className="flex items-center gap-1.5">
                   <EditButton onClick={() => openEdit('ig')} />
                   <CopyButton text={posts.ig} />
+                  {onSchedule && (
+                    <button
+                      type="button"
+                      onClick={() => onSchedule('ig', posts.ig, contentType)}
+                      title="Planifier au calendrier"
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-pink-400 hover:bg-pink-100 hover:text-pink-600 transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               </div>
               <pre

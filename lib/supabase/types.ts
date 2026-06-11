@@ -29,6 +29,8 @@ export interface Profile {
   billing_period_end: string | null;
   generations_used: number;
   trial_generations_used: number;
+  logo_size: number | null;
+  logo_position: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -45,6 +47,17 @@ export interface PostHistory {
   created_at: string;
 }
 
+export interface CalendarPost {
+  id: string;
+  user_id: string;
+  scheduled_date: string; // DATE — 'YYYY-MM-DD'
+  platform: 'fb' | 'ig';
+  content: string;
+  content_type: string;
+  image_url: string | null;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -57,6 +70,11 @@ export interface Database {
         Row: PostHistory;
         Insert: Omit<PostHistory, 'id' | 'created_at'>;
         Update: Partial<PostHistory>;
+      };
+      calendar_posts: {
+        Row: CalendarPost;
+        Insert: Omit<CalendarPost, 'id' | 'created_at'>;
+        Update: Partial<CalendarPost>;
       };
     };
   };

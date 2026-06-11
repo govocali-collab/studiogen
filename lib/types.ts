@@ -25,18 +25,20 @@ export interface Layout {
   maxPhotos: number;
 }
 
-export interface Logo {
-  id: string;
-  name: string;
-  dataUrl: string;
-}
-
 export type LogoPosition =
   | 'bottom-right'
   | 'bottom-left'
   | 'top-right'
   | 'top-left'
   | 'center';
+
+export interface Logo {
+  id: string;
+  name: string;
+  dataUrl: string;
+  rememberedSize?: number;
+  rememberedPosition?: LogoPosition;
+}
 
 export interface LogoSettings {
   logoId: string | null;
@@ -66,4 +68,18 @@ export interface GeneratePostRequest {
 export interface GeneratePostResponse {
   fb: string;
   ig: string;
+}
+
+export interface TextOverlay {
+  id: string;
+  text: string;
+  x: number;        // 0–1 relative to canvas width (anchor: left/center/right edge depending on align)
+  y: number;        // 0–1 relative to canvas height (top of text)
+  fontSize: number; // canvas pixels
+  fontFamily: string;
+  color: string;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  align: 'left' | 'center' | 'right';
 }

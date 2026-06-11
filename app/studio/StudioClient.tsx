@@ -23,6 +23,7 @@ import {
   LayoutType,
   Logo,
   LogoSettings,
+  TextOverlay,
 } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/lib/supabase/types';
@@ -36,7 +37,7 @@ const LOGO_SETTINGS_KEY = 'station-beaute-logo-settings';
 const DEFAULT_LOGO_SETTINGS: LogoSettings = {
   logoId: null,
   position: 'bottom-right',
-  size: 20,
+  size: 10,
 };
 
 interface Props {
@@ -83,8 +84,14 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
   const [usedOffset, setUsedOffset] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [iabannerDismissed, setIaBannerDismissed] = useState(false);
+  const [textOverlays, setTextOverlays] = useState<TextOverlay[]>([]);
+  const [scheduleModal, setScheduleModal] = useState<{ platform: 'fb' | 'ig'; content: string; contentType: string } | null>(null);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleSaving, setScheduleSaving] = useState(false);
+  const [scheduleSaved, setScheduleSaved] = useState(false);
 
   const canvasRef = useRef<CollageCanvasHandle>(null);
+  const logoSettingsSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const genInfo = computeGenInfo(profile);
   const tier = genInfo.tier;
@@ -96,13 +103,20 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
   useEffect(() => {
     try {
       const storedLogos = localStorage.getItem(LOGOS_KEY);
-      if (storedLogos) setLogos(JSON.parse(storedLogos));
+      const parsedLogos: Logo[] = storedLogos ? JSON.parse(storedLogos) : [];
+      if (parsedLogos.length) setLogos(parsedLogos);
       const storedSettings = localStorage.getItem(LOGO_SETTINGS_KEY);
-      if (storedSettings) setLogoSettings(JSON.parse(storedSettings));
+      const parsed: LogoSettings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_LOGO_SETTINGS;
+      // If a logo was previously selected, restore its remembered size + position
+      const selectedLogo = parsedLogos.find((l) => l.id === parsed.logoId);
+      setLogoSettings({
+        ...parsed,
+        size: selectedLogo?.rememberedSize ?? parsed.size,
+        position: selectedLogo?.rememberedPosition ?? parsed.position,
+      });
       if (localStorage.getItem('ia-banner-dismissed') === '1') setIaBannerDismissed(true);
     } catch { /* ignore */ }
     setHydrated(true);
-    // Fetch fresh profile to pick up latest brand_voice and other settings
     fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((data) => {
       if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
     });
@@ -116,11 +130,45 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
   useEffect(() => {
     if (!hydrated) return;
     localStorage.setItem(LOGO_SETTINGS_KEY, JSON.stringify(logoSettings));
+    // Save size + position back onto the selected logo object so each logo remembers its own
+    if (logoSettings.logoId) {
+      setLogos((prev) => prev.map((l) =>
+        l.id === logoSettings.logoId
+          ? { ...l, rememberedSize: logoSettings.size, rememberedPosition: logoSettings.position }
+          : l
+      ));
+    }
+    // Debounce-save to DB as fallback (persists the most recently used size/position)
+    clearTimeout(logoSettingsSaveTimer.current);
+    logoSettingsSaveTimer.current = setTimeout(() => {
+      fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logo_size: logoSettings.size, logo_position: logoSettings.position }),
+      });
+    }, 800);
   }, [logoSettings, hydrated]);
 
   useEffect(() => {
     setLayoutType(suggestLayout(photos.length));
   }, [photos.length]);
+
+  // When the selected logo changes, restore its remembered size + position
+  const prevLogoId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!hydrated) return;
+    if (logoSettings.logoId === prevLogoId.current) return;
+    prevLogoId.current = logoSettings.logoId;
+    if (!logoSettings.logoId) return;
+    const selected = logos.find((l) => l.id === logoSettings.logoId);
+    if (selected && (selected.rememberedSize != null || selected.rememberedPosition != null)) {
+      setLogoSettings((prev) => ({
+        ...prev,
+        ...(selected.rememberedSize != null ? { size: selected.rememberedSize } : {}),
+        ...(selected.rememberedPosition != null ? { position: selected.rememberedPosition } : {}),
+      }));
+    }
+  }, [logoSettings.logoId, hydrated, logos]);
 
   const { width: canvasWidth, height: canvasHeight } = FORMATS[format];
   const layout = getLayout(layoutType, canvasWidth, canvasHeight);
@@ -161,12 +209,76 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
     }
   }, [profile?.subscription_tier]);
 
+  const addTextOverlay = () => {
+    const id = crypto.randomUUID();
+    setTextOverlays(prev => [...prev, {
+      id,
+      text: 'Votre texte',
+      x: 0.5,
+      y: 0.4,
+      fontSize: 72,
+      fontFamily: 'Helvetica Neue',
+      color: '#FFFFFF',
+      bold: false,
+      italic: false,
+      underline: false,
+      align: 'center',
+    }]);
+  };
+
   const handleSignOut = async () => {
     await createClient().auth.signOut();
     router.push('/');
   };
 
   const openUpgrade = (reason: string) => setUpgradeModal({ reason, tier: 'pro' });
+
+  const [existingPosts, setExistingPosts] = useState<{ scheduled_date: string; platform: string }[]>([]);
+  const [calYear, setCalYear] = useState(new Date().getFullYear());
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
+
+  const openSchedule = async (platform: 'fb' | 'ig', content: string, contentType: string) => {
+    const now = new Date();
+    setCalYear(now.getFullYear());
+    setCalMonth(now.getMonth());
+    setScheduleDate('');
+    setScheduleSaved(false);
+    setScheduleError('');
+    setScheduleModal({ platform, content, contentType });
+    try {
+      const res = await fetch('/api/calendar');
+      if (res.ok) setExistingPosts(await res.json());
+    } catch { /* ignore */ }
+  };
+
+  const [scheduleError, setScheduleError] = useState('');
+
+  const confirmSchedule = async () => {
+    if (!scheduleModal || !scheduleDate) return;
+    setScheduleSaving(true);
+    setScheduleError('');
+    try {
+      const blob = await canvasRef.current?.exportBlob() ?? null;
+      const form = new FormData();
+      form.append('scheduled_date', scheduleDate);
+      form.append('platform', scheduleModal.platform);
+      form.append('content', scheduleModal.content);
+      form.append('content_type', scheduleModal.contentType);
+      if (blob) form.append('image', blob, 'post.jpg');
+      const res = await fetch('/api/calendar', { method: 'POST', body: form });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setScheduleError(data.error ?? `Erreur ${res.status}`);
+        return;
+      }
+      setScheduleSaved(true);
+      setTimeout(() => setScheduleModal(null), 1200);
+    } catch (e) {
+      setScheduleError(e instanceof Error ? e.message : 'Erreur inconnue');
+    } finally {
+      setScheduleSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -187,6 +299,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             )}
             {/* Desktop nav */}
             <Link href="/studio" className="hidden sm:inline text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">Studio</Link>
+
             <Link href="/settings" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Paramètres</Link>
             <Link href="/billing" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Abonnement</Link>
             <button onClick={handleSignOut} className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Déconnexion</button>
@@ -213,6 +326,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
               </svg>
               Studio
             </Link>
+
             <Link href="/settings" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
               <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
@@ -308,6 +422,18 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
           </div>
         )}
 
+
+        {effectiveTier === 'pro' && (
+          <div className="hidden lg:flex justify-end -mb-8 relative z-10">
+            <Link href="/calendrier" className="flex items-center gap-1.5 text-xs font-semibold bg-white border border-gray-200 hover:border-violet-400 hover:text-violet-700 text-gray-600 px-3 py-1.5 rounded-xl shadow-sm transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Calendrier
+            </Link>
+          </div>
+        )}
+
         <div className="space-y-4 lg:grid lg:grid-cols-[260px_1fr_340px] lg:gap-4 lg:space-y-0 lg:items-start">
 
           <div className="space-y-4">
@@ -335,12 +461,34 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             </Card>
 
             <Card>
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
                 <h2 className="section-title">Aperçu</h2>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs text-gray-400 tabular-nums">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  <span className="text-xs text-gray-400 tabular-nums hidden sm:inline">
                     {canvasWidth} × {canvasHeight} px
                   </span>
+                  {/* Text overlay button — Pro + trial */}
+                  {effectiveTier === 'pro' ? (
+                    <button
+                      onClick={addTextOverlay}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-2 rounded-xl transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Texte
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => openUpgrade('L\'ajout de texte sur les visuels est une fonctionnalité Pro.')}
+                      className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl transition-colors hover:border-violet-300 hover:text-violet-500"
+                    >
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      Texte
+                    </button>
+                  )}
                   <button
                     onClick={() => canvasRef.current?.download()}
                     disabled={photos.length === 0}
@@ -363,6 +511,8 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 canvasWidth={canvasWidth}
                 canvasHeight={canvasHeight}
                 format={format}
+                textOverlays={textOverlays}
+                onTextOverlaysChange={setTextOverlays}
               />
 
               {photos.length > 0 && (
@@ -381,7 +531,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 logoSettings={logoSettings}
                 onLogoSettingsChange={setLogoSettings}
                 tier={effectiveTier}
-                onUpgradeClick={() => openUpgrade('Les logos illimités sont réservés au plan Pro. Le plan Essentiel permet 1 logo.')}
+                onUpgradeClick={() => openUpgrade('Les logos illimités et la suppression d\'arrière-plan sont réservés au plan Pro.')}
               />
             </Card>
             <GenerationWarning
@@ -401,6 +551,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 tier={effectiveTier}
                 onUpgradeClick={() => openUpgrade('La génération simultanée Facebook + Instagram est réservée au plan Pro.')}
                 brandVoice={profile?.brand_voice}
+                onSchedule={effectiveTier === 'pro' ? openSchedule : undefined}
               />
             </Card>
           </div>
@@ -414,6 +565,139 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
           checkoutTier={upgradeModal.tier}
           onClose={() => setUpgradeModal(null)}
         />
+      )}
+
+      {scheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setScheduleModal(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md space-y-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pt-5">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-gray-900">Planifier la publication</h2>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${scheduleModal.platform === 'fb' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+                  {scheduleModal.platform === 'fb' ? 'Facebook' : 'Instagram'}
+                </span>
+              </div>
+              <button onClick={() => setScheduleModal(null)} className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            {/* Inline calendar */}
+            <div className="px-5">
+              {/* Month nav */}
+              <div className="flex items-center justify-between mb-2">
+                <button
+                  type="button"
+                  onClick={() => { if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); } else setCalMonth(m => m - 1); }}
+                  className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <span className="text-xs font-bold text-gray-800">
+                  {['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'][calMonth]} {calYear}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => { if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); } else setCalMonth(m => m + 1); }}
+                  className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+
+              {/* Day headers */}
+              <div className="grid grid-cols-7 mb-1">
+                {['Di','Lu','Ma','Me','Je','Ve','Sa'].map(d => (
+                  <div key={d} className="text-center text-[10px] font-semibold text-gray-400 py-0.5">{d}</div>
+                ))}
+              </div>
+
+              {/* Days grid */}
+              <div className="grid grid-cols-7 gap-px">
+                {(() => {
+                  const firstDay = new Date(calYear, calMonth, 1).getDay();
+                  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+                  const today = new Date(); today.setHours(0,0,0,0);
+                  const cells: (number | null)[] = [];
+                  for (let i = 0; i < firstDay; i++) cells.push(null);
+                  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+                  return cells.map((day, i) => {
+                    if (!day) return <div key={`e-${i}`} className="h-9" />;
+                    const iso = `${calYear}-${String(calMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    const cellDate = new Date(calYear, calMonth, day); cellDate.setHours(0,0,0,0);
+                    const isPast = cellDate < today;
+                    const isToday = cellDate.getTime() === today.getTime();
+                    const isSelected = scheduleDate === iso;
+                    const postsOnDay = existingPosts.filter(p => p.scheduled_date === iso);
+                    const hasFb = postsOnDay.some(p => p.platform === 'fb');
+                    const hasIg = postsOnDay.some(p => p.platform === 'ig');
+
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        disabled={isPast}
+                        onClick={() => setScheduleDate(iso)}
+                        className={`h-9 flex flex-col items-center justify-center rounded-lg transition-colors relative
+                          ${isPast ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-violet-50'}
+                          ${isSelected ? 'bg-violet-600 text-white hover:bg-violet-700' : isToday ? 'ring-1 ring-violet-400' : ''}
+                        `}
+                      >
+                        <span className={`text-xs font-semibold leading-none ${isSelected ? 'text-white' : isToday ? 'text-violet-600' : 'text-gray-700'}`}>
+                          {day}
+                        </span>
+                        {postsOnDay.length > 0 && (
+                          <div className="flex gap-0.5 mt-0.5">
+                            {hasFb && <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-blue-200' : 'bg-blue-500'}`} />}
+                            {hasIg && <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-red-200' : 'bg-red-500'}`} />}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center gap-3 mt-2">
+                <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 inline-block" /> Facebook
+                </div>
+                <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                  <span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> Instagram
+                </div>
+                {scheduleDate && (
+                  <span className="ml-auto text-[10px] font-semibold text-violet-600">
+                    {new Date(scheduleDate + 'T12:00:00').toLocaleDateString('fr-CA', { day: 'numeric', month: 'long' })}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-5 pb-5 space-y-3">
+              <p className="text-[11px] text-gray-400">L'image actuelle du collage sera jointe automatiquement.</p>
+
+              {scheduleError && (
+                <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{scheduleError}</p>
+              )}
+
+              <button
+                onClick={confirmSchedule}
+                disabled={!scheduleDate || scheduleSaving || scheduleSaved}
+                className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                  scheduleSaved
+                    ? 'bg-green-500 text-white'
+                    : 'bg-violet-600 hover:bg-violet-700 text-white disabled:opacity-50'
+                }`}
+              >
+                {scheduleSaved ? '✓ Planifié !' : scheduleSaving ? 'Sauvegarde…' : scheduleDate ? `Planifier le ${new Date(scheduleDate + 'T12:00:00').toLocaleDateString('fr-CA', { day: 'numeric', month: 'long' })}` : 'Choisir une date'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

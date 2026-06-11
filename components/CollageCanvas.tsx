@@ -8,7 +8,8 @@ import {
   useRef,
   useState,
 } from 'react';
-import { FormatType, Layout, Logo, LogoSettings } from '@/lib/types';
+import { FormatType, Layout, Logo, LogoSettings, TextOverlay } from '@/lib/types';
+import TextOverlayLayer, { fontCss } from './TextOverlayLayer';
 
 interface CollageCanvasProps {
   photos: string[];
@@ -18,10 +19,13 @@ interface CollageCanvasProps {
   canvasWidth: number;
   canvasHeight: number;
   format: FormatType;
+  textOverlays: TextOverlay[];
+  onTextOverlaysChange: (overlays: TextOverlay[]) => void;
 }
 
 export interface CollageCanvasHandle {
   download: () => void;
+  exportBlob: () => Promise<Blob | null>;
 }
 
 type Adjustment = { x: number; y: number; zoom: number };
@@ -135,10 +139,31 @@ async function renderCollage(
 }
 
 const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
-  function CollageCanvas({ photos, layout, logos, logoSettings, canvasWidth, canvasHeight, format }, ref) {
+  function CollageCanvas({ photos, layout, logos, logoSettings, canvasWidth, canvasHeight, format, textOverlays, onTextOverlaysChange }, ref) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const drawIdRef = useRef(0);
     const imgCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
+
+    // Refs for download (always fresh values without stale closure)
+    const photosRef = useRef(photos);
+    const layoutRef = useRef(layout);
+    const logosRef = useRef(logos);
+    const logoSettingsRef = useRef(logoSettings);
+    const canvasWidthRef = useRef(canvasWidth);
+    const canvasHeightRef = useRef(canvasHeight);
+    const formatRef = useRef(format);
+    const textOverlaysRef = useRef(textOverlays);
+    useEffect(() => { photosRef.current = photos; }, [photos]);
+    useEffect(() => { layoutRef.current = layout; }, [layout]);
+    useEffect(() => { logosRef.current = logos; }, [logos]);
+    useEffect(() => { logoSettingsRef.current = logoSettings; }, [logoSettings]);
+    useEffect(() => { canvasWidthRef.current = canvasWidth; }, [canvasWidth]);
+    useEffect(() => { canvasHeightRef.current = canvasHeight; }, [canvasHeight]);
+    useEffect(() => { formatRef.current = format; }, [format]);
+    useEffect(() => { textOverlaysRef.current = textOverlays; }, [textOverlays]);
+
+    // Track canvas display size for overlay scaling
+    const [displaySize, setDisplaySize] = useState({ w: 0, h: 0 });
 
     const [adjustMap, setAdjustMap] = useState<AdjustMap>(new Map());
     const adjustMapRef = useRef<AdjustMap>(new Map());
@@ -156,9 +181,26 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
       }
     }, [photos, selectedPhotoSrc]);
 
+    // Track canvas display size for TextOverlayLayer scaling
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ro = new ResizeObserver(() => {
+        const rect = canvas.getBoundingClientRect();
+        setDisplaySize({ w: rect.width, h: rect.height });
+      });
+      ro.observe(canvas);
+      const rect = canvas.getBoundingClientRect();
+      setDisplaySize({ w: rect.width, h: rect.height });
+      return () => ro.disconnect();
+    }, []);
+
     const dragRef = useRef<DragState | null>(null);
     const pinchRef = useRef<PinchState | null>(null);
     const [cursor, setCursor] = useState('default');
+
+    // Desktop click detection: distinguish click (select) from drag
+    const pointerDownRef = useRef<{ idx: number; x: number; y: number } | null>(null);
 
     // Tap detection
     const tapStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -236,14 +278,130 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
     useEffect(() => { draw(); }, [draw]);
 
     useImperativeHandle(ref, () => ({
-      download: () => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        const suffix = format === '9:16' ? 'story' : format.replace(':', 'x');
+      download: async () => {
+        const cw = canvasWidthRef.current;
+        const ch = canvasHeightRef.current;
+
+        // Use an offscreen canvas for a clean export (no selection borders)
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = cw;
+        exportCanvas.height = ch;
+
+        await renderCollage(
+          exportCanvas,
+          photosRef.current,
+          layoutRef.current,
+          logosRef.current,
+          logoSettingsRef.current,
+          adjustMapRef.current,
+          imgCacheRef.current,
+          cw,
+          ch,
+        );
+
+        // Wait for web fonts (Roboto, EB Garamond, etc.) to be ready in canvas
+        await document.fonts.ready;
+
+        // Draw text overlays on top
+        const ctx = exportCanvas.getContext('2d');
+        if (ctx) {
+          for (const ov of textOverlaysRef.current) {
+            const x = ov.x * cw;
+            let y = ov.y * ch;
+            const align = ov.align ?? 'left';
+            const fontParts = [
+              ov.italic ? 'italic' : '',
+              ov.bold ? 'bold' : '',
+              `${ov.fontSize}px`,
+              fontCss(ov.fontFamily),
+            ].filter(Boolean).join(' ');
+            ctx.font = fontParts;
+            ctx.fillStyle = ov.color;
+            ctx.textBaseline = 'top';
+            ctx.textAlign = align;
+            const lineH = ov.fontSize * 1.25;
+            for (const line of ov.text.split('\n')) {
+              ctx.fillText(line, x, y);
+              if (ov.underline) {
+                const measured = ctx.measureText(line).width;
+                const ulX = align === 'center' ? x - measured / 2
+                          : align === 'right'  ? x - measured
+                          : x;
+                ctx.save();
+                ctx.strokeStyle = ov.color;
+                ctx.lineWidth = Math.max(1, ov.fontSize / 20);
+                ctx.beginPath();
+                ctx.moveTo(ulX, y + ov.fontSize * 1.05);
+                ctx.lineTo(ulX + measured, y + ov.fontSize * 1.05);
+                ctx.stroke();
+                ctx.restore();
+              }
+              y += lineH;
+            }
+          }
+        }
+
+        const suffix = formatRef.current === '9:16' ? 'story' : formatRef.current.replace(':', 'x');
         const link = document.createElement('a');
         link.download = `collage-station-beaute-${suffix}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.92);
+        link.href = exportCanvas.toDataURL('image/jpeg', 0.92);
         link.click();
+      },
+
+      exportBlob: async () => {
+        const cw = canvasWidthRef.current;
+        const ch = canvasHeightRef.current;
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = cw;
+        exportCanvas.height = ch;
+        await renderCollage(
+          exportCanvas,
+          photosRef.current,
+          layoutRef.current,
+          logosRef.current,
+          logoSettingsRef.current,
+          adjustMapRef.current,
+          imgCacheRef.current,
+          cw,
+          ch,
+        );
+        await document.fonts.ready;
+        const ctx = exportCanvas.getContext('2d');
+        if (ctx) {
+          for (const ov of textOverlaysRef.current) {
+            const x = ov.x * cw;
+            let y = ov.y * ch;
+            const align = ov.align ?? 'left';
+            const fontParts = [
+              ov.italic ? 'italic' : '',
+              ov.bold ? 'bold' : '',
+              `${ov.fontSize}px`,
+              fontCss(ov.fontFamily),
+            ].filter(Boolean).join(' ');
+            ctx.font = fontParts;
+            ctx.fillStyle = ov.color;
+            ctx.textBaseline = 'top';
+            ctx.textAlign = align;
+            const lineH = ov.fontSize * 1.25;
+            for (const line of ov.text.split('\n')) {
+              ctx.fillText(line, x, y);
+              if (ov.underline) {
+                const measured = ctx.measureText(line).width;
+                const ulX = align === 'center' ? x - measured / 2 : align === 'right' ? x - measured : x;
+                ctx.save();
+                ctx.strokeStyle = ov.color;
+                ctx.lineWidth = Math.max(1, ov.fontSize / 20);
+                ctx.beginPath();
+                ctx.moveTo(ulX, y + ov.fontSize * 1.05);
+                ctx.lineTo(ulX + measured, y + ov.fontSize * 1.05);
+                ctx.stroke();
+                ctx.restore();
+              }
+              y += lineH;
+            }
+          }
+        }
+        return new Promise<Blob | null>((resolve) => exportCanvas.toBlob((b) => resolve(b), 'image/jpeg', 0.88));
       },
     }));
 
@@ -273,12 +431,15 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
 
     useEffect(() => {
       wheelHandlerRef.current = (e: WheelEvent) => {
+        // Require selection first — same as mobile pinch behaviour
+        if (!selectedRef.current) return;
         const idx = getCellIndex(e.clientX, e.clientY);
         if (idx < 0 || idx >= photos.length) return;
-        e.preventDefault();
         const photoSrc = photos[idx];
+        if (photoSrc !== selectedRef.current) return;
+        e.preventDefault();
         const adj = adjustMapRef.current.get(photoSrc) ?? { x: 0, y: 0, zoom: 1 };
-        const factor = e.deltaY < 0 ? 1.04 : 1 / 1.04;
+        const factor = e.deltaY < 0 ? 1.015 : 1 / 1.015;
         const newZoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, adj.zoom * factor));
         setAdjustMap((prev) => {
           const next = new Map(prev);
@@ -429,35 +590,67 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
     // ── Mouse events (desktop, unchanged) ────────────────────
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
       const idx = getCellIndex(e.clientX, e.clientY);
-      if (idx < 0 || idx >= photos.length) return;
+      if (idx < 0 || idx >= photos.length) {
+        setSelectedPhotoSrc(null);
+        return;
+      }
       e.preventDefault();
-      startDrag(photos[idx], e.clientX, e.clientY);
+      // Record position — drag starts lazily in handleMouseMove (only if selected)
+      pointerDownRef.current = { idx, x: e.clientX, y: e.clientY };
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
       if (dragRef.current) {
         moveDrag(e.clientX, e.clientY);
+        return;
+      }
+      if (pointerDownRef.current) {
+        const { idx, x, y } = pointerDownRef.current;
+        const dist = Math.hypot(e.clientX - x, e.clientY - y);
+        if (dist > 4) {
+          // Start drag only if this photo is selected
+          if (selectedRef.current === photos[idx]) {
+            startDrag(photos[idx], e.clientX, e.clientY);
+          }
+          pointerDownRef.current = null;
+        }
+        return;
+      }
+      const idx = getCellIndex(e.clientX, e.clientY);
+      if (idx < 0 || idx >= photos.length) {
+        setCursor('default');
+      } else if (selectedRef.current === photos[idx]) {
+        setCursor('grab');
       } else {
-        const idx = getCellIndex(e.clientX, e.clientY);
-        setCursor(idx >= 0 && idx < photos.length ? 'grab' : 'default');
+        setCursor('pointer');
       }
     };
 
-    const handleMouseUp = () => endDrag();
-    const handleMouseLeave = () => { endDrag(); setCursor('default'); };
+    const handleMouseUp = () => {
+      endDrag();
+      if (pointerDownRef.current) {
+        // No drag happened → it's a click → toggle selection (same as mobile tap)
+        const photoSrc = photos[pointerDownRef.current.idx];
+        setSelectedPhotoSrc(prev => prev === photoSrc ? null : photoSrc);
+        pointerDownRef.current = null;
+      }
+    };
+    const handleMouseLeave = () => { endDrag(); setCursor('default'); pointerDownRef.current = null; };
 
     const handleDoubleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
       const idx = getCellIndex(e.clientX, e.clientY);
       if (idx < 0 || idx >= photos.length) return;
       const photoSrc = photos[idx];
       setAdjustMap((prev) => { const next = new Map(prev); next.delete(photoSrc); return next; });
+      setSelectedPhotoSrc(null);
       setZoomVisible(false);
+      pointerDownRef.current = null;
     };
 
     const selectedIdx = selectedPhotoSrc ? photos.indexOf(selectedPhotoSrc) : -1;
 
     return (
-      <div className="relative w-full overflow-hidden">
+      <div className="relative w-full" style={{ overflow: 'visible' }}>
         <canvas
           ref={canvasRef}
           width={canvasWidth}
@@ -482,14 +675,26 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
           onTouchEnd={handleTouchEnd}
         />
 
-        {/* Mobile selection indicator */}
+        {/* Text overlay layer */}
+        <TextOverlayLayer
+          overlays={textOverlays}
+          onChange={onTextOverlaysChange}
+          canvasWidth={canvasWidth}
+          displayW={displaySize.w}
+          displayH={displaySize.h}
+        />
+
+        {/* Selection indicator (mobile + desktop) */}
         {selectedPhotoSrc && selectedIdx >= 0 && (
-          <div className="absolute top-2 left-2 right-2 flex items-center justify-between sm:hidden">
+          <div className="absolute top-2 left-2 right-2 flex items-center justify-between">
             <div className="bg-violet-700/90 text-white text-[11px] font-semibold px-2.5 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
-              Photo {selectedIdx + 1} · Pincer pour zoomer · Glisser pour déplacer
+              {isTouchDevice
+                ? `Photo ${selectedIdx + 1} · Pincer pour zoomer · Glisser pour déplacer`
+                : `Photo ${selectedIdx + 1} · Molette pour zoomer · Glisser pour déplacer`}
             </div>
             <button
               className="bg-black/50 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold backdrop-blur-sm leading-none"
+              onClick={() => setSelectedPhotoSrc(null)}
               onTouchEnd={(e) => { e.preventDefault(); setSelectedPhotoSrc(null); }}
             >
               ×
@@ -511,7 +716,9 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
               ? selectedPhotoSrc
                 ? 'Double-tap pour réinitialiser · Tap ailleurs pour déselectionner'
                 : 'Tap pour sélectionner · Pincer pour zoomer'
-              : 'Glisser · molette pour zoomer · double-clic pour réinitialiser'}
+              : selectedPhotoSrc
+                ? 'Molette pour zoomer · Glisser pour déplacer · Double-clic pour réinitialiser'
+                : 'Cliquer pour sélectionner · Molette pour zoomer'}
           </p>
         )}
       </div>
