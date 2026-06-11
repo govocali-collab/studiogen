@@ -265,7 +265,7 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
       {/* Content type */}
       <div>
         <p className="section-title mb-2">Type de contenu</p>
-        <div className="grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
           {CONTENT_TYPES.map((ct) => (
             <button
               key={ct.id}
@@ -281,7 +281,7 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
       {/* Tone */}
       <div>
         <p className="section-title mb-2">Ton</p>
-        <div className={`flex gap-1.5 ${activeBrandVoice ? 'opacity-40 pointer-events-none select-none' : ''}`}>
+        <div className={`flex flex-wrap gap-1.5 ${activeBrandVoice ? 'opacity-40 pointer-events-none select-none' : ''}`}>
           {TONES.map((t) => (
             <button
               key={t.id}

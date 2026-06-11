@@ -885,7 +885,7 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
 
       <main className="max-w-screen-xl mx-auto px-4 py-6 space-y-4">
         {/* Title + filters row */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h1 className="text-xl font-bold text-gray-900 shrink-0">Calendrier de contenu</h1>
           <div className="flex items-center gap-2 flex-wrap">
             <FilterDropdown<'fb' | 'ig'>

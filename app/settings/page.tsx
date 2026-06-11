@@ -536,7 +536,7 @@ function SettingsPageInner() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <section className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
                 <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Informations personnelles</h2>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className={labelClass}>Prénom</label>
                     <input type="text" name="first_name" value={form.first_name} onChange={handleChange}
@@ -763,7 +763,7 @@ function SettingsPageInner() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                     <div>
                       <label className={labelClass}>Ville</label>
                       <input type="text" name="city" value={form.city} onChange={handleChange}
@@ -886,9 +886,9 @@ function SettingsPageInner() {
                   </div>
 
                   <div>
-                    <div className="flex items-center gap-2 mb-1.5">
+                    <div className="flex items-start gap-2 mb-1.5 flex-wrap">
                       <label className={labelClass + ' mb-0'}>Publications qui vous ressemblent</label>
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full whitespace-nowrap">
                         ⭐ Améliore fortement la qualité
                       </span>
                     </div>
