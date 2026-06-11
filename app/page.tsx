@@ -379,7 +379,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Pain ─────────────────────────────────────────────────────────── */}
-      <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-white overflow-hidden">
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-gray-50 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none hidden sm:block">
           <div className="absolute -top-20 right-0 w-[450px] h-[450px] bg-pink-100 rounded-full blur-[120px] opacity-20" />
         </div>
