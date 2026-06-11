@@ -419,7 +419,7 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
 
   const nav = (
     <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <Link href="/studio">
           <Image src="/logo-black.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" priority />
         </Link>
@@ -460,7 +460,7 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
       {/* ── Nav ── */}
       {nav}
 
-      <main className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+      <main className="max-w-screen-xl mx-auto px-4 py-6 space-y-5">
         {/* Title + view toggle */}
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-900">Calendrier de contenu</h1>
