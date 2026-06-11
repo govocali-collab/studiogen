@@ -108,8 +108,6 @@ const features = [
   },
 ];
 
-const SHOW_PAIN_POINT_4 = true;
-
 const painPoints = [
   {
     emoji: '⏰',
@@ -122,15 +120,10 @@ const painPoints = [
     desc: "300 $ à 800 $ par mois pour quelques publications ? Pour une clinique ou un salon indépendant, c'est souvent difficile à justifier.",
   },
   {
-    emoji: '😩',
-    title: "Canva n'est pas fait pour toi",
-    desc: "Des dizaines de modèles génériques, du texte à écrire soi-même et aucune compréhension du secteur beauté. Résultat : un contenu qui ne ressemble pas à ton entreprise.",
-  },
-  ...(SHOW_PAIN_POINT_4 ? [{
     emoji: '🤯',
     title: 'Tu ne sais jamais quoi publier',
     desc: "Résultats ? Promotion ? Témoignage ? Conseil beauté ? Trouver de nouvelles idées chaque semaine devient vite épuisant.",
-  }] : []),
+  },
 ];
 
 const comparisonRows = [
