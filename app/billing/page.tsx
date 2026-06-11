@@ -151,15 +151,15 @@ function BillingPageInner() {
     );
   }
 
-  const isSubscribed = !!profile?.stripe_customer_id;
+  const isSubscribed = status === 'active';
   const statusLabel: Record<string, string> = {
-    trialing: isSubscribed ? 'Actif' : 'Essai gratuit',
+    trialing: 'Essai gratuit',
     active: 'Actif',
     past_due: 'Paiement en attente',
     canceled: 'Annulé',
   };
   const statusColor: Record<string, string> = {
-    trialing: isSubscribed ? 'text-green-700 bg-green-50 border-green-200' : 'text-blue-700 bg-blue-50 border-blue-200',
+    trialing: 'text-blue-700 bg-blue-50 border-blue-200',
     active: 'text-green-700 bg-green-50 border-green-200',
     past_due: 'text-amber-700 bg-amber-50 border-amber-200',
     canceled: 'text-red-700 bg-red-50 border-red-200',
@@ -205,15 +205,15 @@ function BillingPageInner() {
           <div className="space-y-8">
             {/* Status + usage */}
             <div className="bg-white rounded-2xl border border-gray-200 px-6 py-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex items-center gap-3 flex-1">
+              <div className="flex items-center gap-3 flex-1 flex-wrap">
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full border whitespace-nowrap ${statusColor[status] ?? statusColor.trialing}`}>
                   {statusLabel[status] ?? status}
                 </span>
-                <span className="text-sm font-semibold text-gray-700">
-                  {PRICING[effectiveTier].name}
+                <span className="text-sm font-bold text-gray-800">
+                  {isTrialing ? 'Essai Pro' : `Plan ${PRICING[tier].name}`}
                 </span>
                 {isTrialing && (
-                  <span className="text-xs text-gray-400">· essai 7 jours</span>
+                  <span className="text-xs text-gray-400">· 7 publications incluses</span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -245,10 +245,28 @@ function BillingPageInner() {
             <div className="grid gap-5 sm:grid-cols-2">
               {(['essentiel', 'pro'] as const).map((t) => {
                 const p = PRICING[t];
-                const isCurrent = effectiveTier === t && (status === 'active' || status === 'trialing');
-                const isUpgrade = t === 'pro' && tier === 'essentiel';
-                const isDowngrade = t === 'essentiel' && tier === 'pro';
                 const isPro = t === 'pro';
+                const isActive = status === 'active';
+
+                // Plan currently paid for
+                const isPaidPlan = t === tier && isActive;
+                // Pro card during trial
+                const isTrialPlan = isPro && isTrialing;
+                // User is on Pro and looking at Essentiel (no downgrade via checkout)
+                const isLowerThanCurrent = t === 'essentiel' && tier === 'pro' && isActive;
+                // User is on Essentiel and can upgrade
+                const isUpgrade = isPro && tier === 'essentiel' && isActive;
+                // Can click to buy
+                const canBuy = !isPaidPlan && !isTrialPlan && !isLowerThanCurrent;
+
+                const showActiveBadge = isPaidPlan || isTrialPlan;
+
+                let btnLabel = `S'abonner · ${p.price} $/mois`;
+                if (actionLoading === t) btnLabel = 'Redirection…';
+                else if (isPaidPlan) btnLabel = 'Plan actuel';
+                else if (isTrialPlan) btnLabel = 'Essai en cours';
+                else if (isLowerThanCurrent) btnLabel = 'Inclus dans votre Pro';
+                else if (isUpgrade) btnLabel = 'Passer au Pro →';
 
                 return (
                   <div
@@ -257,13 +275,27 @@ function BillingPageInner() {
                       isPro
                         ? 'bg-gradient-to-br from-fuchsia-950 to-violet-950 border border-fuchsia-900/40'
                         : 'bg-white border-2 border-gray-200'
-                    }`}
+                    } ${showActiveBadge ? (isPro ? 'ring-2 ring-violet-400/60' : 'ring-2 ring-violet-400') : ''}`}
                   >
+                    {/* Active badge */}
+                    {showActiveBadge && (
+                      <div className={`absolute top-4 right-4 flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        isPro
+                          ? 'bg-violet-500/30 text-violet-200'
+                          : 'bg-green-100 text-green-700'
+                      }`}>
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        {isTrialPlan ? 'Essai' : 'Actif'}
+                      </div>
+                    )}
+
                     <div>
                       <div className={`text-sm font-semibold ${isPro ? 'text-gray-400' : 'text-gray-500'}`}>{p.name}</div>
                       <div className={`text-xs mb-2 ${isPro ? 'text-fuchsia-300' : 'text-violet-500'}`}>{p.description}</div>
                       <div className={`text-3xl font-extrabold ${isPro ? 'text-white' : 'text-gray-900'}`}>
-                        {p.price} $<span className={`text-sm font-normal ml-1 ${isPro ? 'text-gray-400' : 'text-gray-400'}`}>CA/mois</span>
+                        {p.price} $<span className="text-sm font-normal ml-1 text-gray-400">CA/mois</span>
                       </div>
                     </div>
                     <ul className="space-y-2">
@@ -277,30 +309,22 @@ function BillingPageInner() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => !isCurrent && handleCheckout(t)}
-                      disabled={isCurrent || !!actionLoading}
+                      onClick={() => canBuy && handleCheckout(t)}
+                      disabled={!canBuy || !!actionLoading}
                       className={`mt-auto w-full py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
-                        isCurrent
-                          ? isPro ? 'bg-white/10 text-white/40 cursor-default' : 'bg-gray-100 text-gray-400 cursor-default'
+                        !canBuy
+                          ? isPro
+                            ? 'bg-white/10 text-white/40 cursor-default'
+                            : 'bg-gray-100 text-gray-400 cursor-default'
                           : isPro
                           ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/50'
                           : 'bg-white text-gray-900 border-2 border-gray-200 hover:border-violet-400 hover:text-violet-600'
                       }`}
                     >
-                      {actionLoading === t
-                        ? 'Redirection…'
-                        : isCurrent && isTrialing
-                        ? 'Essai en cours'
-                        : isCurrent
-                        ? 'Plan actuel'
-                        : isUpgrade
-                        ? 'Passer au Pro →'
-                        : isDowngrade
-                        ? 'Passer à Essentiel'
-                        : `S'abonner (${p.price} $/mois)`}
+                      {btnLabel}
                     </button>
-                    {isUpgrade && tier === 'essentiel' && status === 'active' && (
-                      <p className={`text-[10px] text-center -mt-2 ${isPro ? 'text-gray-500' : 'text-gray-400'}`}>
+                    {isUpgrade && (
+                      <p className="text-[10px] text-center -mt-2 text-gray-500">
                         Abonnement au prorata pour les jours restants
                       </p>
                     )}
@@ -314,7 +338,7 @@ function BillingPageInner() {
             </p>
 
             {/* Cancel subscription */}
-            {isSubscribed && status !== 'canceled' && (
+            {status === 'active' && (
               <div className="pt-2">
                 {!cancelConfirm ? (
                   <div className="flex justify-center">
