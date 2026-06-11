@@ -166,7 +166,7 @@ const faqs = [
   },
   {
     q: 'Quelle est la différence entre le plan Essentiel et le plan Pro ?',
-    a: "Essentiel inclut 50 posts par mois avec accès complet à toutes les fonctionnalités. Pro offre 150 posts par mois avec priorité de support.",
+    a: "Essentiel inclut 50 posts par mois avec accès complet au studio, aux mises en page et aux logos. Pro offre 150 posts par mois, le calendrier de contenu pour planifier tes publications sur 30 jours, le profil de marque IA complet et la priorité de support.",
   },
   {
     q: 'Puis-je annuler mon abonnement en tout temps ?',
@@ -663,7 +663,16 @@ export default async function LandingPage() {
                 <span className="text-gray-400 mb-1">CA / mois</span>
               </div>
               <ul className="space-y-3 mb-8 flex-1">
-                {['150 posts / mois', 'Accès complet à toutes les fonctionnalités', 'Toutes les mises en page', 'Facebook + Instagram simultanément', 'Logos illimités', 'Montages photo automatiques (JPG 1080px)', 'Priorité de support'].map(item => (
+                {[
+                  '150 posts / mois',
+                  'Calendrier de contenu (planification 30 jours)',
+                  'Profil de marque IA complet',
+                  'Toutes les mises en page',
+                  'Facebook + Instagram simultanément',
+                  'Logos illimités',
+                  'Montages photo automatiques (JPG 1080px)',
+                  'Priorité de support',
+                ].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-300">
                     <svg className="w-4 h-4 text-violet-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />

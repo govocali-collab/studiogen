@@ -22,7 +22,8 @@ export const PRICING = {
     description: 'Pour les cliniques actives',
     features: [
       '150 posts / mois',
-      'Accès complet à toutes les fonctionnalités',
+      'Calendrier de contenu (planification 30 jours)',
+      'Profil de marque IA complet',
       'Toutes les mises en page',
       'Facebook + Instagram simultanément',
       'Logos illimités',
