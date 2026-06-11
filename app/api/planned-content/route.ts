@@ -46,6 +46,9 @@ export async function POST(request: NextRequest) {
     suggested_date: string;
     platform: string;
     requires_photo?: boolean;
+    tone?: string | null;
+    cta?: string | null;
+    generated_from_brand_brain?: boolean;
   }> };
 
   try {
@@ -72,6 +75,10 @@ export async function POST(request: NextRequest) {
     const pl = (item.platform ?? '').toLowerCase().trim();
     const platform = VALID_PLATFORMS.includes(pl) ? pl : 'both';
 
+    const VALID_TONES = ['chaleureux', 'énergique', 'professionnel'];
+    const rawTone = (item.tone ?? '').toLowerCase().trim();
+    const tone = VALID_TONES.includes(rawTone) ? rawTone : null;
+
     return {
       user_id: user.id,
       title: (item.title ?? '').slice(0, 200),
@@ -81,6 +88,9 @@ export async function POST(request: NextRequest) {
       suggested_date: item.suggested_date,
       platform,
       requires_photo: item.requires_photo ?? false,
+      tone,
+      cta: item.cta ?? null,
+      generated_from_brand_brain: item.generated_from_brand_brain ?? true,
       status: 'planned',
     };
   });

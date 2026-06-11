@@ -12,10 +12,23 @@ export async function PATCH(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const body = await request.json() as { status?: string; suggested_date?: string };
+  const body = await request.json() as {
+    status?: string;
+    suggested_date?: string;
+    title?: string;
+    objective?: string | null;
+    service_focus?: string | null;
+    tone?: string | null;
+    cta?: string | null;
+  };
   const updates: Record<string, unknown> = {};
   if (body.status) updates.status = body.status;
   if (body.suggested_date) updates.suggested_date = body.suggested_date;
+  if (body.title !== undefined) updates.title = body.title;
+  if (body.objective !== undefined) updates.objective = body.objective;
+  if (body.service_focus !== undefined) updates.service_focus = body.service_focus;
+  if (body.tone !== undefined) updates.tone = body.tone;
+  if (body.cta !== undefined) updates.cta = body.cta;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: 'Aucune mise à jour' }, { status: 400 });

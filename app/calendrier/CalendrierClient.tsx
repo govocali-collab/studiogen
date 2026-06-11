@@ -501,27 +501,102 @@ function PostDetailModal({ post, onClose, onDelete }: {
   );
 }
 
+const TONE_LABELS: Record<string, string> = {
+  chaleureux: 'Chaleureux',
+  énergique: 'Énergique',
+  professionnel: 'Professionnel',
+};
+
 // ── PlannedItemModal ──────────────────────────────────────────────────────────
-function PlannedItemModal({ item, onClose, onDelete, onMarkCreated }: {
+function PlannedItemModal({ item, targetAudience, onClose, onDelete, onItemUpdated }: {
   item: PlannedContent;
+  targetAudience: string | null;
   onClose: () => void;
   onDelete: (id: string) => void;
-  onMarkCreated: (id: string) => void;
+  onItemUpdated: (updated: PlannedContent) => void;
 }) {
+  const [currentItem, setCurrentItem] = useState(item);
   const [deleting, setDeleting] = useState(false);
-  const c = typeColor(item.content_type);
-  const detail = [item.service_focus, item.objective].filter(Boolean).join(' · ');
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState<string | null>(null);
+
+  const c = typeColor(currentItem.content_type);
+  const detail = [currentItem.service_focus, currentItem.objective].filter(Boolean).join(' · ');
+  const estimatedTime = currentItem.requires_photo ? '3 minutes' : '2 minutes';
 
   const createParams = new URLSearchParams();
-  createParams.set('ct', item.content_type);
-  const detailStr = [item.title, item.service_focus, item.objective].filter(Boolean).join('. ');
+  createParams.set('ct', currentItem.content_type);
+  const detailStr = [currentItem.title, currentItem.service_focus, currentItem.objective].filter(Boolean).join('. ');
   if (detailStr) createParams.set('details', detailStr);
+  if (currentItem.tone) createParams.set('tone', currentItem.tone);
   const createUrl = `/studio?${createParams.toString()}`;
 
   const handleDelete = async () => {
     setDeleting(true);
-    await fetch(`/api/planned-content/${item.id}`, { method: 'DELETE' });
-    onDelete(item.id);
+    await fetch(`/api/planned-content/${currentItem.id}`, { method: 'DELETE' });
+    onDelete(currentItem.id);
+  };
+
+  const handleRegenerate = async () => {
+    setRegenerating(true);
+    setRegenError(null);
+    try {
+      const draftRes = await fetch('/api/plan-content/single', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content_type: currentItem.content_type,
+          platform: currentItem.platform,
+          suggested_date: currentItem.suggested_date,
+          exclude_title: currentItem.title,
+        }),
+      });
+      if (!draftRes.ok) {
+        const d = await draftRes.json().catch(() => ({}));
+        setRegenError((d as { error?: string }).error ?? `Erreur ${draftRes.status}`);
+        setRegenerating(false);
+        return;
+      }
+      const draft = await draftRes.json() as { title?: string; objective?: string; service_focus?: string; tone?: string; cta?: string };
+
+      // Build PATCH body — only include tone/cta if they came back from the AI
+      // so old DB rows without those columns aren't broken
+      const patchBody: Record<string, unknown> = {
+        title: draft.title ?? currentItem.title,
+        objective: draft.objective ?? null,
+        service_focus: draft.service_focus ?? null,
+      };
+      if (draft.tone !== undefined) patchBody.tone = draft.tone ?? null;
+      if (draft.cta !== undefined) patchBody.cta = draft.cta ?? null;
+
+      const patchRes = await fetch(`/api/planned-content/${currentItem.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(patchBody),
+      });
+      if (patchRes.ok) {
+        const updated = await patchRes.json() as PlannedContent;
+        setCurrentItem(updated);
+        onItemUpdated(updated);
+      } else {
+        const d = await patchRes.json().catch(() => ({}));
+        // If the PATCH failed (e.g. missing DB columns), still update the UI locally
+        const optimistic: PlannedContent = {
+          ...currentItem,
+          title: (draft.title ?? currentItem.title),
+          objective: draft.objective ?? null,
+          service_focus: draft.service_focus ?? null,
+          tone: draft.tone ?? currentItem.tone,
+          cta: draft.cta ?? currentItem.cta,
+        };
+        setCurrentItem(optimistic);
+        onItemUpdated(optimistic);
+        setRegenError((d as { error?: string }).error ?? 'Sauvegarde échouée — idea affichée mais non sauvegardée');
+      }
+    } catch (e) {
+      setRegenError(e instanceof Error ? e.message : 'Erreur de connexion');
+    }
+    setRegenerating(false);
   };
 
   return (
@@ -529,61 +604,110 @@ function PlannedItemModal({ item, onClose, onDelete, onMarkCreated }: {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${c.bg} ${c.text}`}>
-              {item.content_type}
+              {currentItem.content_type}
             </span>
-            {(item.platform === 'fb' || item.platform === 'both') && (
+            {(currentItem.platform === 'fb' || currentItem.platform === 'both') && (
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">Facebook</span>
             )}
-            {(item.platform === 'ig' || item.platform === 'both') && (
+            {(currentItem.platform === 'ig' || currentItem.platform === 'both') && (
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700">Instagram</span>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100"
-          >
+          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div className="p-5 space-y-3">
-          <p className="text-xs text-gray-400 font-medium">{formatDateFr(item.suggested_date)}</p>
+        <div className="p-5 space-y-4">
+          {/* Brand Brain badge */}
+          {currentItem.generated_from_brand_brain && (
+            <div
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full cursor-help"
+              title="Cette idée a été créée à partir de votre clientèle, vos services, votre ton et vos préférences de contenu."
+            >
+              <span>✨</span>
+              Généré par votre Brand Brain
+            </div>
+          )}
 
-          <h3 className="text-base font-bold text-gray-900">{item.title}</h3>
+          {/* Date */}
+          <p className="text-xs text-gray-400 font-medium">{formatDateFr(currentItem.suggested_date)}</p>
 
+          {/* Title */}
+          <h3 className="text-base font-bold text-gray-900 leading-snug">{currentItem.title}</h3>
+
+          {/* Detail */}
           {detail && <p className="text-sm text-gray-500 leading-relaxed">{detail}</p>}
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm">{item.requires_photo ? '📷' : '🟢'}</span>
-            <span className="text-xs text-gray-500">
-              {item.requires_photo ? 'Photo requise' : 'Prêt à générer'}
-            </span>
-            {item.status === 'created' && (
-              <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">
-                Créé
-              </span>
+          {/* CTA suggestion */}
+          {currentItem.cta && (
+            <p className="text-xs text-violet-600 font-medium italic">"{currentItem.cta}"</p>
+          )}
+
+          {/* Pourquoi cette idée ? */}
+          <div className="bg-gray-50 rounded-xl p-3.5 space-y-1.5">
+            <p className="text-xs font-bold text-gray-700 mb-2">Pourquoi cette idée ?</p>
+            {currentItem.service_focus && (
+              <div className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-violet-500 font-bold flex-shrink-0 mt-px">✓</span>
+                <span><span className="font-semibold">Service prioritaire :</span> {currentItem.service_focus}</span>
+              </div>
+            )}
+            {targetAudience && (
+              <div className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-violet-500 font-bold flex-shrink-0 mt-px">✓</span>
+                <span><span className="font-semibold">Audience :</span> {targetAudience}</span>
+              </div>
+            )}
+            <div className="flex items-start gap-2 text-xs text-gray-600">
+              <span className="text-violet-500 font-bold flex-shrink-0 mt-px">✓</span>
+              <span><span className="font-semibold">Type :</span> <span className="capitalize">{currentItem.content_type}</span></span>
+            </div>
+            {currentItem.tone && (
+              <div className="flex items-start gap-2 text-xs text-gray-600">
+                <span className="text-violet-500 font-bold flex-shrink-0 mt-px">✓</span>
+                <span><span className="font-semibold">Ton :</span> {TONE_LABELS[currentItem.tone] ?? currentItem.tone}</span>
+              </div>
             )}
           </div>
 
-          <div className="flex gap-2 pt-1">
-            {item.status !== 'created' && (
+          {/* Status + time */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm">{currentItem.requires_photo ? '📷' : '🟢'}</span>
+              <span className="text-xs text-gray-500">
+                {currentItem.requires_photo ? 'Photos requises' : 'Prêt à générer'}
+              </span>
+              {currentItem.status === 'created' && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Créé</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <span>⏱</span>
+              <span>Création estimée : {estimatedTime}</span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="space-y-2 pt-1">
+            {currentItem.status !== 'created' && (
               <a
                 href={createUrl}
                 onClick={() => {
-                  fetch(`/api/planned-content/${item.id}`, {
+                  fetch(`/api/planned-content/${currentItem.id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: 'created' }),
                   });
                 }}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white transition-colors flex items-center justify-center gap-1.5"
               >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -591,13 +715,31 @@ function PlannedItemModal({ item, onClose, onDelete, onMarkCreated }: {
                 Créer maintenant
               </a>
             )}
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="py-2.5 px-4 rounded-xl text-sm font-semibold border border-red-100 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
-            >
-              {deleting ? '…' : 'Supprimer'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRegenerate}
+                disabled={regenerating || deleting}
+                className="flex-1 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-600 hover:border-violet-300 hover:text-violet-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+              >
+                {regenerating ? (
+                  <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
+                  </svg>
+                ) : <span>↻</span>}
+                {regenerating ? 'Génération…' : 'Nouvelle idée'}
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting || regenerating}
+                className="py-2 px-4 rounded-xl text-xs font-semibold border border-red-100 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                {deleting ? '…' : 'Supprimer'}
+              </button>
+            </div>
+            {regenError && (
+              <p className="text-xs text-red-500 font-medium text-center">{regenError}</p>
+            )}
           </div>
         </div>
       </div>
@@ -609,6 +751,7 @@ function PlannedItemModal({ item, onClose, onDelete, onMarkCreated }: {
 export default function CalendrierClient({ isPro = false }: { isPro?: boolean }) {
   const [posts, setPosts] = useState<CalendarPost[]>([]);
   const [plannedItems, setPlannedItems] = useState<PlannedContent[]>([]);
+  const [targetAudience, setTargetAudience] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'calendrier' | 'liste'>('calendrier');
   const [filterType, setFilterType] = useState<string>('');
@@ -623,12 +766,17 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
-    const [calRes, planRes] = await Promise.allSettled([
+    const [calRes, planRes, profileRes] = await Promise.allSettled([
       fetch('/api/calendar'),
       fetch('/api/planned-content'),
+      fetch('/api/profile'),
     ]);
     if (calRes.status === 'fulfilled' && calRes.value.ok) setPosts(await calRes.value.json());
     if (planRes.status === 'fulfilled' && planRes.value.ok) setPlannedItems(await planRes.value.json());
+    if (profileRes.status === 'fulfilled' && profileRes.value.ok) {
+      const profile = await profileRes.value.json();
+      setTargetAudience((profile as { target_audience?: string | null }).target_audience ?? null);
+    }
     setLoading(false);
   }, []);
 
@@ -644,14 +792,9 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
     setSelectedPlanItem(null);
   };
 
-  const handleMarkCreated = async (id: string) => {
-    setPlannedItems(prev => prev.map(pi => pi.id === id ? { ...pi, status: 'created' as const } : pi));
-    setSelectedPlanItem(null);
-    await fetch(`/api/planned-content/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'created' }),
-    });
+  const handlePlanItemUpdated = (updated: PlannedContent) => {
+    setPlannedItems(prev => prev.map(pi => pi.id === updated.id ? updated : pi));
+    setSelectedPlanItem(updated);
   };
 
   const handleDropPlanItem = async (planItemId: string, newDate: string) => {
@@ -876,9 +1019,10 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
       {selectedPlanItem && (
         <PlannedItemModal
           item={selectedPlanItem}
+          targetAudience={targetAudience}
           onClose={() => setSelectedPlanItem(null)}
           onDelete={handlePlanItemDelete}
-          onMarkCreated={handleMarkCreated}
+          onItemUpdated={handlePlanItemUpdated}
         />
       )}
     </div>

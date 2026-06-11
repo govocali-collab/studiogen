@@ -220,8 +220,10 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
     const params = new URLSearchParams(window.location.search);
     const ct = params.get('ct') as ContentType | null;
     const d = params.get('details');
+    const t = params.get('tone') as Tone | null;
     if (ct && CONTENT_TYPES.some(c => c.id === ct)) setContentType(ct);
     if (d) setDetails(d);
+    if (t && TONES.some(to => to.id === t)) setTone(t);
   }, []);
 
   const activeBrandVoice = brandVoice?.length ? brandVoice : null;

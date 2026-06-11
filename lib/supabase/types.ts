@@ -69,6 +69,9 @@ export interface PlannedContent {
   platform: 'fb' | 'ig' | 'both';
   status: 'planned' | 'created';
   requires_photo: boolean;
+  tone: string | null;
+  cta: string | null;
+  generated_from_brand_brain: boolean;
   created_at: string;
 }
 
