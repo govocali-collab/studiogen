@@ -1,0 +1,44 @@
+# StudioGen
+
+> StudioGen est un outil d'intelligence artificielle qui crée automatiquement des publications Facebook et Instagram pour les professionnels de la beauté au Québec — montages photo et textes en français québécois en moins de 2 minutes.
+
+## Ce que fait StudioGen
+
+- Génère des publications Facebook et Instagram en moins de 2 minutes
+- Crée des montages photo professionnels à partir de vos photos
+- Rédige des textes en français québécois adaptés à votre marque et à votre clientèle
+- Planifie les publications avec un calendrier de contenu mensuel
+- Mémorise votre ton, vos services et votre style pour personnaliser chaque publication
+
+## Pour qui
+
+Professionnels de la beauté au Québec : esthéticiennes, coiffeuses, spécialistes en épilation laser, cliniques esthétiques et médico-esthétiques, salons de beauté, instituts de soins.
+
+## Résultats mesurables
+
+- Économie de 10 heures par semaine sur la gestion des réseaux sociaux
+- Création d'un post complet (visuel + texte) en moins de 2 minutes
+- Publications prêtes pour Facebook et Instagram simultanément
+
+## Tarifs (en dollars canadiens)
+
+- **Essentiel** : 57 $ CA/mois — 50 publications par mois, accès complet
+- **Pro** : 127 $ CA/mois — 150 publications par mois, support prioritaire
+- Essai gratuit de 7 jours, aucune carte de crédit requise
+
+## Langue et région
+
+- Langue : Français québécois (fr-CA)
+- Marché cible : Québec, Canada
+- Conçu spécifiquement pour le contexte culturel et commercial québécois
+
+## Liens importants
+
+- Site : https://studiogen.ca
+- Inscription : https://studiogen.ca/auth/signup
+- Connexion : https://studiogen.ca/auth/login
+- Politique de confidentialité : https://studiogen.ca/politique-confidentialite
+
+## Éditeur
+
+Astrova — https://astrova.ca
