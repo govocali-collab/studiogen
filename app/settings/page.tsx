@@ -606,6 +606,8 @@ function SettingsPageInner() {
               </div>
             </form>
 
+            <HomeScreenInstructions />
+
             <div className="mt-6 flex justify-center">
               <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
                 ← Retour au studio
@@ -940,8 +942,6 @@ function SettingsPageInner() {
                 </div>
               </section>
             </form>
-
-            <HomeScreenInstructions />
 
             <div className="mt-6 flex justify-center">
               <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
