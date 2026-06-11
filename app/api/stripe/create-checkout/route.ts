@@ -24,6 +24,17 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const profile = profileRaw as any;
     let customerId = profile?.stripe_customer_id as string | undefined;
+
+    // Verify the stored customer still exists in current Stripe mode (test vs live)
+    if (customerId) {
+      try {
+        await stripe.customers.retrieve(customerId);
+      } catch {
+        customerId = undefined;
+        await admin.from('profiles').update({ stripe_customer_id: null } as any).eq('id', user.id);
+      }
+    }
+
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
