@@ -452,11 +452,6 @@ export default async function LandingPage() {
                   <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-violet-100 transition-colors">
                     {f.icon}
                   </div>
-                  {f.badge && (
-                    <span className="text-[10px] font-bold bg-fuchsia-100 text-fuchsia-700 px-2 py-0.5 rounded-full uppercase tracking-wide">
-                      {f.badge}
-                    </span>
-                  )}
                 </div>
                 <h3 className="text-sm font-bold text-gray-900 mb-2">{f.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{f.desc}</p>
