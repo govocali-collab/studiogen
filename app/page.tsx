@@ -240,11 +240,13 @@ export default async function LandingPage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-6">
-            Crée tes posts Facebook et Instagram
+            Récupère jusqu'à
             <br />
             <span className="bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent">
-              en 30 secondes.
+              10 heures par semaine
             </span>
+            <br />
+            sur tes réseaux sociaux.
           </h1>
 
           <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
