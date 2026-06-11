@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Roboto, EB_Garamond, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 import AuthHashHandler from '@/components/AuthHashHandler';
+import AddToHomeScreenBanner from '@/components/AddToHomeScreenBanner';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body suppressHydrationWarning>
         <AuthHashHandler />
         {children}
+        <AddToHomeScreenBanner />
       </body>
     </html>
   );

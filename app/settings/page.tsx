@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import AppHeader from '@/components/AppHeader';
+import HomeScreenInstructions from '@/components/HomeScreenInstructions';
 
 // ── Chip multi-select ─────────────────────────────────────────────────────────
 
@@ -939,6 +940,8 @@ function SettingsPageInner() {
                 </div>
               </section>
             </form>
+
+            <HomeScreenInstructions />
 
             <div className="mt-6 flex justify-center">
               <Link href="/studio" className="text-sm text-gray-400 hover:text-gray-700 transition-colors">
