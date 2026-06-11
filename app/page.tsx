@@ -297,8 +297,13 @@ export default async function LandingPage() {
             sur tes réseaux sociaux.
           </h1>
 
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-4 leading-relaxed">
             StudioGen crée automatiquement des publications qui ressemblent à ton entreprise, sans Canva, sans agence et sans y passer tes soirées.
+          </p>
+
+          {/* Definition paragraph — visible to search engines and AI crawlers for GEO/AEO */}
+          <p className="text-sm text-gray-400 max-w-2xl mx-auto mb-6 leading-relaxed">
+            StudioGen est un outil d&apos;intelligence artificielle conçu pour les professionnels de la beauté au Québec. Il génère des montages photo et des textes en français québécois pour Facebook et Instagram en moins de 2 minutes, à partir de tes photos et de ton profil de marque.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
