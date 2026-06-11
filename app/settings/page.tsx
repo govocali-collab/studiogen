@@ -308,6 +308,9 @@ function SettingsPageInner() {
     _pages_crawled?: number;
   } | null>(null);
 
+  const [originalEmail, setOriginalEmail] = useState('');
+  const [emailMessage, setEmailMessage] = useState<{ type: 'info' | 'error'; text: string } | null>(null);
+
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [pwSaving, setPwSaving] = useState(false);
@@ -320,6 +323,7 @@ function SettingsPageInner() {
     ])
       .then(([profileData, { data: { session } }]) => {
         const email = session?.user?.email ?? '';
+        setOriginalEmail(email);
         if (profileData) {
           setForm({
             ...EMPTY,
@@ -408,6 +412,7 @@ function SettingsPageInner() {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    setEmailMessage(null);
     try {
       const res = await fetch('/api/profile', {
         method: 'PATCH',
@@ -435,6 +440,18 @@ function SettingsPageInner() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `Erreur ${res.status}`);
+
+      const newEmail = form.email.trim();
+      if (newEmail && newEmail !== originalEmail) {
+        const { error: emailError } = await createClient().auth.updateUser({ email: newEmail });
+        if (emailError) {
+          setEmailMessage({ type: 'error', text: emailError.message });
+        } else {
+          setEmailMessage({ type: 'info', text: 'Un courriel de confirmation a été envoyé à votre nouvelle adresse. Vérifiez votre boîte de réception.' });
+          setOriginalEmail(newEmail);
+        }
+      }
+
       setSaved(true);
       router.refresh();
     } catch (err) {
@@ -537,8 +554,13 @@ function SettingsPageInner() {
                 </div>
                 <div>
                   <label className={labelClass}>Courriel du compte</label>
-                  <input type="email" value="" disabled placeholder="votre@courriel.com"
-                    className="w-full rounded-xl border border-gray-100 bg-gray-50 px-3.5 py-2.5 text-sm text-gray-400 cursor-not-allowed" />
+                  <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setEmailMessage(null); setSaved(false); }}
+                    placeholder="votre@courriel.com" className={inputClass} />
+                  {emailMessage && (
+                    <p className={`text-xs mt-1.5 ${emailMessage.type === 'error' ? 'text-red-500' : 'text-violet-600'}`}>
+                      {emailMessage.text}
+                    </p>
+                  )}
                 </div>
               </section>
 
