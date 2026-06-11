@@ -35,15 +35,15 @@ export async function POST(request: NextRequest) {
   const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
   const arrayBuffer = await imageFile.arrayBuffer();
 
-  const { error: uploadError } = await supabase.storage
+  const admin = createAdminClient();
+
+  const { error: uploadError } = await admin.storage
     .from('logos')
     .upload(path, arrayBuffer, { contentType: imageFile.type, upsert: false });
 
   if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 
-  const { data: { publicUrl } } = supabase.storage.from('logos').getPublicUrl(path);
-
-  const admin = createAdminClient();
+  const { data: { publicUrl } } = admin.storage.from('logos').getPublicUrl(path);
   const { data, error } = await admin
     .from('user_logos')
     .insert({ user_id: user.id, name, storage_path: path, public_url: publicUrl })

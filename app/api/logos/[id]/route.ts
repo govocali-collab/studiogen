@@ -31,16 +31,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const newPath = `${user.id}/${crypto.randomUUID()}.png`;
     const arrayBuffer = await imageFile.arrayBuffer();
-    const { error: uploadError } = await supabase.storage
+    const admin = createAdminClient();
+    const { error: uploadError } = await admin.storage
       .from('logos')
       .upload(newPath, arrayBuffer, { contentType: 'image/png', upsert: false });
 
     if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 });
 
-    await supabase.storage.from('logos').remove([logo.storage_path]);
-    const { data: { publicUrl } } = supabase.storage.from('logos').getPublicUrl(newPath);
+    await admin.storage.from('logos').remove([logo.storage_path]);
+    const { data: { publicUrl } } = admin.storage.from('logos').getPublicUrl(newPath);
 
-    const admin = createAdminClient();
     await admin.from('user_logos').update({ storage_path: newPath, public_url: publicUrl }).eq('id', id);
     return NextResponse.json({ public_url: publicUrl });
   }
@@ -68,8 +68,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   const logo = await getOwnedLogo(user.id, id);
   if (!logo) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 });
 
-  await supabase.storage.from('logos').remove([logo.storage_path]);
   const admin = createAdminClient();
+  await admin.storage.from('logos').remove([logo.storage_path]);
   await admin.from('user_logos').delete().eq('id', id);
   return NextResponse.json({ ok: true });
 }
