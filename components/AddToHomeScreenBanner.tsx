@@ -84,7 +84,7 @@ export default function AddToHomeScreenBanner() {
         visible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
-      <div className="bg-white border-t border-gray-200 shadow-2xl rounded-t-2xl px-5 pt-5 pb-7 max-w-lg mx-auto">
+      <div className="bg-violet-50 border-t border-violet-200 shadow-2xl rounded-t-2xl px-5 pt-5 pb-7 max-w-lg mx-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
@@ -94,13 +94,13 @@ export default function AddToHomeScreenBanner() {
               </svg>
             </div>
             <div>
-              <p className="text-sm font-bold text-gray-900">Ajouter à l&apos;écran d&apos;accueil</p>
-              <p className="text-xs text-gray-500 mt-0.5">Accès direct comme une vraie app — gratuit</p>
+              <p className="text-sm font-bold text-violet-900">Ajouter à l&apos;écran d&apos;accueil</p>
+              <p className="text-xs text-violet-500 mt-0.5">Accès direct comme une vraie app — gratuit</p>
             </div>
           </div>
           <button
             onClick={dismiss}
-            className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 flex-shrink-0 ml-2 mt-0.5"
+            className="w-7 h-7 flex items-center justify-center rounded-full text-violet-400 hover:bg-violet-100 flex-shrink-0 ml-2 mt-0.5"
             aria-label="Fermer"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,23 +109,23 @@ export default function AddToHomeScreenBanner() {
           </button>
         </div>
 
-        <div className="bg-gray-50 rounded-xl p-4">
-          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">
+        <div className="bg-white/70 rounded-xl p-4">
+          <p className="text-[11px] font-bold text-violet-400 uppercase tracking-wider mb-3">
             {os === 'ios' ? 'Sur iPhone — dans Safari' : 'Sur Android — dans Chrome'}
           </p>
           <HomeScreenSteps os={os} />
         </div>
 
-        <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
+        <div className="mt-4 pt-3 border-t border-violet-200 flex items-center justify-between">
           <button
             onClick={neverAsk}
-            className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-xs text-violet-400 hover:text-violet-600 transition-colors"
           >
             Ne plus afficher
           </button>
           <button
             onClick={dismiss}
-            className="text-xs font-semibold text-violet-600 hover:text-violet-700 transition-colors"
+            className="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors"
           >
             Fermer
           </button>
