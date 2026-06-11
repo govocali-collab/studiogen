@@ -34,6 +34,7 @@ export type LogoPosition =
 
 export interface Logo {
   id: string;
+  db_id?: string;
   name: string;
   dataUrl: string;
   rememberedSize?: number;

@@ -11,30 +11,79 @@ const FETCH_HEADERS = {
   'Accept-Language': 'fr-CA,fr;q=0.9,en;q=0.8',
 };
 
+// ── HTML helpers ──────────────────────────────────────────────────────────────
+
 function extractText(html: string): string {
-  let text = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ');
-  text = text.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ');
-  text = text.replace(/<[^>]+>/g, ' ');
-  text = text
+  let text = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<(nav|footer|header)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .replace(/&nbsp;/g, ' ').replace(/&#\d+;/g, ' ').replace(/&[a-z]+;/gi, ' ');
   return text.replace(/\s+/g, ' ').trim();
 }
 
-async function fetchPage(url: string): Promise<string | null> {
+// Discover internal navigation links that look like about/services/contact pages
+function extractNavLinks(html: string, origin: string): string[] {
+  const seen = new Set<string>();
+  const results: string[] = [];
+  const linkRe = /href=["']([^"'#?]+)["']/gi;
+  const PRIORITY_RE = /\/(about|a-propos|apropos|qui-sommes|qui-nous-sommes|equipe|services|soins|traitements|soin|offres|contact|nous-joindre|nous-contacter|notre-histoire|histoire|expertise|approche)\b/i;
+
+  let match;
+  while ((match = linkRe.exec(html)) !== null) {
+    const href = match[1].trim();
+    if (!href) continue;
+    try {
+      const url = new URL(href, origin);
+      if (url.origin !== origin) continue;
+      const path = url.pathname.replace(/\/$/, '') || '/';
+      if (path === '/') continue;
+      if (PRIORITY_RE.test(path) && !seen.has(path)) {
+        seen.add(path);
+        results.push(origin + path);
+        if (results.length >= 6) break;
+      }
+    } catch { continue; }
+  }
+  return results;
+}
+
+// ── Fetch helpers ─────────────────────────────────────────────────────────────
+
+async function fetchPageFull(url: string): Promise<{ text: string; html: string } | null> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 9000);
     const res = await fetch(url, { signal: controller.signal, headers: FETCH_HEADERS });
     clearTimeout(timeout);
     if (!res.ok) return null;
     const html = await res.text();
     const text = extractText(html);
-    return text.length > 100 ? text.slice(0, 3000) : null;
+    return text.length > 80 ? { text: text.slice(0, 6000), html } : null;
   } catch {
     return null;
   }
 }
+
+async function fetchPage(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 9000);
+    const res = await fetch(url, { signal: controller.signal, headers: FETCH_HEADERS });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const html = await res.text();
+    const text = extractText(html);
+    return text.length > 80 ? text.slice(0, 6000) : null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Route ─────────────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -75,40 +124,78 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = parsedUrl.origin;
-  const pathsToTry = ['/', '/about', '/a-propos', '/apropos', '/services', '/contact', '/notre-histoire'];
-  const pageFetches = pathsToTry.map(p => fetchPage(origin + p));
-  const results = await Promise.all(pageFetches);
 
-  const texts = results.filter(Boolean) as string[];
-  if (texts.length === 0) {
+  // ── Step 1: Fetch homepage (need raw HTML for link discovery) ─────────────
+  const homepageResult = await fetchPageFull(origin + '/');
+  if (!homepageResult) {
     return NextResponse.json({ error: 'Impossible de lire le contenu du site.' }, { status: 400 });
   }
 
-  const combinedText = texts.join('\n\n---\n\n').slice(0, 10000);
+  // ── Step 2: Discover nav links from homepage HTML ─────────────────────────
+  const discoveredLinks = extractNavLinks(homepageResult.html, origin);
 
+  // ── Step 3: Build URL list — discovered links + common fallbacks, deduped ──
+  const FALLBACK_PATHS = [
+    '/a-propos', '/about', '/qui-sommes-nous', '/services', '/soins',
+    '/contact', '/nous-joindre', '/notre-histoire',
+  ];
+  const seenUrls = new Set<string>([origin + '/']);
+  const urlsToFetch: string[] = [];
+
+  // Discovered links first (they're real, prioritize them)
+  for (const link of discoveredLinks) {
+    if (!seenUrls.has(link)) { seenUrls.add(link); urlsToFetch.push(link); }
+  }
+  // Fallbacks for pages not discovered
+  for (const path of FALLBACK_PATHS) {
+    const full = origin + path;
+    if (!seenUrls.has(full)) { seenUrls.add(full); urlsToFetch.push(full); }
+  }
+
+  // ── Step 4: Fetch all additional pages in parallel ────────────────────────
+  const additionalTexts = await Promise.all(urlsToFetch.slice(0, 8).map(u => fetchPage(u)));
+
+  // ── Step 5: Combine all content ───────────────────────────────────────────
+  const pageTexts: string[] = [homepageResult.text];
+  const crawledUrls: string[] = [origin + '/'];
+
+  urlsToFetch.slice(0, 8).forEach((u, i) => {
+    if (additionalTexts[i]) {
+      pageTexts.push(additionalTexts[i]!);
+      crawledUrls.push(u);
+    }
+  });
+
+  const combinedText = pageTexts.join('\n\n---PAGE---\n\n').slice(0, 18000);
+  const pagesCrawled = pageTexts.length;
+
+  // ── Step 6: AI extraction ─────────────────────────────────────────────────
   try {
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1200,
+      max_tokens: 1500,
       messages: [{
         role: 'user',
-        content: `Analyse ce contenu extrait du site web d'une entreprise au Québec et génère un profil de marque structuré.
+        content: `Analyse ce contenu extrait du site web d'une entreprise au Québec et génère un profil de marque complet.
 
-Retourne UNIQUEMENT un objet JSON valide avec exactement ces clés (sans texte avant ou après):
+Retourne UNIQUEMENT un objet JSON valide avec exactement ces clés (sans texte avant ou après) :
 {
-  "business_summary": "résumé de 80-120 mots de l'entreprise en français québécois naturel, sans em dash",
-  "city": "ville (null si inconnue)",
-  "province": "province canadienne (généralement Québec, null si inconnue)",
-  "target_audience": "description courte de la clientèle cible (ex: femmes 25-55 ans, entrepreneurs locaux)",
+  "business_name": "nom exact de l'entreprise tel qu'il apparaît sur le site (null si impossible à déterminer)",
+  "business_summary": "résumé de 80-120 mots de l'entreprise en français québécois naturel. Décris ce qu'elle fait, pour qui, et ce qui la distingue. N'utilise jamais le tiret long (—).",
+  "city": "ville où l'entreprise est basée (null si inconnue)",
+  "province": "province canadienne, généralement Québec (null si inconnue)",
+  "target_audience": "description concise de la clientèle cible, ex: Femmes 28-55 ans qui s'intéressent aux soins esthétiques et au bien-être",
   "brand_voice": ["tableau de 1-4 valeurs parmi exactement: chaleureux, professionnel, luxueux, moderne, éducatif, inspirant, familial, haut_de_gamme"],
-  "services": ["liste des services ou produits principaux, maximum 8 items"],
-  "favorite_phrases": ["2-4 expressions ou formulations qui reflètent leur style de communication"],
+  "services": ["liste des services ou soins principaux, maximum 8 items courts"],
+  "priority_services": ["1 à 3 services les plus souvent mis en avant ou qui semblent les plus importants sur le site"],
+  "transformation_goals": ["3 à 5 résultats ou transformations promis aux clientes, formulés du point de vue de la cliente, ex: Peau plus lumineuse, Confiance en soi retrouvée, Résultats visibles dès la 1ère séance"],
+  "favorite_phrases": ["2-4 expressions, slogans ou formulations récurrentes détectés sur le site"],
   "avoid_phrases": [],
   "content_preferences": ["1-3 valeurs parmi exactement: résultats, avant_apres, éducatif, promo, produits, témoignages, formations, astuces"],
   "cta_style": "une valeur parmi exactement: réservez maintenant, contactez-nous, écrivez-nous, demandez une consultation, appelez-nous"
 }
 
-Contenu du site :
+Contenu extrait de ${pagesCrawled} page(s) du site :
 ${combinedText}`,
       }],
     });
@@ -124,6 +211,10 @@ ${combinedText}`,
       if (!match) throw new Error('Réponse invalide du modèle');
       parsed = JSON.parse(match[0]);
     }
+
+    // Attach crawl metadata for the summary card
+    parsed._pages_crawled = pagesCrawled;
+    parsed._crawled_urls = crawledUrls;
 
     return NextResponse.json(parsed);
   } catch (err) {

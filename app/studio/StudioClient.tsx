@@ -92,6 +92,8 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
   const canvasRef = useRef<CollageCanvasHandle>(null);
   const logoSettingsSaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const prevLogosRef = useRef<Logo[]>([]);
+  const uploadingIds = useRef<Set<string>>(new Set());
 
   const genInfo = computeGenInfo(profile);
   const tier = genInfo.tier;
@@ -100,37 +102,162 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
   const displayGenInfo = { ...genInfo, used: genInfo.used + usedOffset };
   const trialLimitNum = displayGenInfo.limit ?? 0;
 
-  useEffect(() => {
-    try {
-      const storedLogos = localStorage.getItem(LOGOS_KEY);
-      const parsedLogos: Logo[] = storedLogos ? JSON.parse(storedLogos) : [];
-      if (parsedLogos.length) setLogos(parsedLogos);
-      const storedSettings = localStorage.getItem(LOGO_SETTINGS_KEY);
-      const parsed: LogoSettings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_LOGO_SETTINGS;
-      // If a logo was previously selected, restore its remembered size + position
-      const selectedLogo = parsedLogos.find((l) => l.id === parsed.logoId);
-      setLogoSettings({
-        ...parsed,
-        size: selectedLogo?.rememberedSize ?? parsed.size,
-        position: selectedLogo?.rememberedPosition ?? parsed.position,
-      });
-      if (localStorage.getItem('ia-banner-dismissed') === '1') setIaBannerDismissed(true);
-    } catch { /* ignore */ }
-    setHydrated(true);
-    fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((data) => {
-      if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
+  // Helpers
+  function blobToDataUrl(blob: Blob): Promise<string> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
     });
+  }
+
+  function dataUrlToBlob(dataUrl: string): Blob {
+    const [header, data] = dataUrl.split(',');
+    const mime = header.match(/:(.*?);/)?.[1] ?? 'image/png';
+    const binary = atob(data);
+    const arr = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) arr[i] = binary.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  useEffect(() => {
+    const init = async () => {
+      if (localStorage.getItem('ia-banner-dismissed') === '1') setIaBannerDismissed(true);
+
+      try {
+        // Load logos from server (source of truth — works on all devices)
+        const res = await fetch('/api/logos');
+        if (res.ok) {
+          const serverLogos: { id: string; name: string; public_url: string; remembered_size: number | null; remembered_position: string | null }[] = await res.json();
+          if (serverLogos.length > 0) {
+            const loaded = (await Promise.all(serverLogos.map(async (sl) => {
+              try {
+                const blob = await fetch(sl.public_url).then((r) => r.blob());
+                const dataUrl = await blobToDataUrl(blob);
+                return {
+                  id: crypto.randomUUID(),
+                  db_id: sl.id,
+                  name: sl.name,
+                  dataUrl,
+                  rememberedSize: sl.remembered_size ?? 10,
+                  rememberedPosition: (sl.remembered_position ?? 'bottom-right') as Logo['rememberedPosition'],
+                } satisfies Logo;
+              } catch { return null; }
+            }))).filter(Boolean) as Logo[];
+
+            setLogos(loaded);
+            prevLogosRef.current = loaded;
+
+            // Restore previously selected logo using saved db_id
+            const storedSettings = localStorage.getItem(LOGO_SETTINGS_KEY);
+            const parsed = storedSettings ? JSON.parse(storedSettings) : {};
+            const savedDbId: string | undefined = parsed.selectedDbId;
+            const target = savedDbId ? loaded.find((l) => l.db_id === savedDbId) : loaded[0];
+            if (target) {
+              setLogoSettings({
+                logoId: target.id,
+                size: target.rememberedSize ?? 10,
+                position: target.rememberedPosition ?? 'bottom-right',
+              });
+            }
+
+            setHydrated(true);
+            fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((data) => {
+              if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
+            });
+            return;
+          }
+        }
+      } catch { /* fall through to localStorage */ }
+
+      // Fallback: localStorage (first use or no server logos yet)
+      try {
+        const storedLogos = localStorage.getItem(LOGOS_KEY);
+        const parsedLogos: Logo[] = storedLogos ? JSON.parse(storedLogos) : [];
+        if (parsedLogos.length) {
+          setLogos(parsedLogos);
+          prevLogosRef.current = parsedLogos;
+        }
+        const storedSettings = localStorage.getItem(LOGO_SETTINGS_KEY);
+        const parsed: LogoSettings = storedSettings ? JSON.parse(storedSettings) : DEFAULT_LOGO_SETTINGS;
+        const selectedLogo = parsedLogos.find((l) => l.id === parsed.logoId);
+        setLogoSettings({
+          ...parsed,
+          size: selectedLogo?.rememberedSize ?? parsed.size,
+          position: selectedLogo?.rememberedPosition ?? parsed.position,
+        });
+      } catch { /* ignore */ }
+
+      setHydrated(true);
+      fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((data) => {
+        if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
+      });
+    };
+
+    init();
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
+    // Save to localStorage as cache
     localStorage.setItem(LOGOS_KEY, JSON.stringify(logos));
+
+    const prev = prevLogosRef.current;
+
+    // Upload new logos (no db_id yet)
+    for (const logo of logos) {
+      if (!logo.db_id && !uploadingIds.current.has(logo.id)) {
+        uploadingIds.current.add(logo.id);
+        const blob = dataUrlToBlob(logo.dataUrl);
+        const form = new FormData();
+        form.append('image', blob, `${logo.name}.${blob.type === 'image/png' ? 'png' : 'jpg'}`);
+        form.append('name', logo.name);
+        fetch('/api/logos', { method: 'POST', body: form })
+          .then((r) => r.ok ? r.json() : null)
+          .then((data) => {
+            if (data?.id) {
+              setLogos((cur) => cur.map((l) => l.id === logo.id ? { ...l, db_id: data.id } : l));
+            }
+            uploadingIds.current.delete(logo.id);
+          })
+          .catch(() => { uploadingIds.current.delete(logo.id); });
+      }
+    }
+
+    // Re-upload logos whose dataUrl changed (e.g. after removeBg)
+    for (const logo of logos) {
+      if (logo.db_id) {
+        const prevLogo = prev.find((p) => p.id === logo.id);
+        if (prevLogo && prevLogo.dataUrl !== logo.dataUrl && !uploadingIds.current.has(logo.id)) {
+          uploadingIds.current.add(logo.id);
+          const blob = dataUrlToBlob(logo.dataUrl);
+          const form = new FormData();
+          form.append('image', blob, 'logo.png');
+          fetch(`/api/logos/${logo.db_id}`, { method: 'PATCH', body: form })
+            .finally(() => { uploadingIds.current.delete(logo.id); });
+        }
+      }
+    }
+
+    // Delete removed logos from server
+    for (const prevLogo of prev) {
+      if (prevLogo.db_id && !logos.find((l) => l.id === prevLogo.id)) {
+        fetch(`/api/logos/${prevLogo.db_id}`, { method: 'DELETE' });
+      }
+    }
+
+    prevLogosRef.current = logos;
   }, [logos, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
-    localStorage.setItem(LOGO_SETTINGS_KEY, JSON.stringify(logoSettings));
-    // Save size + position back onto the selected logo object so each logo remembers its own
+    // Save settings + selected db_id to localStorage
+    const selectedLogo = logos.find((l) => l.id === logoSettings.logoId);
+    localStorage.setItem(LOGO_SETTINGS_KEY, JSON.stringify({
+      ...logoSettings,
+      selectedDbId: selectedLogo?.db_id,
+    }));
+    // Remember size + position on the logo object
     if (logoSettings.logoId) {
       setLogos((prev) => prev.map((l) =>
         l.id === logoSettings.logoId
@@ -138,14 +265,16 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
           : l
       ));
     }
-    // Debounce-save to DB as fallback (persists the most recently used size/position)
+    // Debounce-save to server
     clearTimeout(logoSettingsSaveTimer.current);
     logoSettingsSaveTimer.current = setTimeout(() => {
-      fetch('/api/profile', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ logo_size: logoSettings.size, logo_position: logoSettings.position }),
-      });
+      if (selectedLogo?.db_id) {
+        fetch(`/api/logos/${selectedLogo.db_id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ remembered_size: logoSettings.size, remembered_position: logoSettings.position }),
+        });
+      }
     }, 800);
   }, [logoSettings, hydrated]);
 
@@ -424,7 +553,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
 
         {effectiveTier === 'pro' && (
-          <div className="hidden lg:flex justify-end -mb-8 relative z-10">
+          <div className="flex justify-end lg:-mb-8 lg:relative lg:z-10 mb-2">
             <Link href="/calendrier" className="flex items-center gap-1.5 text-xs font-semibold bg-white border border-gray-200 hover:border-violet-400 hover:text-violet-700 text-gray-600 px-3 py-1.5 rounded-xl shadow-sm transition-colors">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

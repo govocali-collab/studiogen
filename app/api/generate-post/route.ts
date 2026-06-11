@@ -17,6 +17,9 @@ interface BrandProfile {
   targetAudience: string | null;
   brandVoice: string[] | null;
   services: string[] | null;
+  priorityServices: string[] | null;
+  transformationGoals: string[] | null;
+  brandExamples: string[] | null;
   favoritePhrases: string[] | null;
   avoidPhrases: string[] | null;
   ctaStyle: string | null;
@@ -35,60 +38,131 @@ const VOICE_LABELS: Record<string, string> = {
 
 function buildSystemPrompt(p: BrandProfile): string {
   const location = [p.city, p.province].filter(Boolean).join(', ');
-  let prompt = `Tu es le rédacteur de contenu officiel de ${p.businessName}`;
-  if (location) prompt += `, basé à ${location}`;
-  if (p.website) prompt += ` (${p.website})`;
-  prompt += '.\n';
+  const voices = p.brandVoice?.length
+    ? p.brandVoice.map(v => VOICE_LABELS[v] ?? v).join(', ')
+    : null;
 
+  const lines: string[] = [];
+
+  // ── Identity ──────────────────────────────────────────────────────────────
+  lines.push(`Tu es le rédacteur de contenu officiel de ${p.businessName}${location ? `, basé à ${location}` : ''}${p.website ? ` (${p.website})` : ''}.`);
+  lines.push('');
+  lines.push('Ton seul rôle est de produire des publications qui ressemblent EXACTEMENT à cette entreprise. Deux entreprises différentes doivent donner deux contenus visuellement et stylistiquement distincts.');
+  lines.push('');
+
+  // ── Brand Profile ─────────────────────────────────────────────────────────
+  lines.push('============================');
+  lines.push('PROFIL DE L\'ENTREPRISE');
+  lines.push('============================');
+  lines.push('');
   if (p.businessSummary?.trim()) {
-    prompt += `\nDescription de l'entreprise :\n${p.businessSummary.trim()}\n`;
+    lines.push(p.businessSummary.trim());
+    lines.push('');
   }
   if (p.targetAudience?.trim()) {
-    prompt += `\nClientèle cible : ${p.targetAudience.trim()}\n`;
+    lines.push(`Clientèle cible : ${p.targetAudience.trim()}`);
   }
-  if (p.brandVoice?.length) {
-    const voices = p.brandVoice.map(v => VOICE_LABELS[v] ?? v).join(', ');
-    prompt += `\nVoix de marque : ${voices}\n`;
+  if (voices) {
+    lines.push(`Voix de marque : ${voices}`);
   }
-  if (p.services?.length) {
-    prompt += `\nServices offerts : ${p.services.join(', ')}\n`;
+  lines.push('');
+
+  // ── Services ──────────────────────────────────────────────────────────────
+  if (p.services?.length || p.priorityServices?.length) {
+    lines.push('============================');
+    lines.push('SERVICES');
+    lines.push('============================');
+    lines.push('');
+    if (p.services?.length) {
+      lines.push(`Tous les services : ${p.services.join(', ')}`);
+    }
+    if (p.priorityServices?.length) {
+      lines.push('');
+      lines.push('Services PRIORITAIRES — mentionne-les plus fréquemment que les autres :');
+      p.priorityServices.forEach(s => lines.push(`  • ${s}`));
+    }
+    lines.push('');
   }
+
+  // ── Transformation Goals ──────────────────────────────────────────────────
+  lines.push('============================');
+  lines.push('TRANSFORMATION ET RÉSULTATS');
+  lines.push('============================');
+  lines.push('');
+  lines.push('Règle absolue : quand tu mentionnes un service, exprime toujours le bénéfice pour la cliente, jamais uniquement le service en soi.');
+  lines.push('');
+  lines.push('  À éviter : "Découvrez notre HydraFacial."');
+  lines.push('  Correct   : "Retrouvez une peau plus lumineuse grâce à notre HydraFacial."');
+  lines.push('');
+  if (p.transformationGoals?.length) {
+    lines.push('Résultats et transformations à mettre de l\'avant :');
+    p.transformationGoals.forEach(g => lines.push(`  • ${g}`));
+    lines.push('');
+  }
+
+  // ── Vocabulary ────────────────────────────────────────────────────────────
+  lines.push('============================');
+  lines.push('VOCABULAIRE ET STYLE');
+  lines.push('============================');
+  lines.push('');
   if (p.favoritePhrases?.length) {
-    prompt += `\nExpressions à utiliser naturellement : ${p.favoritePhrases.join(', ')}\n`;
+    lines.push(`Expressions à intégrer naturellement dans le texte : ${p.favoritePhrases.join(', ')}`);
   }
   if (p.avoidPhrases?.length) {
-    prompt += `\nMots et expressions à ÉVITER absolument : ${p.avoidPhrases.join(', ')}\n`;
+    lines.push(`Mots et expressions à NE JAMAIS utiliser : ${p.avoidPhrases.join(', ')}`);
   }
   if (p.ctaStyle) {
-    prompt += `\nAppel à l'action préféré : "${p.ctaStyle}"\n`;
+    lines.push(`Style de CTA préféré : "${p.ctaStyle}" — utilise ce style dans chaque publication.`);
+  } else {
+    lines.push(`Ne termine PAS la publication avec un appel à l'action (CTA). Pas de "Réservez maintenant", "Contactez-nous" ou équivalent.`);
+  }
+  lines.push('');
+
+  // ── Brand Examples (strongest influence) ─────────────────────────────────
+  if (p.brandExamples?.length) {
+    lines.push('============================');
+    lines.push('EXEMPLES DE PUBLICATIONS RÉELLES — INFLUENCE LA PLUS FORTE');
+    lines.push('============================');
+    lines.push('');
+    lines.push(`Ces publications ont été rédigées pour ${p.businessName}. Elles définissent :`);
+    lines.push('  • Le vocabulaire exact utilisé');
+    lines.push('  • La longueur et le rythme des phrases');
+    lines.push('  • L\'usage des émojis (fréquence, type, placement)');
+    lines.push('  • Le niveau de formalité et le ton');
+    lines.push('  • La structure et le style des appels à l\'action');
+    lines.push('');
+    lines.push('Tes nouvelles publications doivent ressembler à ces exemples. C\'est la référence la plus importante.');
+    lines.push('');
+    p.brandExamples.forEach((ex, i) => {
+      lines.push(`--- Exemple ${i + 1} ---`);
+      lines.push(ex.trim());
+      lines.push('');
+    });
   }
 
-  prompt += `
-Directives importantes :
-- Écris toujours en français québécois naturel et authentique (pas du français européen)
-- N'invente JAMAIS de statistiques, de chiffres précis, ni de faits non vérifiables
-- Utilise les expressions favorites naturellement dans le texte
-- N'utilise JAMAIS les mots/expressions à éviter
-- Utilise le style de CTA préféré dans chaque publication
-- Le contenu doit refléter exactement l'identité et les valeurs de ${p.businessName}
-- Utilise des expressions québécoises naturelles
-- Pour Instagram, utilise exactement 8 hashtags pertinents pour le Québec et le domaine de l'entreprise
-- Respecte STRICTEMENT les longueurs de texte demandées
+  // ── Writing Rules ─────────────────────────────────────────────────────────
+  lines.push('============================');
+  lines.push('RÈGLES DE RÉDACTION');
+  lines.push('============================');
+  lines.push('');
+  lines.push('- Écris toujours en français québécois naturel et authentique (pas du français européen)');
+  lines.push('- N\'invente JAMAIS de statistiques, de chiffres précis, ni de faits non vérifiables');
+  lines.push('- N\'utilise JAMAIS le tiret long (—) dans les textes');
+  lines.push('- Pour Instagram : utilise exactement 8 hashtags pertinents pour le Québec et le domaine');
+  lines.push('- Respecte STRICTEMENT les longueurs de texte demandées');
+  lines.push('');
+  lines.push('FORMATAGE OBLIGATOIRE — chaque paragraphe doit être séparé par une ligne vide (\\n\\n) :');
+  lines.push('- Facebook : accroche → ligne vide → 1-3 paragraphes de corps → ligne vide → CTA seul sur sa propre ligne');
+  lines.push('- Instagram : texte principal en 1-4 blocs courts → ligne vide → hashtags tous ensemble sur une seule ligne');
+  lines.push('- Le CTA Facebook doit TOUJOURS être sur sa propre ligne, séparé du corps par une ligne vide');
+  lines.push('');
+  lines.push('Format de réponse : retourne UNIQUEMENT un objet JSON valide avec exactement ces deux clés :');
+  lines.push('{ "fb": "...", "ig": "..." }');
+  lines.push('');
+  lines.push('Dans les valeurs JSON, représente les sauts de paragraphe avec \\n\\n (deux backslash-n).');
+  lines.push('Ne retourne rien d\'autre que le JSON.');
 
-FORMATAGE OBLIGATOIRE — chaque paragraphe doit être séparé par une ligne vide (\\n\\n) :
-- Facebook : accroche → ligne vide → 1-3 paragraphes de corps → ligne vide → CTA seul sur sa propre ligne
-- Instagram : texte principal en 1-4 blocs courts → ligne vide → hashtags tous ensemble sur une seule ligne
-- Le CTA Facebook doit TOUJOURS être sur sa propre ligne, séparé du corps par une ligne vide
-- Ne jamais coller deux paragraphes ensemble sans ligne vide entre eux
-- N'utilise JAMAIS le tiret long (—) dans les textes
-
-Format de réponse : retourne UNIQUEMENT un objet JSON valide avec exactement ces deux clés :
-{ "fb": "...", "ig": "..." }
-
-Dans les valeurs JSON, représente les sauts de paragraphe avec \\n\\n (deux backslash-n).
-Ne retourne rien d'autre que le JSON.`;
-
-  return prompt;
+  return lines.join('\n');
 }
 
 const LENGTH_SPECS: Record<string, { fb: string; ig: string; maxTokens: number }> = {
@@ -128,7 +202,7 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
   const { data: profileData } = await admin
     .from('profiles')
-    .select('subscription_tier, subscription_status, generations_used, trial_generations_used, business_name, website, service_description, city, province, target_audience, brand_voice, services, favorite_phrases, avoid_phrases, content_preferences, cta_style, created_at')
+    .select('subscription_tier, subscription_status, generations_used, trial_generations_used, business_name, website, service_description, city, province, target_audience, brand_voice, services, priority_services, transformation_goals, brand_examples, favorite_phrases, avoid_phrases, content_preferences, cta_style, created_at')
     .eq('id', user.id)
     .single();
 
@@ -147,6 +221,9 @@ export async function POST(request: NextRequest) {
   const targetAudience = (profile?.target_audience as string | null) ?? null;
   const brandVoice = (profile?.brand_voice as string[] | null) ?? null;
   const servicesList = (profile?.services as string[] | null) ?? null;
+  const priorityServices = (profile?.priority_services as string[] | null) ?? null;
+  const transformationGoals = (profile?.transformation_goals as string[] | null) ?? null;
+  const brandExamples = (profile?.brand_examples as string[] | null) ?? null;
   const favoritePhrases = (profile?.favorite_phrases as string[] | null) ?? null;
   const avoidPhrases = (profile?.avoid_phrases as string[] | null) ?? null;
   const ctaStyle = (profile?.cta_style as string | null) ?? null;
@@ -181,7 +258,6 @@ export async function POST(request: NextRequest) {
 
   // ── Monthly limit (active subscriptions only) ─────────────────────────────
   const limits = getTierLimits(effectiveTier);
-
   if (status === 'active' && generationsUsed >= limits.generationsPerMonth) {
     const msg = tier === 'essentiel'
       ? `Limite atteinte : ${limits.generationsPerMonth} générations par mois pour le plan Essentiel. Passez au plan Pro pour continuer.`
@@ -219,7 +295,6 @@ export async function POST(request: NextRequest) {
 
   const spec = LENGTH_SPECS[length] ?? LENGTH_SPECS.moyen;
 
-  // Essentiel only gets Facebook (trial always gets Pro/IG)
   const igInstruction = effectiveTier === 'essentiel'
     ? '- Instagram : retourne une chaîne vide "" pour la clé "ig".'
     : `- ${spec.ig}`;
@@ -237,23 +312,35 @@ ${igInstruction}
 
 Rappel : retourne UNIQUEMENT le JSON avec les clés "fb" et "ig".`;
 
+  const systemPrompt = buildSystemPrompt({
+    businessName,
+    website: businessWebsite,
+    city,
+    province,
+    businessSummary: serviceDescription,
+    targetAudience,
+    brandVoice,
+    services: servicesList,
+    priorityServices,
+    transformationGoals,
+    brandExamples,
+    favoritePhrases,
+    avoidPhrases,
+    ctaStyle,
+  });
+
+  // Log the full prompt to the server console for debugging
+  console.log('\n[Brand Brain] ── System Prompt ──────────────────────────────\n');
+  console.log(systemPrompt);
+  console.log('\n[Brand Brain] ── User Prompt ────────────────────────────────\n');
+  console.log(userPrompt);
+  console.log('\n[Brand Brain] ─────────────────────────────────────────────\n');
+
   try {
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: spec.maxTokens,
-      system: buildSystemPrompt({
-        businessName,
-        website: businessWebsite,
-        city,
-        province,
-        businessSummary: serviceDescription,
-        targetAudience,
-        brandVoice,
-        services: servicesList,
-        favoritePhrases,
-        avoidPhrases,
-        ctaStyle,
-      }),
+      system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     });
 
