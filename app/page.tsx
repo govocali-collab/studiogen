@@ -193,6 +193,29 @@ const jsonLd = {
   publisher: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
 };
 
+const localBusinessLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'StudioGen',
+  url: 'https://studiogen.ca',
+  applicationCategory: 'BusinessApplication',
+  availableOnDevice: 'Desktop, Mobile',
+  inLanguage: 'fr-CA',
+  areaServed: {
+    '@type': 'Country',
+    name: 'Canada',
+    containsPlace: {
+      '@type': 'AdministrativeArea',
+      name: 'Québec',
+    },
+  },
+  audience: {
+    '@type': 'BusinessAudience',
+    audienceType: 'Professionnels de la beauté',
+    geographicArea: { '@type': 'AdministrativeArea', name: 'Québec, Canada' },
+  },
+};
+
 export default async function LandingPage() {
   const supabase = await createClient();
   const { data: { session } } = await supabase.auth.getSession();
@@ -202,6 +225,10 @@ export default async function LandingPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }}
       />
 
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
