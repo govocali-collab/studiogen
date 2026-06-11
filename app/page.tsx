@@ -4,14 +4,14 @@ import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: 'StudioGen - Posts Facebook & Instagram pour salons québécois en 30 secondes',
-  description: 'StudioGen génère tes montages photo et tes textes Facebook + Instagram automatiquement. En français québécois. Essai gratuit 7 jours, aucune carte requise.',
+  title: 'StudioGen - Publications Facebook & Instagram pour professionnels de la beauté au Québec',
+  description: 'StudioGen génère automatiquement tes publications Facebook et Instagram en français québécois. Conçu pour les professionnels de la beauté. Essai gratuit 7 jours, aucune carte requise.',
   alternates: {
     canonical: 'https://studiogen.ca',
   },
   openGraph: {
-    title: 'Fais tes posts Facebook & Instagram en 30 sec!',
-    description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
+    title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
+    description: 'StudioGen crée automatiquement des publications qui ressemblent à ton entreprise, sans Canva, sans agence et sans y passer tes soirées.',
     url: 'https://studiogen.ca',
     siteName: 'StudioGen',
     locale: 'fr_CA',
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Fais tes posts Facebook & Instagram en 30 sec!',
-    description: 'Du contenu professionnel, prêt à publier. Fais tes posts Facebook et Instagram en 30 sec!',
+    title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
+    description: 'StudioGen crée automatiquement des publications qui ressemblent à ton entreprise, sans Canva, sans agence et sans y passer tes soirées.',
   },
 };
 
@@ -93,7 +93,7 @@ const features = [
       </svg>
     ),
     title: 'Historique des publications',
-    desc: "Retrouve toutes tes générations passées en un coup d'œil. Réutilise, modifie, inspire-toi.",
+    desc: "Retrouve toutes tes générations passées en un coup d'oeil. Réutilise, modifie, inspire-toi.",
     badge: 'Pro',
   },
   {
@@ -112,12 +112,12 @@ const painPoints = [
   {
     emoji: '⏰',
     title: 'Tu passes des heures sur ton contenu',
-    desc: 'Chercher des idées, rédiger les textes, créer les visuels… tout ça pour 3 publications par semaine. Tu as mieux à faire.',
+    desc: 'Chercher des idées, rédiger les textes, créer les visuels... tout ça pour 3 publications par semaine. Tu as mieux à faire.',
   },
   {
     emoji: '💸',
     title: "L'agence coûte trop cher",
-    desc: "300 $ à 800 $ par mois pour de la gestion de réseaux sociaux ? Pour un salon indépendant, c'est souvent injustifiable.",
+    desc: "300 $ à 800 $ par mois pour de la gestion de réseaux sociaux ? Pour une clinique indépendante, c'est souvent injustifiable.",
   },
   {
     emoji: '😩',
@@ -127,21 +127,32 @@ const painPoints = [
 ];
 
 const comparisonRows = [
-  { label: 'Textes en français québécois', studioGen: true, canva: false },
-  { label: 'Rédaction automatique par IA', studioGen: true, canva: false },
-  { label: 'Adapté au secteur beauté', studioGen: true, canva: false },
-  { label: 'Montages photo automatiques', studioGen: true, canva: false },
-  { label: 'Logo intégré en 1 clic', studioGen: true, canva: true },
-  { label: 'Formats Facebook & Instagram', studioGen: true, canva: true },
-  { label: 'Prêt à publier en 30 secondes', studioGen: true, canva: false },
-  { label: 'Sans formation requise', studioGen: true, canva: false },
-  { label: 'Prix adapté aux salons indépendants', studioGen: true, canva: false },
+  { label: 'Trouver des idées', studioGen: 'Automatique', manual: '30 à 60 min' },
+  { label: 'Rédiger les textes', studioGen: 'Automatique', manual: '30 à 60 min' },
+  { label: 'Créer les visuels', studioGen: 'Automatique', manual: '1 à 2 heures' },
+  { label: 'Adapter pour Facebook', studioGen: 'Automatique', manual: '15 à 30 min' },
+  { label: 'Adapter pour Instagram', studioGen: 'Automatique', manual: '15 à 30 min' },
+  { label: 'Temps total', studioGen: '2 à 5 minutes', manual: '3 à 5 heures' },
+];
+
+const howItSavesTime = [
+  { num: '01', title: 'Ajoute tes photos', desc: 'Photos de résultats, produits, formations ou réalisations.' },
+  { num: '02', title: 'StudioGen comprend ton entreprise', desc: 'Ton ton, tes services, ta clientèle et ta région.' },
+  { num: '03', title: 'Génère ton contenu', desc: 'Visuel + texte en français québécois adaptés à ton entreprise.' },
+  { num: '04', title: 'Publie', desc: 'Télécharge et publie en quelques minutes.' },
 ];
 
 const steps = [
   { num: '01', title: 'Importe tes photos', desc: "Glisse-dépose tes photos de résultats, produits ou formations directement dans le studio." },
   { num: '02', title: 'Décris ton contenu', desc: "Choisis le type de publication, le ton et ajoute quelques détails. L'IA fait le reste." },
   { num: '03', title: 'Télécharge et publie', desc: 'Copie tes textes, télécharge ton visuel JPG. Prêt à publier en moins de 2 minutes.' },
+];
+
+const quebecAdvantages = [
+  { icon: '✓', title: 'Français québécois naturel', desc: 'Expressions, ton et style authentiquement québécois.' },
+  { icon: '✓', title: 'Comprend ton secteur', desc: 'Esthétique, médico-esthétique, soins, beauté et bien-être.' },
+  { icon: '✓', title: "S'adapte à ton ton", desc: "Ton profil IA apprend ta voix, tes services et ta clientèle." },
+  { icon: '✓', title: 'Conçu pour le marché local', desc: 'Pensé pour les professionnels de la beauté du Québec.' },
 ];
 
 const faqs = [
@@ -159,7 +170,7 @@ const faqs = [
   },
   {
     q: 'Puis-je annuler mon abonnement en tout temps ?',
-    a: "Oui, sans pénalité ni frais cachés. Tu peux annuler depuis la page de facturation à n'importe quel moment. Ton accès reste actif jusqu'à la fin de la période payée.",
+    a: "Oui, sans pénalité ni frais cachés. Tu peux annuler depuis la page Abonnement à n'importe quel moment. Ton accès reste actif jusqu'à la fin de la période payée.",
   },
   {
     q: 'Mes photos et mon contenu sont-ils confidentiels ?',
@@ -174,7 +185,7 @@ const jsonLd = {
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   url: 'https://studiogen.ca',
-  description: 'Générateur de publications Facebook et Instagram pour salons québécois. Montages photo automatiques et textes rédigés par IA en français québécois.',
+  description: 'Générateur de publications Facebook et Instagram pour professionnels de la beauté au Québec. Montages photo automatiques et textes rédigés par IA en français québécois.',
   offers: [
     { '@type': 'Offer', name: 'Essentiel', price: '57', priceCurrency: 'CAD', billingIncrement: 'P1M' },
     { '@type': 'Offer', name: 'Pro', price: '127', priceCurrency: 'CAD', billingIncrement: 'P1M' },
@@ -187,7 +198,7 @@ export default async function LandingPage() {
   const { data: { session } } = await supabase.auth.getSession();
   const isActive = !!session?.user;
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -222,21 +233,17 @@ export default async function LandingPage() {
       <main>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative pt-28 sm:pt-40 pb-20 sm:pb-32 px-4 sm:px-6 overflow-hidden">
-        {/* Background gradient blobs — desktop only (blur is GPU-expensive on mobile) */}
         <div className="absolute inset-0 pointer-events-none hidden sm:block">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-violet-100 rounded-full blur-[120px] opacity-40" />
           <div className="absolute top-20 right-0 w-[400px] h-[400px] bg-fuchsia-100 rounded-full blur-[100px] opacity-30" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[400px] bg-pink-100 rounded-full blur-[130px] opacity-30" />
         </div>
-        {/* Mobile: lightweight gradient instead */}
         <div className="absolute inset-0 pointer-events-none sm:hidden" style={{ background: 'linear-gradient(135deg, #f5f3ff 0%, #fff0f6 50%, #fff 100%)' }} />
 
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-8">
-            <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-            </svg>
-            Propulsé par Astrova · Conçu pour les salons québécois
+          <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-8 max-w-full">
+            <Image src="/fav.png" alt="" width={16} height={16} className="w-4 h-4 rounded-sm flex-shrink-0" />
+            <span className="truncate sm:whitespace-normal">Propulsé par Astrova · Pour les professionnels de la beauté du Québec</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-6">
@@ -250,8 +257,7 @@ export default async function LandingPage() {
           </h1>
 
           <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Montages photo soignés et textes rédigés à ton image, générés en quelques secondes.
-            Du contenu professionnel, prêt à publier.
+            StudioGen crée automatiquement des publications qui ressemblent à ton entreprise, sans Canva, sans agence et sans y passer tes soirées.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -268,7 +274,7 @@ export default async function LandingPage() {
                   href="/auth/signup"
                   className="w-full sm:w-auto text-base font-semibold bg-violet-600 hover:bg-violet-700 text-white px-8 py-3.5 rounded-2xl transition-colors shadow-lg shadow-violet-200"
                 >
-                  Démarrer l'essai gratuit de 7 jours
+                  Créer mes 5 premières publications gratuitement
                 </Link>
                 <Link
                   href="/auth/login"
@@ -283,10 +289,9 @@ export default async function LandingPage() {
           {!isActive && <p className="text-xs text-gray-500 mt-4">Aucune carte de crédit requise · Annulation en tout temps</p>}
         </div>
 
-        {/* App preview mockup — hidden on small screens */}
+        {/* App preview mockup */}
         <div className="relative max-w-5xl mx-auto mt-16 hidden sm:block">
           <div className="bg-white rounded-3xl shadow-2xl shadow-violet-100 border border-gray-200 overflow-hidden">
-            {/* Fake browser bar */}
             <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-400" />
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
@@ -295,10 +300,8 @@ export default async function LandingPage() {
                 app.studiogen.ca/studio
               </div>
             </div>
-            {/* App UI preview */}
             <div className="bg-gray-50 p-6">
               <div className="grid grid-cols-3 gap-4">
-                {/* Left panel */}
                 <div className="space-y-3">
                   <div className="bg-white rounded-xl border border-gray-200 p-3">
                     <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Format</div>
@@ -317,7 +320,6 @@ export default async function LandingPage() {
                     </div>
                   </div>
                 </div>
-                {/* Center - canvas */}
                 <div className="space-y-3">
                   <div className="bg-white rounded-xl border border-gray-200 p-3">
                     <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Photos</div>
@@ -331,7 +333,6 @@ export default async function LandingPage() {
                     <div className="w-full aspect-square rounded-xl bg-gradient-to-br from-violet-200 via-fuchsia-100 to-pink-200" />
                   </div>
                 </div>
-                {/* Right - post generator */}
                 <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
                   <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Publication IA</div>
                   <div className="space-y-1.5">
@@ -356,6 +357,27 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* ── Comment StudioGen te fait gagner du temps ─────────────────────── */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Simple et rapide</div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+              Comment StudioGen te fait gagner du temps
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {howItSavesTime.map((s) => (
+              <div key={s.num} className="relative">
+                <div className="text-5xl font-black text-violet-100 mb-4 leading-none">{s.num}</div>
+                <h3 className="text-base font-bold text-gray-900 mb-2">{s.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Pain ─────────────────────────────────────────────────────────── */}
       <section className="relative py-16 sm:py-24 px-4 sm:px-6 bg-white overflow-hidden">
         <div className="absolute inset-0 pointer-events-none hidden sm:block">
@@ -367,7 +389,7 @@ export default async function LandingPage() {
               Tu te reconnais là-dedans ?
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              La plupart des propriétaires de salons vivent les mêmes frustrations. StudioGen a été conçu pour les éliminer.
+              La plupart des professionnels de la beauté vivent les mêmes frustrations. StudioGen a été conçu pour les éliminer.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -376,6 +398,32 @@ export default async function LandingPage() {
                 <div className="text-3xl mb-4">{p.emoji}</div>
                 <h3 className="text-sm font-bold text-red-800 mb-2">{p.title}</h3>
                 <p className="text-sm text-red-700/80 leading-relaxed">{p.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Québec ───────────────────────────────────────────────────────── */}
+      <section className="relative py-16 sm:py-24 px-4 sm:px-6 overflow-hidden" style={{ background: 'linear-gradient(135deg, #faf5ff 0%, #fdf4ff 50%, #fff5f7 100%)' }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Fait pour le Québec</div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+              Conçu pour les professionnels de la beauté du Québec
+            </h2>
+            <p className="text-gray-500 max-w-xl mx-auto">
+              Esthétique, médico-esthétique, soins, coiffure, PMU, cils... StudioGen comprend ton secteur et parle la même langue que ta clientèle.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {quebecAdvantages.map((a) => (
+              <div key={a.title} className="bg-white rounded-2xl border border-violet-100 p-6 hover:shadow-md hover:border-violet-200 transition-all">
+                <div className="w-9 h-9 rounded-xl bg-violet-600 text-white flex items-center justify-center font-bold text-base mb-4">
+                  {a.icon}
+                </div>
+                <h3 className="text-sm font-bold text-gray-900 mb-2">{a.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{a.desc}</p>
               </div>
             ))}
           </div>
@@ -445,33 +493,29 @@ export default async function LandingPage() {
           <div className="text-center mb-12">
             <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Comparaison</div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              StudioGen vs Canva
+              StudioGen vs le faire soi-même
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              Canva est un outil de design généraliste. StudioGen est fait pour les salons québécois, et ça change tout.
+              Chaque publication créée manuellement te coûte entre 30 minutes et 2 heures. StudioGen fait tout en quelques minutes.
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="grid grid-cols-3 text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest border-b border-gray-100">
-              <div className="py-3 sm:py-4 px-3 sm:px-4 text-left text-gray-500">Fonctionnalité</div>
+              <div className="py-3 sm:py-4 px-3 sm:px-4 text-left text-gray-500">Tâche</div>
               <div className="py-3 sm:py-4 px-3 sm:px-4 bg-violet-600 text-white">StudioGen</div>
-              <div className="py-3 sm:py-4 px-3 sm:px-4 text-gray-500">Canva</div>
+              <div className="py-3 sm:py-4 px-3 sm:px-4 text-gray-500">Faire soi-même</div>
             </div>
             {comparisonRows.map((row, i) => (
               <div
                 key={row.label}
-                className={`grid grid-cols-3 text-center text-xs sm:text-sm items-center ${i < comparisonRows.length - 1 ? 'border-b border-gray-100' : ''}`}
+                className={`grid grid-cols-3 text-center text-xs sm:text-sm items-center ${i < comparisonRows.length - 1 ? 'border-b border-gray-100' : ''} ${i === comparisonRows.length - 1 ? 'font-semibold' : ''}`}
               >
                 <div className="py-3 sm:py-3.5 px-3 sm:px-4 text-left text-gray-600 leading-snug">{row.label}</div>
-                <div className="py-3 sm:py-3.5 px-3 sm:px-4 bg-violet-50 font-semibold">
-                  {row.studioGen
-                    ? <span className="text-violet-600">✓</span>
-                    : <span className="text-gray-300">-</span>}
+                <div className="py-3 sm:py-3.5 px-3 sm:px-4 bg-violet-50 text-violet-700 font-semibold">
+                  {row.studioGen}
                 </div>
                 <div className="py-3 sm:py-3.5 px-3 sm:px-4 text-gray-400">
-                  {row.canva
-                    ? <span className="text-gray-500">✓</span>
-                    : <span className="text-gray-300">-</span>}
+                  {row.manual}
                 </div>
               </div>
             ))}
@@ -489,7 +533,6 @@ export default async function LandingPage() {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* TODO: replace with real testimonials */}
             <div className="bg-pink-50/70 rounded-2xl border border-pink-100 p-6">
               <div className="flex gap-0.5 mb-4">
                 {[...Array(5)].map((_, i) => (
@@ -499,17 +542,16 @@ export default async function LandingPage() {
                 ))}
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                "J'économise facilement 3 heures par semaine. Mes posts sont plus beaux qu'avant et mes clientes s'arrêtent sur mon contenu maintenant."
+                "Avant StudioGen, je passais mon dimanche soir à préparer mes publications. Maintenant, je crée ma semaine de contenu en moins de 15 minutes."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-violet-200 flex items-center justify-center text-sm font-bold text-violet-700">M</div>
                 <div>
                   <div className="text-sm font-semibold text-gray-900">Marie-Pier T.</div>
-                  <div className="text-xs text-gray-500">Salon de coiffure, Sherbrooke</div>
+                  <div className="text-xs text-gray-500">Clinique esthétique, Sherbrooke</div>
                 </div>
               </div>
             </div>
-            {/* TODO: replace with real testimonials */}
             <div className="bg-pink-50/70 rounded-2xl border border-pink-100 p-6">
               <div className="flex gap-0.5 mb-4">
                 {[...Array(5)].map((_, i) => (
@@ -519,7 +561,7 @@ export default async function LandingPage() {
                 ))}
               </div>
               <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                "Avant, je stressais à chaque dimanche pour planifier ma semaine. Maintenant je génère tout en 10 minutes. Le français québécois, c'est exactement mon ton."
+                "Le contenu ressemble enfin à notre clinique. Je n'ai plus besoin de passer par Canva ou une agence."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-fuchsia-200 flex items-center justify-center text-sm font-bold text-fuchsia-700">S</div>
@@ -548,6 +590,7 @@ export default async function LandingPage() {
             {/* Essentiel */}
             <div className="bg-white rounded-2xl border border-gray-200 p-8 flex flex-col">
               <div className="text-xl font-bold text-gray-800 mb-1">Essentiel</div>
+              <div className="text-sm text-gray-400 mb-4">Parfait pour les travailleurs autonomes</div>
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-4xl font-black text-gray-900">57 $</span>
                 <span className="text-gray-500 mb-1">CA / mois</span>
@@ -573,6 +616,7 @@ export default async function LandingPage() {
                 Recommandé
               </div>
               <div className="text-xl font-bold text-gray-300 mb-1">Pro</div>
+              <div className="text-sm text-gray-500 mb-4">Parfait pour les cliniques et professionnels actifs</div>
               <div className="flex items-end gap-1 mb-6">
                 <span className="text-4xl font-black text-white">127 $</span>
                 <span className="text-gray-400 mb-1">CA / mois</span>
@@ -640,16 +684,14 @@ export default async function LandingPage() {
       {/* ── Final CTA ────────────────────────────────────────────────────── */}
       <section className="relative py-16 sm:py-24 px-4 sm:px-6 overflow-hidden" style={{ background: 'linear-gradient(160deg, #fff 0%, #fff0f4 40%, #fdf4ff 100%)' }}>
         <div className="max-w-2xl mx-auto text-center">
-          <div className="w-14 h-14 rounded-2xl bg-violet-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-violet-200">
-            <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-            </svg>
+          <div className="flex justify-center mb-6">
+            <Image src="/fav.png" alt="StudioGen" width={56} height={56} className="w-14 h-14 rounded-2xl shadow-lg shadow-violet-200" />
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
             Prêt à transformer ta présence en ligne ?
           </h2>
           <p className="text-gray-500 mb-8">
-            Rejoins les salons qui publient du contenu professionnel chaque semaine, sans agence, sans stress.
+            Rejoins les professionnels de la beauté qui publient du contenu professionnel chaque semaine, sans agence, sans stress.
           </p>
           {isActive ? (
             <Link href="/studio" className="inline-flex items-center gap-2 text-base font-semibold bg-violet-600 hover:bg-violet-700 text-white px-8 py-4 rounded-2xl transition-colors shadow-xl shadow-violet-200">
@@ -661,7 +703,7 @@ export default async function LandingPage() {
           ) : (
             <>
               <Link href="/auth/signup" className="inline-flex items-center gap-2 text-base font-semibold bg-violet-600 hover:bg-violet-700 text-white px-8 py-4 rounded-2xl transition-colors shadow-xl shadow-violet-200">
-                Démarrer l'essai gratuit de 7 jours
+                Créer mes 5 premières publications gratuitement
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>

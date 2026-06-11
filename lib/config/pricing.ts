@@ -19,7 +19,7 @@ export const PRICING = {
     price: 127, // CAD, monthly
     trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_PRO,
-    description: 'Pour les salons actifs',
+    description: 'Pour les cliniques actives',
     features: [
       '150 posts / mois',
       'Accès complet à toutes les fonctionnalités',

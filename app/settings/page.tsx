@@ -497,7 +497,7 @@ function SettingsPageInner() {
                   <div className="mb-5">
                     <label className={labelClass}>Nom de l'entreprise</label>
                     <input type="text" name="business_name" value={form.business_name} onChange={handleChange}
-                      placeholder="ex. Salon Beauté Lumière" className={inputClass} />
+                      placeholder="ex. Clinique Esthétique Lumière" className={inputClass} />
                   </div>
 
                   <div className="mb-5">
@@ -567,7 +567,7 @@ function SettingsPageInner() {
                       Décrivez vos services, valeurs et ce qui vous rend unique. L'IA l'utilisera dans chaque publication.
                     </p>
                     <textarea name="service_description" value={form.service_description} onChange={handleChange}
-                      rows={5} placeholder="ex. Nous sommes un salon de coiffure et esthétique situé à Sherbrooke..."
+                      rows={5} placeholder="ex. Nous sommes une clinique esthétique et médico-esthétique située à Sherbrooke..."
                       className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none" />
                   </div>
 
