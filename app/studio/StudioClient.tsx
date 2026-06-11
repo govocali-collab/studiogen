@@ -126,11 +126,22 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
       const uid = initialProfile?.id ?? '';
       if (localStorage.getItem(bannerKey(uid)) === '1') setIaBannerDismissed(true);
 
+      // Fetch logos + profile in parallel
+      const [logosRes, profileRes] = await Promise.allSettled([
+        fetch('/api/logos'),
+        fetch('/api/profile'),
+      ]);
+
+      // Apply profile data immediately
+      if (profileRes.status === 'fulfilled' && profileRes.value.ok) {
+        profileRes.value.json().then((data) => {
+          if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
+        });
+      }
+
       try {
-        // Load logos from server (source of truth — works on all devices)
-        const res = await fetch('/api/logos');
-        if (res.ok) {
-          const serverLogos: { id: string; name: string; public_url: string; remembered_size: number | null; remembered_position: string | null }[] = await res.json();
+        if (logosRes.status === 'fulfilled' && logosRes.value.ok) {
+          const serverLogos: { id: string; name: string; public_url: string; remembered_size: number | null; remembered_position: string | null }[] = await logosRes.value.json();
           if (serverLogos.length > 0) {
             const loaded = (await Promise.all(serverLogos.map(async (sl) => {
               try {
@@ -164,9 +175,6 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             }
 
             setHydrated(true);
-            fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((data) => {
-              if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
-            });
             return;
           }
         }
@@ -191,9 +199,6 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
       } catch { /* ignore */ }
 
       setHydrated(true);
-      fetch('/api/profile').then((r) => r.ok ? r.json() : null).then((data) => {
-        if (data) setProfile((prev) => prev ? { ...prev, ...data } : prev);
-      });
     };
 
     init();
