@@ -5,6 +5,66 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CalendarPost } from '@/lib/supabase/types';
 
+// ── Dropdown filter ───────────────────────────────────────────────────────────
+function FilterDropdown<T extends string>({
+  options,
+  value,
+  onChange,
+  placeholder,
+}: {
+  options: { value: T | ''; label: string; dot?: string }[];
+  value: T | '';
+  onChange: (v: T | '') => void;
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const selected = options.find(o => o.value === value) ?? options[0];
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors shadow-sm min-w-[140px]"
+      >
+        {selected.dot && <span className={`w-2 h-2 rounded-full shrink-0 ${selected.dot}`} />}
+        <span className="flex-1 text-left">{selected.value ? selected.label : placeholder}</span>
+        <svg className={`w-4 h-4 text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute z-50 top-full mt-1.5 left-0 min-w-full bg-white border border-gray-100 rounded-xl shadow-lg py-1 overflow-hidden">
+          {options.map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+              className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-sm transition-colors text-left ${opt.value === value ? 'bg-violet-50 text-violet-700 font-semibold' : 'text-gray-700 hover:bg-gray-50'}`}
+            >
+              {opt.dot
+                ? <span className={`w-2 h-2 rounded-full shrink-0 ${opt.dot}`} />
+                : <span className="w-2 h-2 shrink-0" />
+              }
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Couleurs et labels par type de contenu ────────────────────────────────────
 const TYPE_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
   'formation':        { bg: 'bg-purple-100',  text: 'text-purple-700',  dot: 'bg-purple-500'  },
@@ -461,28 +521,29 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
       {nav}
 
       <main className="max-w-screen-xl mx-auto px-4 py-6 space-y-5">
-        {/* Title + controls row */}
+        {/* Title + filters row */}
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-xl font-bold text-gray-900 shrink-0">Calendrier de contenu</h1>
           <div className="flex items-center gap-2">
-            {/* Platform toggle */}
-            <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
-              {([['', 'Tous'], ['fb', 'Facebook'], ['ig', 'Instagram']] as const).map(([val, label]) => (
-                <button
-                  key={val}
-                  onClick={() => setFilterPlatform(val)}
-                  className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
-                    filterPlatform === val
-                      ? val === 'fb' ? 'bg-blue-600 text-white shadow-sm'
-                      : val === 'ig' ? 'bg-rose-500 text-white shadow-sm'
-                      : 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+            <FilterDropdown<'fb' | 'ig'>
+              placeholder="Plateforme"
+              value={filterPlatform}
+              onChange={setFilterPlatform}
+              options={[
+                { value: '', label: 'Toutes plateformes' },
+                { value: 'fb', label: 'Facebook', dot: 'bg-blue-500' },
+                { value: 'ig', label: 'Instagram', dot: 'bg-rose-500' },
+              ]}
+            />
+            <FilterDropdown<string>
+              placeholder="Type de contenu"
+              value={filterType}
+              onChange={setFilterType}
+              options={[
+                { value: '', label: 'Tous les types' },
+                ...CONTENT_TYPES.map(ct => ({ value: ct, label: ct.charAt(0).toUpperCase() + ct.slice(1), dot: typeColor(ct).dot })),
+              ]}
+            />
             {/* View toggle */}
             <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
               {(['calendrier', 'liste'] as const).map(v => (
@@ -496,29 +557,6 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Filter by content type */}
-        <div className="flex flex-wrap gap-1.5">
-          <button
-            onClick={() => setFilterType('')}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${!filterType ? 'bg-violet-600 text-white border-violet-600' : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}
-          >
-            Tous
-          </button>
-          {CONTENT_TYPES.map(ct => {
-            const c = typeColor(ct);
-            const active = filterType === ct;
-            return (
-              <button
-                key={ct}
-                onClick={() => setFilterType(active ? '' : ct)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors capitalize ${active ? `${c.bg} ${c.text} border-transparent` : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}
-              >
-                {ct}
-              </button>
-            );
-          })}
         </div>
 
         {loading ? (
