@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CalendarPost } from '@/lib/supabase/types';
@@ -39,13 +39,20 @@ const JOURS_FR = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 // ── Calendrier grille mensuelle ───────────────────────────────────────────────
 function MonthGrid({ year, month, posts, onDayClick, onDropPost }: {
   year: number;
-  month: number; // 0-indexed
+  month: number;
   posts: CalendarPost[];
   onDayClick: (post: CalendarPost) => void;
   onDropPost: (postId: string, newDate: string) => void;
 }) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+
+  // Refs for touch drag (avoid stale closures in event listeners)
+  const touchDragIdRef = useRef<string | null>(null);
+  const dragOverDateRef = useRef<string | null>(null);
+  const ghostRef = useRef<HTMLDivElement | null>(null);
+  const onDropPostRef = useRef(onDropPost);
+  useEffect(() => { onDropPostRef.current = onDropPost; }, [onDropPost]);
 
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -66,28 +73,93 @@ function MonthGrid({ year, month, posts, onDayClick, onDropPost }: {
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
+  // ── Touch drag handlers ────────────────────────────────────────────────────
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (!touchDragIdRef.current) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+
+    if (ghostRef.current) {
+      ghostRef.current.style.left = `${touch.clientX - 48}px`;
+      ghostRef.current.style.top  = `${touch.clientY - 28}px`;
+      ghostRef.current.style.display = 'none';
+    }
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (ghostRef.current) ghostRef.current.style.display = '';
+
+    const cell = el?.closest('[data-date]');
+    const date = cell?.getAttribute('data-date') ?? null;
+    if (date !== dragOverDateRef.current) {
+      dragOverDateRef.current = date;
+      setDragOverDate(date);
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    const postId = touchDragIdRef.current;
+    const date   = dragOverDateRef.current;
+    touchDragIdRef.current  = null;
+    dragOverDateRef.current = null;
+
+    if (ghostRef.current) { ghostRef.current.remove(); ghostRef.current = null; }
+    setDraggingId(null);
+    setDragOverDate(null);
+
+    if (postId && date) onDropPostRef.current(postId, date);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend',  handleTouchEnd);
+    return () => {
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend',  handleTouchEnd);
+    };
+  }, [handleTouchMove, handleTouchEnd]);
+
+  const startTouchDrag = (e: React.TouchEvent, p: CalendarPost) => {
+    e.stopPropagation();
+    touchDragIdRef.current = p.id;
+    setDraggingId(p.id);
+
+    const touch = e.touches[0];
+    const isFb  = p.platform === 'fb';
+    const ghost = document.createElement('div');
+    ghost.style.cssText = [
+      'position:fixed', 'z-index:9999', 'pointer-events:none',
+      `left:${touch.clientX - 48}px`, `top:${touch.clientY - 28}px`,
+      'width:96px', 'padding:6px 8px', 'border-radius:10px',
+      'font-size:11px', 'font-weight:700', 'text-align:center',
+      'box-shadow:0 8px 24px rgba(0,0,0,0.25)', 'opacity:0.92',
+      isFb ? 'background:#eff6ff;border:2px solid #3b82f6;color:#1d4ed8'
+           : 'background:#fff1f2;border:2px solid #ef4444;color:#b91c1c',
+    ].join(';');
+    ghost.textContent = isFb ? 'FB' : 'IG';
+    document.body.appendChild(ghost);
+    ghostRef.current = ghost;
+  };
+
   return (
     <div className="select-none">
-      {/* Day headers */}
       <div className="grid grid-cols-7 mb-1">
         {JOURS_FR.map(j => (
           <div key={j} className="text-center text-xs font-semibold text-gray-400 py-1">{j}</div>
         ))}
       </div>
-      {/* Day cells */}
       <div className="grid grid-cols-7 gap-px bg-gray-100 rounded-xl overflow-hidden border border-gray-100">
         {cells.map((day, i) => {
           if (!day) return <div key={`e-${i}`} className="bg-white min-h-[110px]" />;
           const cellDate = new Date(year, month, day);
           cellDate.setHours(0, 0, 0, 0);
-          const isToday = cellDate.getTime() === today.getTime();
-          const dayPosts = postsByDay[day] ?? [];
-          const iso = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+          const isToday   = cellDate.getTime() === today.getTime();
+          const dayPosts  = postsByDay[day] ?? [];
+          const iso       = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
           const isDragOver = dragOverDate === iso;
 
           return (
             <div
               key={day}
+              data-date={iso}
               className={`bg-white min-h-[110px] p-1.5 flex flex-col gap-1 transition-colors
                 ${isDragOver ? 'bg-violet-50 ring-2 ring-inset ring-violet-400' : 'hover:bg-gray-50/60'}
               `}
@@ -109,8 +181,8 @@ function MonthGrid({ year, month, posts, onDayClick, onDropPost }: {
               )}
               <div className="flex flex-col gap-1 overflow-hidden">
                 {dayPosts.slice(0, 3).map(p => {
-                  const isFb = p.platform === 'fb';
-                  const c = typeColor(p.content_type);
+                  const isFb      = p.platform === 'fb';
+                  const c         = typeColor(p.content_type);
                   const isDragging = draggingId === p.id;
                   return (
                     <button
@@ -123,6 +195,7 @@ function MonthGrid({ year, month, posts, onDayClick, onDropPost }: {
                         setDraggingId(p.id);
                       }}
                       onDragEnd={() => { setDraggingId(null); setDragOverDate(null); }}
+                      onTouchStart={(e) => startTouchDrag(e, p)}
                       onClick={() => !draggingId && onDayClick(p)}
                       className={`w-full text-left rounded-md px-1.5 py-1 flex flex-col gap-0.5 cursor-grab active:cursor-grabbing transition-all
                         ${isDragging ? 'opacity-40 scale-95' : 'hover:opacity-80'}
