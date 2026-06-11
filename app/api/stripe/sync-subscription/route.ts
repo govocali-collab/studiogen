@@ -7,8 +7,64 @@ function parseTier(priceId: string): 'essentiel' | 'pro' {
   return priceId === process.env.STRIPE_PRICE_PRO ? 'pro' : 'essentiel';
 }
 
-// Called after successful checkout. Uses session_id for precise lookup,
-// falls back to listing customer subscriptions.
+// GET — diagnostic only, no writes
+export async function GET() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+
+  const admin = createAdminClient();
+  const { data: profileRaw, error: profileErr } = await admin
+    .from('profiles')
+    .select('stripe_customer_id, subscription_status, subscription_tier')
+    .eq('id', user.id)
+    .single();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const profile = profileRaw as any;
+  const customerId = profile?.stripe_customer_id ?? null;
+
+  let stripeCustomer = null;
+  let subscriptions: unknown[] = [];
+
+  if (customerId) {
+    try {
+      stripeCustomer = await stripe.customers.retrieve(customerId);
+    } catch (e) {
+      stripeCustomer = { error: String(e) };
+    }
+    try {
+      const all = await stripe.subscriptions.list({ customer: customerId, limit: 10 });
+      subscriptions = all.data.map(s => ({
+        id: s.id,
+        status: s.status,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        price: (s as any).items?.data[0]?.price?.id,
+      }));
+    } catch (e) {
+      subscriptions = [{ error: String(e) }];
+    }
+  }
+
+  return NextResponse.json({
+    user_id: user.id,
+    profile_error: profileErr?.message ?? null,
+    profile: {
+      stripe_customer_id: customerId,
+      subscription_status: profile?.subscription_status,
+      subscription_tier: profile?.subscription_tier,
+    },
+    stripe_customer: stripeCustomer ? 'found' : 'not_found',
+    stripe_subscriptions: subscriptions,
+    env: {
+      STRIPE_PRICE_ESSENTIEL: process.env.STRIPE_PRICE_ESSENTIEL ?? '(not set)',
+      STRIPE_PRICE_PRO: process.env.STRIPE_PRICE_PRO ?? '(not set)',
+      STRIPE_SECRET_KEY_PREFIX: (process.env.STRIPE_SECRET_KEY ?? '').slice(0, 8) + '...',
+    },
+  });
+}
+
+// POST — called after successful checkout
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -17,8 +73,11 @@ export async function POST(request: NextRequest) {
   const { session_id } = await request.json().catch(() => ({})) as { session_id?: string };
 
   const admin = createAdminClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: profileRaw } = await admin.from('profiles').select('stripe_customer_id, subscription_status, subscription_tier').eq('id', user.id).single();
+  const { data: profileRaw } = await admin
+    .from('profiles')
+    .select('stripe_customer_id, subscription_status, subscription_tier')
+    .eq('id', user.id)
+    .single();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const profile = profileRaw as any;
 
@@ -34,14 +93,16 @@ export async function POST(request: NextRequest) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const sub = session.subscription as any;
       if (sub?.id) subscriptionId = sub.id;
-      // Also grab customer from session in case profile wasn't updated yet
-      if (!customerId && session.customer) {
-        customerId = typeof session.customer === 'string' ? session.customer : (session.customer as any).id;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await admin.from('profiles').update({ stripe_customer_id: customerId } as any).eq('id', user.id);
+      if (session.customer) {
+        const sid = typeof session.customer === 'string' ? session.customer : (session.customer as any).id;
+        if (sid && sid !== customerId) {
+          customerId = sid;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await admin.from('profiles').update({ stripe_customer_id: customerId } as any).eq('id', user.id);
+        }
       }
-    } catch {
-      // session lookup failed, will fall back to customer listing
+    } catch (e) {
+      console.error('[sync] session retrieve failed:', e);
     }
   }
 
@@ -55,14 +116,17 @@ export async function POST(request: NextRequest) {
     if (sub) subscriptionId = sub.id;
   }
 
-  if (!subscriptionId) return NextResponse.json({ synced: false, reason: 'no_subscription' });
+  if (!subscriptionId) {
+    console.error('[sync] no subscription found. customer:', customerId, 'session_id:', session_id);
+    return NextResponse.json({ synced: false, reason: 'no_subscription', customer: customerId });
+  }
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const priceId = (subscription as any).items?.data[0]?.price?.id ?? '';
   const tier = parseTier(priceId);
 
-  await admin.from('profiles').update({
+  const { error: updateErr } = await admin.from('profiles').update({
     subscription_tier: tier,
     subscription_status: 'active',
     stripe_customer_id: customerId,
@@ -70,6 +134,11 @@ export async function POST(request: NextRequest) {
     trial_generations_used: 0,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any).eq('id', user.id);
+
+  if (updateErr) {
+    console.error('[sync] DB update failed:', updateErr);
+    return NextResponse.json({ synced: false, reason: 'db_error', error: updateErr.message });
+  }
 
   return NextResponse.json({ synced: true, tier });
 }
