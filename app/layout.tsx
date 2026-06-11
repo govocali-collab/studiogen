@@ -1,6 +1,31 @@
 import type { Metadata, Viewport } from 'next';
+import { Roboto, EB_Garamond, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 import AuthHashHandler from '@/components/AuthHashHandler';
+
+const roboto = Roboto({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-roboto',
+});
+
+const ebGaramond = EB_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-eb-garamond',
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-cormorant',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -27,15 +52,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr-CA">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="fr-CA" className={`${roboto.variable} ${ebGaramond.variable} ${cormorantGaramond.variable}`}>
       <body suppressHydrationWarning>
         <AuthHashHandler />
         {children}
