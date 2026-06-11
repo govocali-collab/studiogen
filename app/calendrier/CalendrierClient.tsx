@@ -362,6 +362,7 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<'calendrier' | 'liste'>('calendrier');
   const [filterType, setFilterType] = useState<string>('');
+  const [filterPlatform, setFilterPlatform] = useState<'fb' | 'ig' | ''>('');
   const [selectedPost, setSelectedPost] = useState<CalendarPost | null>(null);
 
   // Calendar navigation
@@ -397,7 +398,10 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
     }
   };
 
-  const filtered = filterType ? posts.filter(p => p.content_type === filterType) : posts;
+  const filtered = posts.filter(p =>
+    (!filterType || p.content_type === filterType) &&
+    (!filterPlatform || p.platform === filterPlatform)
+  );
 
   // List: grouped by date descending
   const listPosts = [...filtered].sort((a, b) =>
@@ -414,13 +418,15 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
   };
 
   const nav = (
-    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-4 sm:px-6 h-14 flex items-center justify-between shadow-sm">
-      <Link href="/studio">
-        <Image src="/logo-black.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" priority />
-      </Link>
-      <Link href="/studio" className="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
-        ← Retour au studio
-      </Link>
+    <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <Link href="/studio">
+          <Image src="/logo-black.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" priority />
+        </Link>
+        <Link href="/studio" className="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+          ← Retour au studio
+        </Link>
+      </div>
     </header>
   );
 
@@ -469,6 +475,19 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Filter by platform */}
+        <div className="flex gap-1.5">
+          {([['', 'Tous'], ['fb', 'Facebook'], ['ig', 'Instagram']] as const).map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => setFilterPlatform(val)}
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${filterPlatform === val ? (val === 'fb' ? 'bg-blue-600 text-white border-blue-600' : val === 'ig' ? 'bg-rose-500 text-white border-rose-500' : 'bg-violet-600 text-white border-violet-600') : 'bg-white border-gray-200 text-gray-500 hover:border-gray-400'}`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Filter by content type */}
