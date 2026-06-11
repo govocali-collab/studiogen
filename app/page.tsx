@@ -369,7 +369,7 @@ export default async function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {howItSavesTime.map((s) => (
               <div key={s.num} className="relative">
-                <div className="text-5xl font-black text-violet-100 mb-4 leading-none">{s.num}</div>
+                <div className="text-5xl font-black text-violet-100 mb-4 leading-none" aria-hidden="true">{s.num}</div>
                 <h3 className="text-base font-bold text-gray-900 mb-2">{s.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
               </div>
@@ -397,7 +397,7 @@ export default async function LandingPage() {
               <div key={p.title} className="rounded-2xl border border-red-100 bg-red-50 p-6">
                 <div className="text-3xl mb-4">{p.emoji}</div>
                 <h3 className="text-sm font-bold text-red-800 mb-2">{p.title}</h3>
-                <p className="text-sm text-red-700/80 leading-relaxed">{p.desc}</p>
+                <p className="text-sm text-red-700 leading-relaxed">{p.desc}</p>
               </div>
             ))}
           </div>
@@ -473,7 +473,7 @@ export default async function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {steps.map((s) => (
               <div key={s.num} className="relative">
-                <div className="text-5xl font-black text-violet-100 mb-4 leading-none">{s.num}</div>
+                <div className="text-5xl font-black text-violet-100 mb-4 leading-none" aria-hidden="true">{s.num}</div>
                 <h3 className="text-base font-bold text-gray-900 mb-2">{s.title}</h3>
                 <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
               </div>
