@@ -39,14 +39,26 @@ function BillingPageInner() {
   const [cancelled, setCancelled] = useState(false);
 
   useEffect(() => {
-    fetch('/api/me').then((r) => r.json()).then((d) => {
-      setProfile(d?.profile ?? null);
-      setLoading(false);
-    });
+    const isSuccess = !!searchParams.get('success');
+
+    const loadProfile = () =>
+      fetch('/api/me').then((r) => r.json()).then((d) => {
+        setProfile(d?.profile ?? null);
+        setLoading(false);
+      });
+
+    if (isSuccess) {
+      // Sync subscription from Stripe in case webhook was delayed
+      fetch('/api/stripe/sync-subscription', { method: 'POST' })
+        .then(() => loadProfile());
+    } else {
+      loadProfile();
+    }
+
     fetch('/api/stripe/invoices').then((r) => r.json()).then((d) => {
       setInvoices(d?.invoices ?? []);
     });
-    if (searchParams.get('success')) setToast('Abonnement activé avec succès !');
+    if (isSuccess) setToast('Abonnement activé avec succès !');
     if (searchParams.get('canceled')) setToast('Paiement annulé.');
   }, [searchParams]);
 
