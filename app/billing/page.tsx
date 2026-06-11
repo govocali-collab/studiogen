@@ -37,6 +37,21 @@ function BillingPageInner() {
   const [cancelConfirm, setCancelConfirm] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [cancelled, setCancelled] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  const syncSubscription = async (sessionId?: string | null) => {
+    setSyncing(true);
+    const res = await fetch('/api/stripe/sync-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId ?? null }),
+    });
+    const result = await res.json();
+    const d = await fetch('/api/me').then(r => r.json());
+    setProfile(d?.profile ?? null);
+    setSyncing(false);
+    return result;
+  };
 
   useEffect(() => {
     const isSuccess = !!searchParams.get('success');
@@ -49,11 +64,15 @@ function BillingPageInner() {
 
     if (isSuccess) {
       const sessionId = searchParams.get('session_id');
-      fetch('/api/stripe/sync-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId }),
-      }).then(() => loadProfile());
+      // Poll up to 3 times with increasing delays to handle Stripe processing lag
+      const poll = async (attempt: number) => {
+        const result = await syncSubscription(sessionId);
+        setLoading(false);
+        if (!result?.synced && attempt < 3) {
+          setTimeout(() => poll(attempt + 1), attempt * 2000 + 1500);
+        }
+      };
+      poll(1);
     } else {
       loadProfile();
     }
@@ -63,6 +82,7 @@ function BillingPageInner() {
     });
     if (isSuccess) setToast('Abonnement activé avec succès !');
     if (searchParams.get('canceled')) setToast('Paiement annulé.');
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   const tier = profile?.subscription_tier ?? 'essentiel';
@@ -233,6 +253,20 @@ function BillingPageInner() {
                   </div>
                 )}
               </div>
+              {syncing && (
+                <span className="text-xs text-gray-400 flex items-center gap-1.5 whitespace-nowrap">
+                  <span className="w-3 h-3 border-2 border-gray-200 border-t-violet-500 rounded-full animate-spin inline-block" />
+                  Synchronisation…
+                </span>
+              )}
+              {!syncing && isTrialing && searchParams.get('success') && (
+                <button
+                  onClick={() => syncSubscription(searchParams.get('session_id'))}
+                  className="text-xs text-violet-500 hover:text-violet-700 font-medium transition-colors whitespace-nowrap underline underline-offset-2"
+                >
+                  Rafraîchir
+                </button>
+              )}
               {profile?.stripe_customer_id && status !== 'trialing' && (
                 <button
                   onClick={handlePortal}
