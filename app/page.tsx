@@ -111,7 +111,7 @@ const faqs = [
   },
   {
     q: 'Puis-je créer du contenu en anglais ?',
-    a: 'Oui. StudioGen peut générer du contenu en français, en anglais ou dans les deux langues selon votre clientèle.',
+    a: 'Oui. StudioGen peut générer du contenu en français québécois, en anglais ou dans les deux langues selon votre clientèle. Vous choisissez la langue dans vos paramètres ADN de marque IA.',
   },
 ];
 

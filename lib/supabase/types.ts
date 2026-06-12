@@ -31,6 +31,7 @@ export interface Profile {
   trial_generations_used: number;
   logo_size: number | null;
   logo_position: string | null;
+  content_language: 'fr_qc' | 'en' | 'bilingual';
   created_at: string;
   updated_at: string;
 }

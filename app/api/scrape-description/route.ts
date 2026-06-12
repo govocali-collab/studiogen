@@ -192,7 +192,8 @@ Retourne UNIQUEMENT un objet JSON valide avec exactement ces clés (sans texte a
   "favorite_phrases": ["2-4 expressions, slogans ou formulations récurrentes détectés sur le site"],
   "avoid_phrases": [],
   "content_preferences": ["1-3 valeurs parmi exactement: résultats, avant_apres, éducatif, promo, produits, témoignages, formations, astuces"],
-  "cta_style": "une valeur parmi exactement: réservez maintenant, contactez-nous, écrivez-nous, demandez une consultation, appelez-nous"
+  "cta_style": "une valeur parmi exactement: réservez maintenant, contactez-nous, écrivez-nous, demandez une consultation, appelez-nous",
+  "suggested_content_language": "détecte la langue principale du site et retourne exactement une valeur parmi: 'fr_qc' (site majoritairement en français), 'en' (site majoritairement en anglais), 'bilingual' (site clairement bilingue avec contenu substantiel dans les deux langues)"
 }
 
 Contenu extrait de ${pagesCrawled} page(s) du site :

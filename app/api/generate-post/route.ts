@@ -8,6 +8,8 @@ import { GeneratePostRequest } from '@/lib/types';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+type ContentLanguage = 'fr_qc' | 'en' | 'bilingual';
+
 interface BrandProfile {
   businessName: string;
   website: string | null;
@@ -23,6 +25,7 @@ interface BrandProfile {
   favoritePhrases: string[] | null;
   avoidPhrases: string[] | null;
   ctaStyle: string | null;
+  contentLanguage: ContentLanguage;
 }
 
 const VOICE_LABELS: Record<string, string> = {
@@ -145,16 +148,51 @@ function buildSystemPrompt(p: BrandProfile): string {
   lines.push('RÈGLES DE RÉDACTION');
   lines.push('============================');
   lines.push('');
-  lines.push('- Écris toujours en français québécois naturel et authentique (pas du français européen)');
+
+  if (p.contentLanguage === 'fr_qc') {
+    lines.push('- Écris toujours en français québécois naturel et authentique (pas du français européen)');
+    lines.push('- Utilise des tournures typiquement québécoises, jamais du français international');
+  } else if (p.contentLanguage === 'en') {
+    lines.push('- Write exclusively in natural North American English');
+    lines.push('- Avoid British or European English expressions');
+    lines.push('- Use English hashtags relevant to the North American market');
+  } else {
+    // bilingual
+    lines.push('- Generate TWO complete versions for EACH post (fb and ig)');
+    lines.push('- First version: French québécois (natural, authentic, not European French)');
+    lines.push('- Second version: North American English');
+    lines.push('- Separate the two versions with exactly this separator on its own line: ── ── ──');
+    lines.push('- Both versions must be complete standalone posts, not translations of each other');
+  }
+
   lines.push('- N\'invente JAMAIS de statistiques, de chiffres précis, ni de faits non vérifiables');
   lines.push('- N\'utilise JAMAIS le tiret long (—) dans les textes');
-  lines.push('- Pour Instagram : utilise exactement 8 hashtags pertinents pour le Québec et le domaine');
+
+  if (p.contentLanguage === 'fr_qc') {
+    lines.push('- Pour Instagram : utilise exactement 8 hashtags pertinents pour le Québec et le domaine');
+  } else if (p.contentLanguage === 'en') {
+    lines.push('- For Instagram: use exactly 8 relevant hashtags for the North American market');
+  } else {
+    lines.push('- French Instagram version: 8 hashtags in French for Quebec market');
+    lines.push('- English Instagram version: 8 hashtags in English for North American market');
+  }
+
   lines.push('- Respecte STRICTEMENT les longueurs de texte demandées');
   lines.push('');
-  lines.push('FORMATAGE OBLIGATOIRE — chaque paragraphe doit être séparé par une ligne vide (\\n\\n) :');
-  lines.push('- Facebook : accroche → ligne vide → 1-3 paragraphes de corps → ligne vide → CTA seul sur sa propre ligne');
-  lines.push('- Instagram : texte principal en 1-4 blocs courts → ligne vide → hashtags tous ensemble sur une seule ligne');
-  lines.push('- Le CTA Facebook doit TOUJOURS être sur sa propre ligne, séparé du corps par une ligne vide');
+
+  if (p.contentLanguage === 'bilingual') {
+    lines.push('FORMATAGE OBLIGATOIRE pour chaque version :');
+    lines.push('- Facebook version FR : accroche → \\n\\n → corps → \\n\\n → CTA seul');
+    lines.push('- Facebook version EN : hook → \\n\\n → body → \\n\\n → CTA alone');
+    lines.push('- Instagram : texte → \\n\\n → hashtags sur une seule ligne');
+    lines.push('- Sépare les deux versions par : ── ── ──');
+  } else {
+    lines.push('FORMATAGE OBLIGATOIRE — chaque paragraphe doit être séparé par une ligne vide (\\n\\n) :');
+    lines.push('- Facebook : accroche → ligne vide → 1-3 paragraphes de corps → ligne vide → CTA seul sur sa propre ligne');
+    lines.push('- Instagram : texte principal en 1-4 blocs courts → ligne vide → hashtags tous ensemble sur une seule ligne');
+    lines.push('- Le CTA Facebook doit TOUJOURS être sur sa propre ligne, séparé du corps par une ligne vide');
+  }
+
   lines.push('');
   lines.push('Format de réponse : retourne UNIQUEMENT un objet JSON valide avec exactement ces deux clés :');
   lines.push('{ "fb": "...", "ig": "..." }');
@@ -202,7 +240,7 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
   const { data: profileData } = await admin
     .from('profiles')
-    .select('subscription_tier, subscription_status, generations_used, trial_generations_used, business_name, website, service_description, city, province, target_audience, brand_voice, services, priority_services, transformation_goals, brand_examples, favorite_phrases, avoid_phrases, content_preferences, cta_style, created_at')
+    .select('subscription_tier, subscription_status, generations_used, trial_generations_used, business_name, website, service_description, city, province, target_audience, brand_voice, services, priority_services, transformation_goals, brand_examples, favorite_phrases, avoid_phrases, content_preferences, cta_style, content_language, created_at')
     .eq('id', user.id)
     .single();
 
@@ -227,6 +265,7 @@ export async function POST(request: NextRequest) {
   const favoritePhrases = (profile?.favorite_phrases as string[] | null) ?? null;
   const avoidPhrases = (profile?.avoid_phrases as string[] | null) ?? null;
   const ctaStyle = (profile?.cta_style as string | null) ?? null;
+  const contentLanguage = ((profile?.content_language as ContentLanguage | null) ?? 'fr_qc') as ContentLanguage;
 
   // ── Trial expiration (7 days from account creation) ──────────────────────
   if (status === 'trialing' && profile?.created_at) {
@@ -278,13 +317,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
   }
 
-  const toneLabels: Record<string, string> = {
+  const isBilingual = contentLanguage === 'bilingual';
+  const isEnglish = contentLanguage === 'en';
+
+  const toneLabels: Record<string, string> = isEnglish || isBilingual ? {
+    chaleureux: 'warm and community-oriented',
+    énergique: 'energetic and enthusiastic',
+    professionnel: 'professional and expert',
+  } : {
     chaleureux: 'chaleureux et proche de la communauté',
     énergique: 'énergique et enthousiaste',
     professionnel: 'professionnel et expert',
   };
 
-  const contentLabels: Record<string, string> = {
+  const contentLabels: Record<string, string> = isEnglish || isBilingual ? {
+    formation: 'professional training / education',
+    'résultats clients': 'client results and transformations',
+    produit: 'product showcase',
+    engagement: 'community engagement and interaction',
+    éducatif: 'educational beauty content / tips',
+    promo: 'special promotion or offer',
+  } : {
     formation: 'formation / éducation professionnelle',
     'résultats clients': 'résultats et transformations de clients',
     produit: 'mise en valeur de produit',
@@ -296,21 +349,39 @@ export async function POST(request: NextRequest) {
   const spec = LENGTH_SPECS[length] ?? LENGTH_SPECS.moyen;
 
   const igInstruction = effectiveTier === 'essentiel'
-    ? '- Instagram : retourne une chaîne vide "" pour la clé "ig".'
+    ? (isEnglish || isBilingual ? '- Instagram: return an empty string "" for the "ig" key.' : '- Instagram : retourne une chaîne vide "" pour la clé "ig".')
     : `- ${spec.ig}`;
 
-  const userPrompt = `Crée deux publications pour ${businessName}.
+  const bilingualNote = isBilingual
+    ? '\n\nIMPORTANT — BILINGUAL MODE: For each platform (fb and ig), generate TWO complete versions separated by exactly this line: ── ── ──\nFirst the French québécois version, then the English North American version.'
+    : '';
 
-Type de contenu : ${contentLabels[contentType] ?? contentType}
-Ton souhaité : ${toneLabels[tone] ?? tone}
-Détails / contexte fournis par l'équipe :
-${details || '(aucun détail supplémentaire)'}
+  const userPrompt = isBilingual
+    ? `Create bilingual posts for ${businessName}.
 
-Longueurs requises :
+Content type: ${contentLabels[contentType] ?? contentType}
+Desired tone: ${toneLabels[tone] ?? tone}
+Details / context:
+${details || '(no additional details)'}
+
+Required lengths:
+- ${spec.fb}
+${igInstruction}
+${bilingualNote}
+
+Return ONLY the JSON with keys "fb" and "ig". Each value must contain both versions separated by ── ── ──`
+    : `${isEnglish ? 'Create' : 'Crée'} ${isEnglish ? 'two posts for' : 'deux publications pour'} ${businessName}.
+
+${isEnglish ? 'Content type' : 'Type de contenu'} : ${contentLabels[contentType] ?? contentType}
+${isEnglish ? 'Desired tone' : 'Ton souhaité'} : ${toneLabels[tone] ?? tone}
+${isEnglish ? 'Details / context' : 'Détails / contexte fournis par l\'équipe'} :
+${details || (isEnglish ? '(no additional details)' : '(aucun détail supplémentaire)')}
+
+${isEnglish ? 'Required lengths' : 'Longueurs requises'} :
 - ${spec.fb}
 ${igInstruction}
 
-Rappel : retourne UNIQUEMENT le JSON avec les clés "fb" et "ig".`;
+${isEnglish ? 'Return ONLY the JSON with keys "fb" and "ig".' : 'Rappel : retourne UNIQUEMENT le JSON avec les clés "fb" et "ig".'}`;
 
   const systemPrompt = buildSystemPrompt({
     businessName,
@@ -327,6 +398,7 @@ Rappel : retourne UNIQUEMENT le JSON avec les clés "fb" et "ig".`;
     favoritePhrases,
     avoidPhrases,
     ctaStyle,
+    contentLanguage,
   });
 
   // Log the full prompt to the server console for debugging

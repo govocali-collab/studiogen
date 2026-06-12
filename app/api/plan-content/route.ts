@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient();
   const { data: profileData } = await admin
     .from('profiles')
-    .select('subscription_tier, subscription_status, business_name, city, province, target_audience, services, priority_services, brand_voice, cta_style')
+    .select('subscription_tier, subscription_status, business_name, city, province, target_audience, services, priority_services, brand_voice, cta_style, content_language')
     .eq('id', user.id)
     .single();
 
@@ -46,6 +46,9 @@ export async function POST(request: NextRequest) {
   const priorityServices = p?.priority_services as string[] | null;
   const brandVoice = p?.brand_voice as string[] | null;
   const ctaStyle = p?.cta_style as string | null;
+  const contentLanguage = (p?.content_language as 'fr_qc' | 'en' | 'bilingual' | null) ?? 'fr_qc';
+  const isEnglish = contentLanguage === 'en';
+  const isBilingual = contentLanguage === 'bilingual';
 
   const location = [city, province].filter(Boolean).join(', ');
   const count = mode === 'week' ? 4 : 14;
@@ -61,17 +64,65 @@ export async function POST(request: NextRequest) {
     ? 'Répartis sur lundi, mercredi, vendredi et samedi (4 publications).'
     : 'Répartis uniformément sur 4 semaines (3-4 publications par semaine pour un total de 14).';
 
-  const systemPrompt = `Tu es un stratège de contenu pour des professionnels de la beauté au Québec.
+  const systemPrompt = isEnglish || isBilingual
+    ? `You are a content strategist for beauty professionals in Quebec.
+You create balanced, strategic content plans for Facebook and Instagram.
+${isBilingual ? 'This account is BILINGUAL. Alternate titles between French québécois and English across the plan.' : 'This account creates content in English for their clients.'}
+Reply ONLY with a valid JSON array, no text before or after.`
+    : `Tu es un stratège de contenu pour des professionnels de la beauté au Québec.
 Tu crées des plans de contenu équilibrés et stratégiques pour Facebook et Instagram.
 Réponds UNIQUEMENT avec un tableau JSON valide, sans aucun texte avant ou après.`;
 
-  const servicesLine = services?.length ? `Services offerts : ${services.join(', ')}` : '';
-  const priorityLine = priorityServices?.length ? `Services à prioriser : ${priorityServices.join(', ')}` : '';
-  const audienceLine = targetAudience ? `Clientèle cible : ${targetAudience}` : '';
-  const brandVoiceLine = brandVoice?.length ? `Voix de marque : ${brandVoice.join(', ')}` : '';
-  const ctaLine = ctaStyle ? `Style de CTA préféré : ${ctaStyle}` : '';
+  const servicesLine = services?.length
+    ? (isEnglish || isBilingual ? `Services offered: ${services.join(', ')}` : `Services offerts : ${services.join(', ')}`)
+    : '';
+  const priorityLine = priorityServices?.length
+    ? (isEnglish || isBilingual ? `Priority services: ${priorityServices.join(', ')}` : `Services à prioriser : ${priorityServices.join(', ')}`)
+    : '';
+  const audienceLine = targetAudience
+    ? (isEnglish || isBilingual ? `Target audience: ${targetAudience}` : `Clientèle cible : ${targetAudience}`)
+    : '';
+  const brandVoiceLine = brandVoice?.length
+    ? (isEnglish || isBilingual ? `Brand voice: ${brandVoice.join(', ')}` : `Voix de marque : ${brandVoice.join(', ')}`)
+    : '';
+  const ctaLine = ctaStyle
+    ? (isEnglish || isBilingual ? `Preferred CTA style: ${ctaStyle}` : `Style de CTA préféré : ${ctaStyle}`)
+    : '';
 
-  const userPrompt = `Crée un plan de ${count} publications pour ${businessName}${location ? ` (${location})` : ''}.
+  const distributionEn = mode === 'week'
+    ? 'Distribute across Monday, Wednesday, Friday and Saturday (4 posts).'
+    : 'Distribute evenly across 4 weeks (3-4 posts per week for a total of 14).';
+
+  const titleLangNote = isBilingual
+    ? '\n- "title": catchy post idea title (max 80 chars) — alternate between French québécois and English across the plan'
+    : isEnglish
+    ? '\n- "title": catchy post idea title (max 80 chars, natural North American English)'
+    : '\n- "title": titre accrocheur de l\'idée (max 80 caractères, français québécois)';
+
+  const userPrompt = isEnglish || isBilingual
+    ? `Create a ${count}-post plan for ${businessName}${location ? ` (${location})` : ''}.
+
+Period: from ${startDate} to ${endDateStr}.
+${distributionEn}
+Alternate between "fb" and "ig".
+Balance content types: formation, résultats clients, produit, engagement, éducatif, promo.
+${audienceLine}
+${servicesLine}
+${priorityLine}
+${brandVoiceLine}
+${ctaLine}
+
+Return ONLY a JSON array of exactly ${count} objects with these keys:
+${titleLangNote}
+- "content_type": exactly one of: "formation" | "résultats clients" | "produit" | "engagement" | "éducatif" | "promo"
+- "service_focus": specific service to highlight (string or null)
+- "objective": objective in one short sentence (string or null)
+- "suggested_date": date in format "YYYY-MM-DD" between ${startDate} and ${endDateStr}
+- "platform": "fb" or "ig"
+- "requires_photo": true if a real photo is needed, false otherwise
+- "tone": recommended tone, exactly one of: "chaleureux" | "énergique" | "professionnel"
+- "cta": suggested call-to-action in one short sentence (string or null)`
+    : `Crée un plan de ${count} publications pour ${businessName}${location ? ` (${location})` : ''}.
 
 Période : du ${startDate} au ${endDateStr}.
 ${distribution}

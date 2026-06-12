@@ -8,7 +8,7 @@ const SELECT_FIELDS = [
   'priority_services', 'transformation_goals', 'brand_examples',
   'favorite_phrases', 'avoid_phrases', 'content_preferences', 'cta_style',
   'email', 'subscription_tier', 'subscription_status',
-  'logo_size', 'logo_position',
+  'logo_size', 'logo_position', 'content_language',
 ].join(', ');
 
 export async function GET() {
@@ -45,7 +45,7 @@ export async function PATCH(request: NextRequest) {
     'phone', 'city', 'province', 'target_audience', 'brand_voice', 'services',
     'priority_services', 'transformation_goals', 'brand_examples',
     'favorite_phrases', 'avoid_phrases', 'content_preferences', 'cta_style',
-    'logo_size', 'logo_position',
+    'logo_size', 'logo_position', 'content_language',
   ];
   const update: Record<string, unknown> = {};
   for (const key of allowed) {

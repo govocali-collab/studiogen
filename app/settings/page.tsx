@@ -221,6 +221,7 @@ interface Form {
   avoid_phrases: string[];
   content_preferences: string[];
   cta_style: string;
+  content_language: 'fr_qc' | 'en' | 'bilingual';
   email: string;
   subscription_tier: string;
   subscription_status: string;
@@ -245,6 +246,7 @@ const EMPTY: Form = {
   avoid_phrases: [],
   content_preferences: [],
   cta_style: '',
+  content_language: 'fr_qc',
   email: '',
   subscription_tier: 'essentiel',
   subscription_status: 'trialing',
@@ -306,6 +308,7 @@ function SettingsPageInner() {
     city?: string | null;
     province?: string | null;
     transformation_goals?: string[];
+    suggested_content_language?: 'fr_qc' | 'en' | 'bilingual';
     _pages_crawled?: number;
   } | null>(null);
 
@@ -348,6 +351,7 @@ function SettingsPageInner() {
             favorite_phrases: profileData.favorite_phrases ?? [],
             avoid_phrases: profileData.avoid_phrases ?? [],
             content_preferences: profileData.content_preferences ?? [],
+            content_language: (profileData.content_language as 'fr_qc' | 'en' | 'bilingual') ?? 'fr_qc',
           });
         } else if (email) {
           setForm((prev) => ({ ...prev, email }));
@@ -399,6 +403,7 @@ function SettingsPageInner() {
         avoid_phrases: data.avoid_phrases?.length ? data.avoid_phrases : prev.avoid_phrases,
         content_preferences: data.content_preferences?.length ? data.content_preferences : prev.content_preferences,
         cta_style: data.cta_style || prev.cta_style,
+        content_language: data.suggested_content_language ?? prev.content_language,
       }));
       setAnalyzeResult(data);
       setSaved(false);
@@ -437,6 +442,7 @@ function SettingsPageInner() {
           avoid_phrases: form.avoid_phrases,
           content_preferences: form.content_preferences,
           cta_style: form.cta_style,
+          content_language: form.content_language,
         }),
       });
       const data = await res.json();
@@ -482,6 +488,7 @@ function SettingsPageInner() {
       avoid_phrases: [] as string[],
       content_preferences: [] as string[],
       cta_style: '',
+      content_language: 'fr_qc' as const,
     };
     try {
       const res = await fetch('/api/profile', {
@@ -789,6 +796,14 @@ function SettingsPageInner() {
                             ok: !!(analyzeResult.city || analyzeResult.province),
                             detail: [analyzeResult.city, analyzeResult.province].filter(Boolean).join(', ') || null,
                           },
+                          {
+                            label: 'Langue suggérée',
+                            ok: !!analyzeResult.suggested_content_language,
+                            detail: analyzeResult.suggested_content_language === 'fr_qc' ? 'Français québécois'
+                              : analyzeResult.suggested_content_language === 'en' ? 'English'
+                              : analyzeResult.suggested_content_language === 'bilingual' ? 'Bilingue'
+                              : null,
+                          },
                         ].map(({ label, ok, detail }) => (
                           <div key={label} className="flex items-center gap-2">
                             <span className={`text-xs font-bold w-3 shrink-0 ${ok ? 'text-green-600' : 'text-gray-300'}`}>{ok ? '✓' : '–'}</span>
@@ -961,6 +976,45 @@ function SettingsPageInner() {
                     </p>
                     <TagInput value={form.avoid_phrases} onChange={(v) => setField('avoid_phrases', v)}
                       placeholder="ex. Pas cher, Discount, Cheap..." />
+                  </div>
+                </div>
+              </section>
+
+              {/* ── Langue des publications ── */}
+              <section className="rounded-2xl border border-gray-100 bg-white p-6 space-y-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Langue des publications</h2>
+                  <p className="text-xs text-gray-400 mb-4">Choisissez dans quelle langue StudioGen rédige vos publications.</p>
+                  <div className="space-y-2">
+                    {([
+                      { value: 'fr_qc', label: 'Français québécois', desc: 'Contenu en français naturel, adapté au marché québécois.' },
+                      { value: 'en',    label: 'English',             desc: 'Content in natural North American English.' },
+                      { value: 'bilingual', label: 'Bilingue',        desc: 'Deux versions générées : français québécois + anglais.' },
+                    ] as const).map((opt) => (
+                      <label
+                        key={opt.value}
+                        className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${
+                          form.content_language === opt.value
+                            ? 'border-violet-500 bg-violet-50'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="content_language"
+                          value={opt.value}
+                          checked={form.content_language === opt.value}
+                          onChange={() => setField('content_language', opt.value)}
+                          className="mt-0.5 accent-violet-600"
+                        />
+                        <div>
+                          <span className={`text-sm font-medium ${form.content_language === opt.value ? 'text-violet-700' : 'text-gray-700'}`}>
+                            {opt.label}
+                          </span>
+                          <p className="text-xs text-gray-400 mt-0.5">{opt.desc}</p>
+                        </div>
+                      </label>
+                    ))}
                   </div>
                 </div>
               </section>
