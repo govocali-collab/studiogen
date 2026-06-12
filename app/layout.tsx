@@ -78,14 +78,14 @@ export const metadata: Metadata = {
     title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
     description:
       'StudioGen génère tes publications Facebook et Instagram en français québécois grâce à ton ADN de marque IA. Essai gratuit 7 jours, aucune carte requise.',
-    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'StudioGen — Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux' }],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'StudioGen — Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
     description:
       'StudioGen génère tes publications Facebook et Instagram en français québécois grâce à ton ADN de marque IA. Essai gratuit 7 jours, aucune carte requise.',
-    images: ['/opengraph-image.png'],
+    images: ['/opengraph-image'],
   },
 };
 
