@@ -675,31 +675,17 @@ function SettingsPageInner() {
             ) : (
               <>
                 {/* ── Seat counter ── */}
-                <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center justify-between">
-                  <div>
-                    <h2 className="text-sm font-bold text-gray-900">Collaboration d&apos;équipe</h2>
-                    {teamData && (
-                      <p className="text-xs text-gray-500 mt-0.5">
-                        {teamData.seats.used} / {teamData.seats.total} utilisateurs
-                      </p>
-                    )}
-                  </div>
-                  {teamData && teamData.seats.used < teamData.seats.total && (
-                    <button
-                      type="button"
-                      onClick={() => setInviteSent(false)}
-                      className="flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3.5 py-2 rounded-xl transition-colors"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                      </svg>
-                      Inviter un collaborateur
-                    </button>
+                <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                  <h2 className="text-sm font-bold text-gray-900">Collaboration d&apos;équipe</h2>
+                  {teamData && (
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {teamData.seats.used} / {teamData.seats.total} utilisateurs
+                    </p>
                   )}
                 </div>
 
                 {/* ── Invite form ── */}
-                {!inviteSent && teamData && teamData.seats.used < teamData.seats.total && (
+                {teamData && teamData.seats.used < teamData.seats.total && (
                   <form onSubmit={handleInvite} className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
                     <h3 className="text-sm font-semibold text-gray-800">Inviter un collaborateur</h3>
                     <div className="grid grid-cols-2 gap-3">
@@ -733,6 +719,14 @@ function SettingsPageInner() {
                       Rôle : Collaborateur — peut créer du contenu, pas gérer l&apos;abonnement
                     </div>
                     {inviteError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{inviteError}</p>}
+                    {inviteSent && (
+                      <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                        <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Invitation envoyée ! Ton collaborateur recevra un courriel pour créer son compte.
+                      </div>
+                    )}
                     <button
                       type="submit"
                       disabled={inviting}
@@ -743,14 +737,6 @@ function SettingsPageInner() {
                   </form>
                 )}
 
-                {inviteSent && (
-                  <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 text-sm text-green-700">
-                    <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Invitation envoyée ! Ton collaborateur recevra un courriel pour créer son compte.
-                  </div>
-                )}
 
                 {/* ── Members list ── */}
                 {teamLoading ? (
