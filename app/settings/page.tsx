@@ -293,8 +293,9 @@ function SettingsPageInner() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const teamEnabled = process.env.NEXT_PUBLIC_TEAM_ENABLED === 'true';
   const [tab, setTab] = useState<'profil' | 'ia' | 'equipe'>(
-    searchParams.get('tab') === 'ia' ? 'ia' : searchParams.get('tab') === 'equipe' ? 'equipe' : 'profil'
+    searchParams.get('tab') === 'ia' ? 'ia' : (searchParams.get('tab') === 'equipe' && teamEnabled) ? 'equipe' : 'profil'
   );
 
   const [teamData, setTeamData] = useState<{
@@ -623,7 +624,7 @@ function SettingsPageInner() {
           >
             ADN de marque IA
           </button>
-          {userRole === 'owner' && (
+          {teamEnabled && userRole === 'owner' && (
             <button
               type="button"
               onClick={() => handleTabChange('equipe')}
