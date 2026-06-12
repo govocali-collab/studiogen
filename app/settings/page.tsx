@@ -517,12 +517,6 @@ function SettingsPageInner() {
             }`}
           >
             IA
-            {!isPro && (
-              <span className="flex flex-col items-center leading-none bg-violet-100 text-violet-700 rounded-lg px-1.5 py-0.5">
-                <span className="text-[10px]">💎</span>
-                <span className="text-[8px] font-bold">Pro</span>
-              </span>
-            )}
           </button>
         </div>
 
