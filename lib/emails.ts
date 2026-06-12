@@ -158,6 +158,91 @@ export async function sendTrialEndingReminder(email: string) {
   });
 }
 
+interface ContactSender {
+  firstName: string;
+  lastName: string;
+  businessName: string;
+  email: string;
+}
+
+interface Attachment {
+  filename: string;
+  content: Buffer;
+  content_type: string;
+}
+
+export async function sendContactNotification({
+  from,
+  subject,
+  message,
+  attachments,
+}: {
+  from: ContactSender;
+  subject: string;
+  message: string;
+  attachments: Attachment[];
+}) {
+  const fullName = [from.firstName, from.lastName].filter(Boolean).join(' ') || 'Inconnu';
+  await resend.emails.send({
+    from: FROM,
+    to: 'formulaire@studiogen.ca',
+    replyTo: from.email,
+    subject: `[StudioGen] ${subject} — ${fullName}`,
+    html: baseTemplate(`
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:800;color:#0f0a1e">Nouveau message de support</h1>
+      <p style="margin:0 0 24px;font-size:14px;color:#6b7280">Reçu via le formulaire de contact StudioGen.</p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf5ff;border-radius:12px;padding:20px;margin-bottom:24px">
+        <tr><td>
+          <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em">Expéditeur</p>
+          <p style="margin:0 0 4px;font-size:14px;color:#374151"><strong>Nom :</strong> ${fullName}</p>
+          ${from.businessName ? `<p style="margin:0 0 4px;font-size:14px;color:#374151"><strong>Entreprise :</strong> ${from.businessName}</p>` : ''}
+          <p style="margin:0 0 4px;font-size:14px;color:#374151"><strong>Courriel :</strong> <a href="mailto:${from.email}" style="color:#7c3aed">${from.email}</a></p>
+          <p style="margin:0;font-size:14px;color:#374151"><strong>Sujet :</strong> ${subject}</p>
+        </td></tr>
+      </table>
+
+      <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:0.05em">Message</p>
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px;font-size:14px;color:#374151;line-height:1.7;white-space:pre-wrap">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+
+      ${attachments.length > 0 ? `<p style="margin:20px 0 4px;font-size:13px;color:#9ca3af">${attachments.length} pièce${attachments.length > 1 ? 's' : ''} jointe${attachments.length > 1 ? 's' : ''} (voir ci-dessous)</p>` : ''}
+    `),
+    attachments: attachments.map(a => ({
+      filename: a.filename,
+      content: a.content,
+    })),
+  });
+}
+
+export async function sendContactConfirmation(email: string, firstName?: string) {
+  const name = firstName?.trim() ? `, ${firstName.trim()}` : '';
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: 'On a bien reçu ton message — StudioGen',
+    html: baseTemplate(`
+      <h1 style="margin:0 0 8px;font-size:26px;font-weight:800;color:#0f0a1e">Merci${name} ! 🙌</h1>
+      <p style="margin:0 0 24px;font-size:15px;color:#6b7280">Ton message a bien été reçu. Nous allons te répondre dans un délai de <strong style="color:#7c3aed">24 heures</strong>.</p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf5ff;border-radius:12px;padding:20px;margin-bottom:24px">
+        <tr><td>
+          <p style="margin:0 0 8px;font-size:14px;color:#374151">En attendant, tu peux :</p>
+          <p style="margin:0 0 6px;font-size:14px;color:#374151"><span style="color:#7c3aed;font-weight:700;margin-right:8px">→</span>Continuer d'utiliser ton studio</p>
+          <p style="margin:0;font-size:14px;color:#374151"><span style="color:#7c3aed;font-weight:700;margin-right:8px">→</span>Consulter la page Abonnement si ta demande concerne la facturation</p>
+        </td></tr>
+      </table>
+
+      <div style="text-align:center">
+        ${primaryButton(`${APP_URL}/studio`, 'Retourner au studio →')}
+      </div>
+
+      <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;border-top:1px solid #f3f4f6;padding-top:24px">
+        Si tu as d'autres questions urgentes, réponds directement à ce courriel.
+      </p>
+    `),
+  });
+}
+
 export async function sendPaymentFailedWarning(email: string) {
   await resend.emails.send({
     from: FROM,
