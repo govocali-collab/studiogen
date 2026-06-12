@@ -17,46 +17,17 @@ export default async function Image() {
           width: '100%',
           height: '100%',
           display: 'flex',
-          flexDirection: 'column',
+          alignItems: 'center',
           justifyContent: 'center',
-          background: '#ede9fe',
-          padding: '72px 96px',
-          gap: '40px',
+          background: '#f5f5f7',
         }}
       >
-        {/* Logo */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={logoSrc}
-          style={{ height: 64, objectFit: 'contain', objectPosition: 'left' }}
+          style={{ height: 176, objectFit: 'contain' }}
           alt="StudioGen"
         />
-
-        {/* Title */}
-        <p
-          style={{
-            color: '#111111',
-            fontSize: 72,
-            fontWeight: 800,
-            margin: 0,
-            lineHeight: 1.15,
-            letterSpacing: '-1px',
-          }}
-        >
-          Récupère jusqu&apos;à 10 heures par semaine sur tes réseaux sociaux
-        </p>
-
-        {/* URL */}
-        <p
-          style={{
-            color: '#7c3aed',
-            fontSize: 32,
-            fontWeight: 500,
-            margin: 0,
-          }}
-        >
-          studiogen.ca
-        </p>
       </div>
     ),
     { ...size },
