@@ -44,7 +44,7 @@ interface PromoCode {
 
 export default function AdminPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<'users' | 'promo'>('users');
+  const [tab, setTab] = useState<'users' | 'promo' | 'stats'>('users');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -242,6 +242,12 @@ export default function AdminPage() {
               Utilisateurs
             </button>
             <button
+              onClick={() => setTab('stats')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${tab === 'stats' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Stats
+            </button>
+            <button
               onClick={() => setTab('promo')}
               className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${tab === 'promo' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
@@ -420,117 +426,106 @@ export default function AdminPage() {
           </div>
         )}
 
-        {tab === 'users' && <>
+        {/* Stats tab */}
+        {tab === 'stats' && (
+          <div className="space-y-6">
+            {/* KPI cards */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <StatCard label="Total" value={users.length} />
+              <StatCard label="Actifs" value={activeUsers.length} color="green" />
+              <StatCard label="Essai gratuit" value={trialingUsers.length} color="blue" />
+              <StatCard label="Annulés" value={canceledUsers.length} color="red" />
+              <StatCard label="MRR estimé" value={`${mrr} $`} color="purple" subtitle="CAD / mois" />
+            </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <StatCard label="Total" value={users.length} />
-          <StatCard label="Actifs" value={activeUsers.length} color="green" />
-          <StatCard label="Essai gratuit" value={trialingUsers.length} color="blue" />
-          <StatCard label="Annulés" value={canceledUsers.length} color="red" />
-          <StatCard label="MRR" value={`${mrr} $`} color="purple" subtitle="CAD / mois" />
-        </div>
-
-        {/* Breakdown */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <div className="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Répartition des plans actifs</div>
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Essentiel</span><span>{essentielUsers.length}</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gray-400 rounded-full"
-                    style={{ width: activeUsers.length ? `${(essentielUsers.length / activeUsers.length) * 100}%` : '0%' }}
-                  />
+            {/* Breakdown */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                <div className="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Répartition des plans actifs</div>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <span>Essentiel</span><span>{essentielUsers.length}</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-gray-400 rounded-full" style={{ width: activeUsers.length ? `${(essentielUsers.length / activeUsers.length) * 100}%` : '0%' }} />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <span>Pro</span><span>{proUsers.length}</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-violet-600 rounded-full" style={{ width: activeUsers.length ? `${(proUsers.length / activeUsers.length) * 100}%` : '0%' }} />
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="flex-1">
-                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                  <span>Pro</span><span>{proUsers.length}</span>
+              <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                <div className="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Revenus estimés actifs</div>
+                <div className="flex items-end gap-2">
+                  <span className="text-3xl font-bold text-gray-900">{mrr}</span>
+                  <span className="text-sm text-gray-400 pb-1">$ CA/mois</span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-violet-600 rounded-full"
-                    style={{ width: activeUsers.length ? `${(proUsers.length / activeUsers.length) * 100}%` : '0%' }}
-                  />
-                </div>
+                <div className="text-xs text-gray-400 mt-1">{essentielUsers.length} × 57 $ + {proUsers.length} × 127 $</div>
               </div>
             </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <div className="text-xs text-gray-500 mb-3 font-medium uppercase tracking-wide">Revenus actifs</div>
-            <div className="flex items-end gap-2">
-              <span className="text-3xl font-bold text-gray-900">{mrr}</span>
-              <span className="text-sm text-gray-400 pb-1">$ CA/mois</span>
-            </div>
-            <div className="text-xs text-gray-400 mt-1">
-              {essentielUsers.length} × 57 $ + {proUsers.length} × 127 $
-            </div>
-          </div>
-        </div>
 
-        {/* Monthly Revenue Chart */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Revenu mensuel (Stripe)</div>
-              {revenueLoading ? (
-                <div className="text-2xl font-bold text-gray-200 animate-pulse">—</div>
-              ) : (
-                <div className="flex items-baseline gap-3">
-                  <span className="text-3xl font-bold text-gray-900">{currentRevenue.toLocaleString('fr-CA')} $</span>
-                  <span className="text-sm text-gray-400">ce mois-ci</span>
-                  {lastMonthRevenue > 0 && currentRevenue !== lastMonthRevenue && (
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${currentRevenue >= lastMonthRevenue ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-500'}`}>
-                      {currentRevenue >= lastMonthRevenue ? '↑' : '↓'} {Math.abs(currentRevenue - lastMonthRevenue).toLocaleString('fr-CA')} $ vs mois dernier
-                    </span>
+            {/* Monthly Revenue Chart */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Revenu mensuel (Stripe)</div>
+                  {revenueLoading ? (
+                    <div className="text-2xl font-bold text-gray-200 animate-pulse">—</div>
+                  ) : (
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-3xl font-bold text-gray-900">{currentRevenue.toLocaleString('fr-CA')} $</span>
+                      <span className="text-sm text-gray-400">ce mois-ci</span>
+                      {lastMonthRevenue > 0 && currentRevenue !== lastMonthRevenue && (
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${currentRevenue >= lastMonthRevenue ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-500'}`}>
+                          {currentRevenue >= lastMonthRevenue ? '↑' : '↓'} {Math.abs(currentRevenue - lastMonthRevenue).toLocaleString('fr-CA')} $ vs mois dernier
+                        </span>
+                      )}
+                    </div>
                   )}
+                </div>
+              </div>
+              {!revenueLoading && revenueMonths.length > 0 && (
+                <div className="relative">
+                  <RevenueChart data={revenueMonths} tooltip={tooltipData} onTooltip={setTooltipData} />
+                </div>
+              )}
+              {!revenueLoading && revenueMonths.length > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-gray-100">
+                        <th className="py-1.5 text-left font-medium text-gray-400">Mois</th>
+                        <th className="py-1.5 text-right font-medium text-gray-400">Revenus</th>
+                        <th className="py-1.5 text-right font-medium text-gray-400">Factures</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {[...revenueMonths].reverse().map(m => (
+                        <tr key={m.monthKey} className={m.isCurrent ? 'font-semibold' : ''}>
+                          <td className="py-1.5 text-gray-700">
+                            {m.monthLabel}
+                            {m.isCurrent && <span className="ml-1.5 text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-semibold">En cours</span>}
+                          </td>
+                          <td className="py-1.5 text-right text-gray-800 tabular-nums">{m.revenue.toLocaleString('fr-CA')} $</td>
+                          <td className="py-1.5 text-right text-gray-400 tabular-nums">{m.count}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
           </div>
+        )}
 
-          {/* SVG Bar Chart */}
-          {!revenueLoading && revenueMonths.length > 0 && (
-            <div className="relative">
-              <RevenueChart
-                data={revenueMonths}
-                tooltip={tooltipData}
-                onTooltip={setTooltipData}
-              />
-            </div>
-          )}
-
-          {/* Month summary table */}
-          {!revenueLoading && revenueMonths.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="py-1.5 text-left font-medium text-gray-400">Mois</th>
-                    <th className="py-1.5 text-right font-medium text-gray-400">Revenus</th>
-                    <th className="py-1.5 text-right font-medium text-gray-400">Factures</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {[...revenueMonths].reverse().map(m => (
-                    <tr key={m.monthKey} className={m.isCurrent ? 'font-semibold' : ''}>
-                      <td className="py-1.5 text-gray-700">
-                        {m.monthLabel}
-                        {m.isCurrent && <span className="ml-1.5 text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-semibold">En cours</span>}
-                      </td>
-                      <td className="py-1.5 text-right text-gray-800 tabular-nums">{m.revenue.toLocaleString('fr-CA')} $</td>
-                      <td className="py-1.5 text-right text-gray-400 tabular-nums">{m.count}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+        {tab === 'users' && <>
 
         {/* Users table */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
