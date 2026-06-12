@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CalendarPost, PlannedContent } from '@/lib/supabase/types';
 import ContentPlanner from './ContentPlanner';
+import StrategicSuggestions from '@/components/StrategicSuggestions';
 
 // ── Dropdown filter ───────────────────────────────────────────────────────────
 function FilterDropdown<T extends string>({
@@ -987,6 +988,12 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
             </a>
           </div>
         )}
+
+        {/* Strategic suggestions */}
+        <StrategicSuggestions
+          isPro={isPro}
+          onUpgrade={() => setShowUpgradeModal(true)}
+        />
 
         {loading ? (
           <div className="flex justify-center py-16">
