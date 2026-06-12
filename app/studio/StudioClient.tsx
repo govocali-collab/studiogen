@@ -588,7 +588,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             </Card>
           </div>
 
-          <div className="space-y-4 lg:pt-10">
+          <div className="space-y-4">
             <Card>
               <PhotoUploader photos={photos} onPhotosChange={setPhotos} maxPhotos={TIER_LIMITS[effectiveTier].maxPhotos} />
             </Card>
@@ -643,7 +643,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             </Card>
           </div>
 
-          <div className="space-y-4 lg:pt-10">
+          <div className="space-y-4">
             <Card>
               <LogoManager
                 logos={logos}
