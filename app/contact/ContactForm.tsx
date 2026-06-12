@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 interface Profile {
   first_name: string | null;
@@ -34,6 +35,7 @@ export default function ContactForm({ profile }: { profile: Profile }) {
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const [hp, setHp] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = Array.from(e.target.files ?? []);
@@ -53,6 +55,7 @@ export default function ContactForm({ profile }: { profile: Profile }) {
     e.preventDefault();
     if (hp) return;
     if (!subject || !message.trim()) { setError('Remplis tous les champs obligatoires.'); return; }
+    if (!turnstileToken) { setError('Vérifie que tu n\'es pas un robot.'); return; }
     setSending(true);
     setError('');
 
@@ -62,6 +65,7 @@ export default function ContactForm({ profile }: { profile: Profile }) {
     fd.append('businessName', businessName.trim());
     fd.append('subject', subject);
     fd.append('message', message.trim());
+    fd.append('cf-turnstile-response', turnstileToken);
     files.forEach(f => fd.append('files', f));
 
     try {
@@ -217,13 +221,21 @@ export default function ContactForm({ profile }: { profile: Profile }) {
         )}
       </div>
 
+      <Turnstile
+        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+        onSuccess={setTurnstileToken}
+        onExpire={() => setTurnstileToken(null)}
+        onError={() => setTurnstileToken(null)}
+        options={{ theme: 'light', language: 'fr' }}
+      />
+
       {error && (
         <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
       )}
 
       <button
         type="submit"
-        disabled={sending}
+        disabled={sending || !turnstileToken}
         className="w-full py-3 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 active:scale-[0.98] transition-all disabled:opacity-50"
       >
         {sending ? 'Envoi en cours…' : 'Envoyer le message'}

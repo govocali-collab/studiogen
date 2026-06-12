@@ -38,6 +38,21 @@ export async function POST(request: NextRequest) {
     const honeypot = formData.get('_hp') as string | null;
     if (honeypot) return NextResponse.json({ ok: true }); // silently drop
 
+    // Turnstile verification
+    const turnstileToken = formData.get('cf-turnstile-response') as string | null;
+    if (!turnstileToken) {
+      return NextResponse.json({ error: 'Vérification anti-bot manquante.' }, { status: 400 });
+    }
+    const tsRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: process.env.TURNSTILE_SECRET_KEY, response: turnstileToken }),
+    });
+    const tsData = await tsRes.json() as { success: boolean };
+    if (!tsData.success) {
+      return NextResponse.json({ error: 'Vérification anti-bot échouée. Réessaie.' }, { status: 400 });
+    }
+
     const subject = (formData.get('subject') as string | null)?.trim();
     const message = (formData.get('message') as string | null)?.trim();
     const firstName = (formData.get('firstName') as string | null)?.trim() ?? '';
