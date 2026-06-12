@@ -391,11 +391,12 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
                     type="button"
                     onClick={() => onSchedule('fb', posts.fb, contentType)}
                     title="Planifier au calendrier"
-                    className="w-7 h-7 rounded-lg flex items-center justify-center text-blue-400 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                    className="text-xs px-2 py-1 rounded-lg border border-blue-200 text-blue-600 hover:bg-blue-100 transition-colors font-medium flex items-center gap-1"
                   >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
+                    Planifier
                   </button>
                 )}
               </div>
@@ -425,11 +426,12 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
                       type="button"
                       onClick={() => onSchedule('ig', posts.ig, contentType)}
                       title="Planifier au calendrier"
-                      className="w-7 h-7 rounded-lg flex items-center justify-center text-pink-400 hover:bg-pink-100 hover:text-pink-600 transition-colors"
+                      className="text-xs px-2 py-1 rounded-lg border border-pink-200 text-pink-600 hover:bg-pink-100 transition-colors font-medium flex items-center gap-1"
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
+                      Planifier
                     </button>
                   )}
                 </div>
