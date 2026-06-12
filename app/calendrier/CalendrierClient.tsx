@@ -905,9 +905,12 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
         <Link href="/studio">
           <Image src="/logo-black.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" priority />
         </Link>
-        <Link href="/studio" className="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
-          ← Retour au studio
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/contact" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Aide</Link>
+          <Link href="/studio" className="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+            ← Retour au studio
+          </Link>
+        </div>
       </div>
     </header>
   );

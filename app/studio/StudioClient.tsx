@@ -438,6 +438,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
 
             <Link href="/settings" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Paramètres</Link>
             <Link href="/billing" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Abonnement</Link>
+            <Link href="/contact" className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Aide</Link>
             <button onClick={handleSignOut} className="hidden sm:inline text-xs text-gray-400 hover:text-gray-700 transition-colors">Déconnexion</button>
 
             {/* Mobile hamburger */}
@@ -475,6 +476,12 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z" />
               </svg>
               Abonnement
+            </Link>
+            <Link href="/contact" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+              </svg>
+              Aide
             </Link>
             <button onClick={() => { setMobileMenuOpen(false); handleSignOut(); }} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
