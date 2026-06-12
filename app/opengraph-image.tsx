@@ -18,44 +18,38 @@ export default async function Image() {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '36px',
           background: '#f5f5f7',
+          padding: '48px 80px',
         }}
       >
-        {/* Top section — white/light gray, logo centered */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#f5f5f7',
-            padding: '60px 80px 40px',
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={logoSrc}
-            style={{ height: 90, objectFit: 'contain' }}
-            alt="StudioGen"
-          />
-        </div>
+        {/* Logo */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoSrc}
+          style={{ height: 176, objectFit: 'contain' }}
+          alt="StudioGen"
+        />
 
-        {/* Bottom section — mauve pâle, title + URL */}
+        {/* Text bubble — mauve pâle */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
-            padding: '44px 72px 48px',
             background: '#ede9fe',
+            borderRadius: '24px',
+            padding: '40px 56px',
+            width: '100%',
           }}
         >
           <p
             style={{
-              color: '#111111',
-              fontSize: 52,
+              color: '#1a1a1a',
+              fontSize: 48,
               fontWeight: 800,
-              margin: '0 0 14px',
+              margin: '0 0 12px',
               lineHeight: 1.2,
               letterSpacing: '-0.5px',
             }}
@@ -65,7 +59,7 @@ export default async function Image() {
           <p
             style={{
               color: '#7c3aed',
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: 500,
               margin: 0,
             }}
