@@ -72,7 +72,7 @@ export async function GET() {
   const monthName = MOIS_FR[currentMonth];
   const seasonalNote = SEASONAL_CONTEXT[currentMonth];
 
-  const businessName = (p?.business_name as string | null)?.trim() || 'votre entreprise';
+  const businessName = (p?.business_name as string | null)?.trim() || 'ton entreprise';
   const serviceDesc = (p?.service_description as string | null) ?? '';
   const targetAudience = (p?.target_audience as string | null) ?? '';
   const brandVoice = (p?.brand_voice as string[] | null) ?? [];

@@ -631,10 +631,10 @@ function PlannedItemModal({ item, targetAudience, onClose, onDelete, onItemUpdat
           {currentItem.generated_from_brand_brain && (
             <div
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-50 px-2.5 py-1 rounded-full cursor-help"
-              title="Cette idée a été créée à partir de votre clientèle, vos services, votre ton et vos préférences de contenu."
+              title="Cette idée a été créée à partir de ta clientèle, tes services, ton ton et tes préférences de contenu."
             >
               <span>✨</span>
-              Généré par votre ADN de marque IA
+              Généré par ton ADN de marque IA
             </div>
           )}
 
@@ -761,7 +761,7 @@ function ProUpgradeModal({ onClose }: { onClose: () => void }) {
             <div className="text-3xl mb-2">✨</div>
             <h2 className="text-lg font-bold text-gray-900">Disponible avec StudioGen Pro</h2>
             <p className="text-sm text-gray-500 mt-2 leading-relaxed">
-              StudioGen analyse votre entreprise et planifie automatiquement votre contenu selon vos services, votre clientèle et vos objectifs.
+              StudioGen analyse ton entreprise et planifie automatiquement ton contenu selon tes services, ta clientèle et tes objectifs.
             </p>
           </div>
 
@@ -776,7 +776,7 @@ function ProUpgradeModal({ onClose }: { onClose: () => void }) {
             </div>
             <div className="bg-gradient-to-br from-fuchsia-950 to-violet-950 rounded-xl p-4 space-y-2">
               <p className="text-xs font-bold text-violet-300 uppercase tracking-wide">Pro</p>
-              {["L'IA décide quoi publier", 'Génère votre semaine automatiquement', 'Génère votre mois automatiquement', 'Stratégie adaptée à votre clinique'].map(f => (
+              {["L'IA décide quoi publier", 'Génère ta semaine automatiquement', 'Génère ton mois automatiquement', 'Stratégie adaptée à ta clinique'].map(f => (
                 <div key={f} className="flex items-start gap-1.5 text-xs text-gray-300">
                   <span className="text-violet-400 font-bold flex-shrink-0">✓</span> {f}
                 </div>
@@ -785,11 +785,11 @@ function ProUpgradeModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <p className="text-center text-sm font-semibold text-gray-800">
-            Laissez StudioGen planifier votre contenu à votre place.
+            Laissez StudioGen planifier ton contenu à ta place.
           </p>
 
           <div className="space-y-2">
-            {['Plus jamais de page blanche', 'Un mois complet d\'idées en quelques secondes', 'Basé sur votre ADN de marque IA', 'Adapté à votre clientèle'].map(b => (
+            {['Plus jamais de page blanche', 'Un mois complet d\'idées en quelques secondes', 'Basé sur ton ADN de marque IA', 'Adapté à ta clientèle'].map(b => (
               <div key={b} className="flex items-center gap-2 text-sm text-gray-600">
                 <span className="text-violet-500 font-bold">✓</span> {b}
               </div>
@@ -964,7 +964,7 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
             <div className="flex-1 space-y-2">
               <p className="text-sm font-semibold text-gray-700">Planification IA</p>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Laissez StudioGen générer automatiquement votre plan de contenu selon vos services et votre clientèle.
+                Laissez StudioGen générer automatiquement ton plan de contenu selon tes services et ta clientèle.
               </p>
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <button

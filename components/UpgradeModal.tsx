@@ -86,7 +86,7 @@ export default function UpgradeModal({ reason, onClose }: UpgradeModalProps) {
               </svg>
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900">Choisissez votre forfait</h2>
+              <h2 className="text-base font-bold text-gray-900">Choisis ton forfait</h2>
               <p className="text-sm text-gray-500 mt-1 leading-relaxed">{reason}</p>
             </div>
           </div>
@@ -136,7 +136,7 @@ export default function UpgradeModal({ reason, onClose }: UpgradeModalProps) {
                 onClick={() => setPromoOpen(true)}
                 className="text-xs text-violet-600 hover:text-violet-800 underline underline-offset-2 transition-colors"
               >
-                Vous avez un code promo ?
+                Tu as un code promo ?
               </button>
             )}
 
@@ -189,7 +189,7 @@ export default function UpgradeModal({ reason, onClose }: UpgradeModalProps) {
           </button>
 
           <p className="text-[10px] text-center text-gray-400">
-            La facturation apparaîtra sous le nom <span className="font-medium">Astrova</span> sur votre relevé bancaire.
+            La facturation apparaîtra sous le nom <span className="font-medium">Astrova</span> sur ton relevé bancaire.
           </p>
         </div>
       </div>

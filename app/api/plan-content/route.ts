@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
   const { mode, startDate } = body;
   if (!mode || !startDate) return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
 
-  const businessName = ((p?.business_name as string | null)?.trim()) || 'votre clinique';
+  const businessName = ((p?.business_name as string | null)?.trim()) || 'ta clinique';
   const city = p?.city as string | null;
   const province = p?.province as string | null;
   const targetAudience = p?.target_audience as string | null;

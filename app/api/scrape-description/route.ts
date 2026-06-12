@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     parsedUrl = new URL(url);
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error('Protocol invalide');
   } catch {
-    return NextResponse.json({ error: "URL invalide. Assurez-vous d'inclure https://" }, { status: 400 });
+    return NextResponse.json({ error: "URL invalide. Assure-toi d'inclure https://" }, { status: 400 });
   }
 
   const origin = parsedUrl.origin;

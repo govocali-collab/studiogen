@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     template: '%s | StudioGen',
   },
   description:
-    'StudioGen génère automatiquement vos publications Facebook et Instagram en français québécois. ADN de marque IA, calendrier de contenu, planification automatique. Essai gratuit 7 jours, aucune carte requise.',
+    'StudioGen génère automatiquement tes publications Facebook et Instagram en français québécois. ADN de marque IA, calendrier de contenu, planification automatique. Essai gratuit 7 jours, aucune carte requise.',
   keywords: [
     'publications réseaux sociaux Québec',
     'intelligence artificielle marketing beauté',

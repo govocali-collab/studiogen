@@ -251,7 +251,7 @@ export async function POST(request: NextRequest) {
   const effectiveTier: 'essentiel' | 'pro' = status === 'trialing' ? 'pro' : tier;
   const generationsUsed = (profile?.generations_used ?? 0) as number;
   const trialGenerationsUsed = (profile?.trial_generations_used ?? 0) as number;
-  const businessName = (profile?.business_name as string | null)?.trim() || 'votre entreprise';
+  const businessName = (profile?.business_name as string | null)?.trim() || 'ton entreprise';
   const businessWebsite = (profile?.website as string | null) ?? null;
   const serviceDescription = (profile?.service_description as string | null) ?? null;
   const city = (profile?.city as string | null) ?? null;
@@ -281,7 +281,7 @@ export async function POST(request: NextRequest) {
   // ── Subscription gate: canceled accounts can't generate ──────────────────
   if (status === 'canceled') {
     return NextResponse.json(
-      { error: 'Abonnement annulé. Renouvelez votre abonnement pour continuer.', code: 'CANCELED' },
+      { error: 'Abonnement annulé. Renouvelez ton abonnement pour continuer.', code: 'CANCELED' },
       { status: 403 },
     );
   }
@@ -290,7 +290,7 @@ export async function POST(request: NextRequest) {
   const trialLimit = PRICING[tier].trialGenerations;
   if (status === 'trialing' && trialGenerationsUsed >= trialLimit) {
     return NextResponse.json(
-      { error: `Limite d'essai atteinte. Activez votre abonnement pour continuer.`, code: 'TRIAL_LIMIT_REACHED' },
+      { error: `Limite d'essai atteinte. Activez ton abonnement pour continuer.`, code: 'TRIAL_LIMIT_REACHED' },
       { status: 402 },
     );
   }

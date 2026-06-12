@@ -247,7 +247,7 @@ const CollageCanvas = forwardRef<CollageCanvasHandle, CollageCanvasProps>(
         ctx.font = 'bold 48px sans-serif';
         ctx.fillText('Ajoutez des photos', canvasWidth / 2, canvasHeight / 2 - 10);
         ctx.font = '32px sans-serif';
-        ctx.fillText('pour créer votre collage', canvasWidth / 2, canvasHeight / 2 + 50);
+        ctx.fillText('pour créer ton collage', canvasWidth / 2, canvasHeight / 2 + 50);
         return;
       }
 

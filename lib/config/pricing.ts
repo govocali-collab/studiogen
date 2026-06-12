@@ -4,7 +4,7 @@ export const PRICING = {
     price: 57, // CAD, monthly
     trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_ESSENTIEL,
-    description: "L'IA écrit comme votre entreprise.",
+    description: "L'IA écrit comme ton entreprise.",
     features: [
       '20 publications / mois',
       'Studio complet + ADN de marque IA',
@@ -20,14 +20,14 @@ export const PRICING = {
     price: 127, // CAD, monthly
     trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_PRO,
-    description: "L'IA pense comme votre coordonnatrice marketing.",
+    description: "L'IA pense comme ta coordonnatrice marketing.",
     features: [
       '150 publications / mois',
       'Tout ce qui est inclus dans Essentiel',
       'Planifier ma semaine avec l\'IA',
       'Planifier mon mois avec l\'IA',
       'Calendrier généré automatiquement',
-      'Suggestions stratégiques basées sur votre ADN de marque IA',
+      'Suggestions stratégiques basées sur ton ADN de marque IA',
       'Régénération intelligente d\'idées',
       'Priorité de support',
     ],

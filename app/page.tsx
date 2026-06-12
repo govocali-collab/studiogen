@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 export const metadata: Metadata = {
   title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
   description:
-    'StudioGen génère automatiquement vos publications Facebook et Instagram en français québécois grâce à votre ADN de marque IA. Économisez 10 h/semaine. Essai gratuit 7 jours, aucune carte requise.',
+    'StudioGen génère automatiquement tes publications Facebook et Instagram en français québécois grâce à ton ADN de marque IA. Économisez 10 h/semaine. Essai gratuit 7 jours, aucune carte requise.',
   keywords: [
     'publications réseaux sociaux Québec',
     'intelligence artificielle marketing beauté',
@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     canonical: 'https://studiogen.ca',
   },
   openGraph: {
-    title: 'Récupérez jusqu\'à 10 heures par semaine sur vos réseaux sociaux',
+    title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
     description:
-      'StudioGen génère vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
+      'StudioGen génère tes publications Facebook et Instagram en moins de 2 minutes grâce à ton ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
     url: 'https://studiogen.ca',
     siteName: 'StudioGen',
     locale: 'fr_CA',
@@ -29,9 +29,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Récupérez jusqu\'à 10 heures par semaine sur vos réseaux sociaux',
+    title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
     description:
-      'StudioGen génère vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
+      'StudioGen génère tes publications Facebook et Instagram en moins de 2 minutes grâce à ton ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
   },
 };
 
@@ -73,15 +73,15 @@ const comparisonRows = [
 ];
 
 const steps = [
-  { num: '01', title: 'Complétez votre ADN de marque IA', desc: 'StudioGen apprend votre entreprise, votre clientèle et votre façon de communiquer.' },
-  { num: '02', title: 'Planifiez votre contenu',          desc: "L'IA suggère automatiquement des idées adaptées à vos services et à vos objectifs." },
-  { num: '03', title: 'Ajoutez vos photos et générez',    desc: 'StudioGen rédige le texte et adapte le contenu à votre marque.' },
+  { num: '01', title: 'Complétez ton ADN de marque IA', desc: 'StudioGen apprend ton entreprise, ta clientèle et ta façon de communiquer.' },
+  { num: '02', title: 'Planifiez ton contenu',          desc: "L'IA suggère automatiquement des idées adaptées à tes services et à tes objectifs." },
+  { num: '03', title: 'Ajoutez tes photos et générez',    desc: 'StudioGen rédige le texte et adapte le contenu à ta marque.' },
 ];
 
 const quebecAdvantages = [
   { icon: '✓', title: 'Français québécois naturel',       desc: 'Expressions, ton et style authentiquement québécois.' },
-  { icon: '✓', title: 'Comprend votre secteur',           desc: 'Esthétique, soins, coiffure, PMU, cils, ongles, spas et plus.' },
-  { icon: '✓', title: "S'adapte à votre ton",             desc: "Votre ADN de marque IA apprend votre voix, vos services et votre clientèle." },
+  { icon: '✓', title: 'Comprend ton secteur',           desc: 'Esthétique, soins, coiffure, PMU, cils, ongles, spas et plus.' },
+  { icon: '✓', title: "S'adapte à ton style",             desc: "Ton ADN de marque IA apprend ta voix, tes services et ta clientèle." },
   { icon: '✓', title: 'Conçu pour le marché local',       desc: 'Pensé pour les professionnels de la beauté du Québec.' },
 ];
 
@@ -99,19 +99,19 @@ const faqs = [
   },
   {
     q: 'Qu\'est-ce que l\'ADN de marque IA ?',
-    a: 'L\'ADN de marque IA permet à StudioGen de comprendre votre entreprise, votre clientèle, votre ton et votre style afin de créer un contenu beaucoup plus personnalisé.',
+    a: 'L\'ADN de marque IA permet à StudioGen de comprendre ton entreprise, ta clientèle, ton ton et ton style afin de créer un contenu beaucoup plus personnalisé.',
   },
   {
     q: 'Pourquoi le plan Pro produit-il de meilleurs résultats ?',
-    a: 'Le plan Pro utilise votre ADN de marque IA pour planifier automatiquement votre contenu et suggérer quoi publier chaque semaine ou chaque mois.',
+    a: 'Le plan Pro utilise ton ADN de marque IA pour planifier automatiquement ton contenu et suggérer quoi publier chaque semaine ou chaque mois.',
   },
   {
     q: 'Que se passe-t-il après mon essai gratuit ?',
-    a: 'Vous conservez votre compte et choisissez ensuite le forfait qui convient à vos besoins.',
+    a: 'Tu conserves ton compte et choisissez ensuite le forfait qui convient à tes besoins.',
   },
   {
     q: 'Puis-je créer du contenu en anglais ?',
-    a: 'Oui. StudioGen peut générer du contenu en français québécois, en anglais ou dans les deux langues selon votre clientèle. Vous choisissez la langue dans vos paramètres ADN de marque IA.',
+    a: 'Oui. StudioGen peut générer du contenu en français québécois, en anglais ou dans les deux langues selon ta clientèle. Tu choisis la langue dans tes paramètres ADN de marque IA.',
   },
 ];
 
@@ -231,20 +231,20 @@ export default async function LandingPage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-6">
-            Récupérez jusqu&apos;à
+            Récupère jusqu&apos;à
             <br />
             <span className="bg-gradient-to-r from-violet-600 to-fuchsia-500 bg-clip-text text-transparent">
               10 heures par semaine
             </span>
             <br />
-            sur vos réseaux sociaux.
+            sur tes réseaux sociaux.
           </h1>
 
           <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-3 leading-relaxed">
-            StudioGen planifie votre contenu, génère vos publications et s&apos;adapte à votre entreprise grâce à votre ADN de marque IA.
+            StudioGen planifie ton contenu, génère tes publications et s&apos;adapte à ton entreprise grâce à ton ADN de marque IA.
           </p>
           <p className="text-sm text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Que vous soyez esthéticienne, coiffeuse, technicienne en cils, artiste PMU, propriétaire de spa ou spécialiste en soins, StudioGen crée du contenu qui vous ressemble.
+            Que tu sois esthéticienne, coiffeuse, technicienne en cils, artiste PMU, propriétaire de spa ou spécialiste en soins, StudioGen crée du contenu qui te ressemble.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -356,7 +356,7 @@ export default async function LandingPage() {
                     </div>
                     <div className="border-2 border-dashed border-gray-200 rounded-lg py-3 flex flex-col items-center gap-1">
                       <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                      <div className="text-[9px] font-semibold text-gray-500">Glissez vos photos ici</div>
+                      <div className="text-[9px] font-semibold text-gray-500">Glissez tes photos ici</div>
                       <div className="text-[8px] text-gray-400">JPG, PNG, WebP</div>
                     </div>
                   </div>
@@ -375,7 +375,7 @@ export default async function LandingPage() {
                     <div className="aspect-square rounded-xl bg-gradient-to-br from-violet-100 via-fuchsia-50 to-pink-100 flex items-center justify-center">
                       <div className="text-center">
                         <div className="text-[10px] text-gray-400 font-medium">Ajoutez des photos</div>
-                        <div className="text-[9px] text-gray-300">pour créer votre collage</div>
+                        <div className="text-[9px] text-gray-300">pour créer ton collage</div>
                       </div>
                     </div>
                   </div>
@@ -466,10 +466,10 @@ export default async function LandingPage() {
             <div>
               <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">ADN de marque IA</div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                StudioGen apprend à connaître votre entreprise
+                StudioGen apprend à connaître ton entreprise
               </h2>
               <p className="text-gray-500 leading-relaxed mb-6">
-                Plus votre ADN de marque IA est complet, plus StudioGen crée du contenu qui vous ressemble.
+                Plus ton ADN de marque IA est complet, plus StudioGen crée du contenu qui te ressemble.
               </p>
               <ul className="space-y-3 mb-6">
                 {adnItems.map(item => (
@@ -480,7 +480,7 @@ export default async function LandingPage() {
                 ))}
               </ul>
               <p className="text-sm font-semibold text-violet-700">
-                Votre ADN de marque IA devient le cerveau marketing de votre entreprise.
+                Ton ADN de marque IA devient le cerveau marketing de ton entreprise.
               </p>
             </div>
             <div className="bg-gray-50 rounded-2xl border border-gray-100 p-6 space-y-3">
@@ -536,7 +536,7 @@ export default async function LandingPage() {
               Conçu pour les professionnels de la beauté du Québec
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              Esthétique, soins, coiffure, PMU, cils, ongles, spas… StudioGen comprend votre secteur et parle la même langue que votre clientèle.
+              Esthétique, soins, coiffure, PMU, cils, ongles, spas… StudioGen comprend ton secteur et parle la même langue que ta clientèle.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -584,20 +584,20 @@ export default async function LandingPage() {
             <div>
               <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Planification IA</div>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-                L&apos;IA vous aide à savoir quoi publier
+                L&apos;IA t&apos;aide à savoir quoi publier
               </h2>
               <p className="text-gray-500 leading-relaxed mb-4">
-                Basé sur votre ADN de marque IA, vos services et votre clientèle, StudioGen peut suggérer automatiquement votre semaine ou votre mois de contenu.
+                Basé sur ton ADN de marque IA, tes services et ta clientèle, StudioGen peut suggérer automatiquement ta semaine ou ton mois de contenu.
               </p>
               <ul className="space-y-2 mb-6">
-                {['vos services prioritaires', 'votre clientèle', 'votre ton', 'vos objectifs'].map(item => (
+                {['tes services prioritaires', 'ta clientèle', 'ton ton', 'tes objectifs'].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-700">
                     <span className="text-violet-600 font-bold">✓</span> {item}
                   </li>
                 ))}
               </ul>
               <p className="text-sm text-gray-500 mb-5">
-                Vous choisissez ensuite vos photos et créez la publication en un clic.
+                Tu choisis ensuite tes photos et créez la publication en un clic.
               </p>
               <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold px-3 py-1.5 rounded-full">
                 ✨ Exclusif au plan Pro
@@ -625,7 +625,7 @@ export default async function LandingPage() {
               StudioGen vs Canva
             </h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              Canva vous aide à créer de beaux visuels. StudioGen pense, planifie et rédige à votre place.
+              Canva t&apos;aide à créer de beaux visuels. StudioGen pense, planifie et rédige à ta place.
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
@@ -778,7 +778,7 @@ export default async function LandingPage() {
                   'Planifier ma semaine avec l\'IA',
                   'Planifier mon mois avec l\'IA',
                   'Suggestions stratégiques automatiques',
-                  'Suggestions adaptées à votre saison',
+                  'Suggestions adaptées à ta saison',
                   'Priorisation automatique des services',
                   'Contenu ultra personnalisé',
                 ].map(item => (
@@ -807,12 +807,12 @@ export default async function LandingPage() {
             <h3 className="text-lg font-bold text-gray-900 mb-3">Pourquoi choisir Pro ?</h3>
             <p className="text-sm text-gray-600 leading-relaxed mb-5">
               Le plan Pro ne se contente pas de créer du contenu.
-              Il analyse votre ADN de marque IA et vous suggère automatiquement quoi publier chaque semaine afin de maintenir une présence cohérente sur Facebook et Instagram.
+              Il analyse ton ADN de marque IA et te suggère automatiquement quoi publier chaque semaine afin de maintenir une présence cohérente sur Facebook et Instagram.
             </p>
             <ul className="space-y-2">
               {[
                 'Plus jamais de page blanche',
-                'Des idées adaptées à votre entreprise',
+                'Des idées adaptées à ton entreprise',
                 'Une stratégie de contenu sans agence marketing',
               ].map(item => (
                 <li key={item} className="flex items-center gap-2.5 text-sm text-gray-700">
@@ -829,7 +829,7 @@ export default async function LandingPage() {
         <div className="max-w-2xl mx-auto">
           <h2 className="text-lg font-bold text-gray-900 mb-3">Qu&apos;est-ce que StudioGen ?</h2>
           <p className="text-sm text-gray-600 leading-relaxed">
-            StudioGen est le système de contenu IA conçu pour les professionnels de la beauté du Québec. Il planifie automatiquement votre contenu, génère vos publications Facebook et Instagram et s&apos;adapte à votre entreprise grâce à votre ADN de marque IA. En moins de 2 minutes, vous obtenez un montage photo professionnel et un texte personnalisé en français québécois, sans formation en design ni en rédaction. StudioGen est conçu pour les esthéticiennes, coiffeuses, techniciennes en cils, artistes PMU, propriétaires de spas et tous les professionnels de la beauté du Québec.
+            StudioGen est le système de contenu IA conçu pour les professionnels de la beauté du Québec. Il planifie automatiquement ton contenu, génère tes publications Facebook et Instagram et s&apos;adapte à ton entreprise grâce à ton ADN de marque IA. En moins de 2 minutes, tu obtiens un montage photo professionnel et un texte personnalisé en français québécois, sans formation en design ni en rédaction. StudioGen est conçu pour les esthéticiennes, coiffeuses, techniciennes en cils, artistes PMU, propriétaires de spas et tous les professionnels de la beauté du Québec.
           </p>
         </div>
       </section>
@@ -871,7 +871,7 @@ export default async function LandingPage() {
             <Image src="/fav.png" alt="StudioGen" width={56} height={56} className="w-14 h-14 rounded-2xl shadow-lg shadow-violet-200" />
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-            Prêt à transformer votre présence en ligne ?
+            Prêt à transformer ta présence en ligne ?
           </h2>
           <p className="text-gray-500 mb-8">
             Rejoignez les professionnels de la beauté qui publient du contenu professionnel chaque semaine, sans agence, sans stress.

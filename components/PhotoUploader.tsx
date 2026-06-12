@@ -81,7 +81,7 @@ export default function PhotoUploader({ photos, onPhotosChange, maxPhotos = 10 }
         </svg>
         <div>
           <p className="text-sm font-medium text-gray-600">
-            {full ? 'Maximum atteint' : 'Glissez vos photos ici'}
+            {full ? 'Maximum atteint' : 'Glissez tes photos ici'}
           </p>
           {!full && (
             <p className="text-xs text-gray-400">ou cliquez · JPG, PNG, WebP</p>

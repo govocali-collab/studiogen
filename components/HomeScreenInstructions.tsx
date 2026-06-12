@@ -24,7 +24,7 @@ export default function HomeScreenInstructions() {
       </div>
 
       <p className="text-sm text-gray-600 leading-relaxed">
-        Ajoutez StudioGen à votre écran d&apos;accueil pour un accès instantané, sans passer par le navigateur.
+        Ajoute StudioGen à ton écran d&apos;accueil pour un accès instantané, sans passer par le navigateur.
       </p>
 
       <div className="bg-gray-50 rounded-xl p-4">

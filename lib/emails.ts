@@ -33,7 +33,7 @@ function baseTemplate(content: string) {
             StudioGen · Propulsé par <a href="https://astrova.ca" style="color:#7c3aed;text-decoration:none">Astrova</a>
           </p>
           <p style="margin:6px 0 0;font-size:11px;color:#d1d5db">
-            Vous recevez ce courriel car vous avez un compte StudioGen.
+            Tu reçois ce courriel car tu as un compte StudioGen.
           </p>
         </td></tr>
 

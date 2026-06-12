@@ -154,7 +154,7 @@ function BillingPageInner() {
     setDowngradeLoading(false);
     if (error) { setToast(error); return; }
     setCancelStep('none');
-    setToast('Votre abonnement a été changé pour le plan Essentiel.');
+    setToast('Ton abonnement a été changé pour le plan Essentiel.');
     const d = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
     setProfile(d?.profile ?? null);
   };
@@ -199,7 +199,7 @@ function BillingPageInner() {
           <div className="bg-white rounded-2xl max-w-md w-full shadow-xl overflow-hidden">
             <div className="p-6 space-y-5">
               <div className="text-center">
-                <p className="text-base font-bold text-gray-900">Laissez StudioGen planifier votre contenu à votre place.</p>
+                <p className="text-base font-bold text-gray-900">Laissez StudioGen planifier ton contenu à ta place.</p>
                 <p className="text-xs text-gray-500 mt-1">Passez au Pro et laissez l&apos;IA s&apos;occuper de la stratégie.</p>
               </div>
 
@@ -214,7 +214,7 @@ function BillingPageInner() {
                 </div>
                 <div className="bg-gradient-to-br from-fuchsia-950 to-violet-950 rounded-xl p-3.5 space-y-2">
                   <p className="text-[10px] font-bold text-violet-300 uppercase tracking-wide">Pro</p>
-                  {["L'IA décide quoi publier", 'Génère votre semaine', 'Génère votre mois', 'Stratégie sur mesure'].map(f => (
+                  {["L'IA décide quoi publier", 'Génère ta semaine', 'Génère ton mois', 'Stratégie sur mesure'].map(f => (
                     <div key={f} className="flex items-start gap-1.5 text-xs text-gray-300">
                       <span className="text-violet-400 font-bold flex-shrink-0">✓</span> {f}
                     </div>
@@ -224,7 +224,7 @@ function BillingPageInner() {
 
               <div className="bg-violet-50 rounded-xl px-4 py-3 text-center">
                 <p className="text-xs text-gray-600">
-                  Vous serez chargé{' '}
+                  Tu seras chargé{' '}
                   <span className="font-bold text-gray-900">
                     {(upgradeConfirm.amountDue / 100).toLocaleString('fr-CA', { style: 'currency', currency: upgradeConfirm.currency.toUpperCase() })}
                   </span>{' '}
@@ -256,7 +256,7 @@ function BillingPageInner() {
       <main className="max-w-screen-md mx-auto px-6 py-12 space-y-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Abonnement</h1>
-          <p className="text-sm text-gray-500 mt-1">Gérez votre plan et suivez vos publications ce mois-ci.</p>
+          <p className="text-sm text-gray-500 mt-1">Gérez ton plan et suivez tes publications ce mois-ci.</p>
         </div>
 
         {/* Tabs */}
@@ -294,9 +294,9 @@ function BillingPageInner() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <div>
-                  <p className="text-sm font-semibold text-amber-800">Votre période d&apos;essai est terminée</p>
+                  <p className="text-sm font-semibold text-amber-800">Ta période d&apos;essai est terminée</p>
                   <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                    Vos 7 jours d&apos;essai gratuit sont écoulés. Choisissez un plan ci-dessous pour continuer à utiliser StudioGen.
+                    Tes 7 jours d&apos;essai gratuit sont écoulés. Choisissez un plan ci-dessous pour continuer à utiliser StudioGen.
                   </p>
                 </div>
               </div>
@@ -309,9 +309,9 @@ function BillingPageInner() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
                 <div>
-                  <p className="text-sm font-semibold text-red-800">Votre abonnement est annulé</p>
+                  <p className="text-sm font-semibold text-red-800">Ton abonnement est annulé</p>
                   <p className="text-xs text-red-600 mt-0.5 leading-relaxed">
-                    Vos outils sont désactivés. Choisissez un plan ci-dessous pour réactiver votre accès.
+                    Tes outils sont désactivés. Choisissez un plan ci-dessous pour réactiver ton accès.
                   </p>
                 </div>
               </div>
@@ -351,7 +351,7 @@ function BillingPageInner() {
             {/* Plan selection */}
             <div>
               <div className="text-center mb-5">
-                <h2 className="text-base font-bold text-gray-900">Choisissez votre plan</h2>
+                <h2 className="text-base font-bold text-gray-900">Choisissez ton plan</h2>
                 <p className="text-xs text-gray-500 mt-1">Essai gratuit 7 jours · Annulez en tout temps</p>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
@@ -376,7 +376,7 @@ function BillingPageInner() {
                 let btnLabel = `S'abonner · ${p.price} $/mois`;
                 if (actionLoading === t) btnLabel = 'Redirection…';
                 else if (isPaidPlan) btnLabel = 'Plan actuel';
-                else if (isLowerThanCurrent) btnLabel = 'Inclus dans votre Pro';
+                else if (isLowerThanCurrent) btnLabel = 'Inclus dans ton Pro';
                 else if (isUpgrade) btnLabel = 'Passer au Pro →';
 
                 return (
@@ -448,7 +448,7 @@ function BillingPageInner() {
             </div>
 
             <p className="text-[11px] text-center text-gray-400">
-              La facturation apparaîtra sous le nom <span className="font-medium text-gray-500">Astrova</span> sur votre relevé bancaire et vos reçus.
+              La facturation apparaîtra sous le nom <span className="font-medium text-gray-500">Astrova</span> sur ton relevé bancaire et tes reçus.
             </p>
 
             {/* Manage payment method */}
@@ -490,9 +490,9 @@ function BillingPageInner() {
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Avant d&apos;annuler — passez à Essentiel</p>
                         <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                          Plutôt que d&apos;annuler, vous pouvez passer au plan <span className="font-semibold text-gray-700">Essentiel à {PRICING.essentiel.price} $/mois</span>.
-                          Vous recevrez un crédit pro-rata pour les jours restants de votre abonnement Pro,
-                          et votre plan sera renouvelé à {PRICING.essentiel.price} $/mois dès le prochain cycle.
+                          Plutôt que d&apos;annuler, tu peux passer au plan <span className="font-semibold text-gray-700">Essentiel à {PRICING.essentiel.price} $/mois</span>.
+                          Tu recevras un crédit pro-rata pour les jours restants de ton abonnement Pro,
+                          et ton plan sera renouvelé à {PRICING.essentiel.price} $/mois dès le prochain cycle.
                         </p>
                       </div>
                     </div>
@@ -534,7 +534,7 @@ function BillingPageInner() {
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Confirmer l&apos;annulation</p>
                         <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                          Votre abonnement sera annulé immédiatement. Vous serez déconnecté et pourrez vous reconnecter pour télécharger vos reçus.
+                          Ton abonnement sera annulé immédiatement. Tu seras déconnecté et pourrez te reconnecter pour télécharger tes reçus.
                         </p>
                       </div>
                     </div>

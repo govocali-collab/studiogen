@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       : `-${((coupon.amount_off ?? 0) / 100).toFixed(2)} $`;
 
     const durationLabel =
-      coupon.duration === 'once' ? 'sur votre premier paiement' :
+      coupon.duration === 'once' ? 'sur ton premier paiement' :
       coupon.duration === 'forever' ? 'pour toujours' :
       `pendant ${coupon.duration_in_months} mois`;
 

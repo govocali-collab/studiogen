@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 });
   }
 
-  const businessName = ((p?.business_name as string | null)?.trim()) || 'votre clinique';
+  const businessName = ((p?.business_name as string | null)?.trim()) || 'ta clinique';
   const targetAudience = p?.target_audience as string | null;
   const services = p?.services as string[] | null;
   const priorityServices = p?.priority_services as string[] | null;

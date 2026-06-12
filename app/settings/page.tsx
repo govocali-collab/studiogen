@@ -274,8 +274,8 @@ function computeCompletion(form: Form): number {
 function getCompletionLabel(pct: number): string {
   if (pct <= 30) return 'Contenu générique';
   if (pct <= 60) return 'Contenu personnalisé';
-  if (pct <= 85) return 'Forte correspondance avec votre marque';
-  return 'StudioGen écrit presque comme vous';
+  if (pct <= 85) return 'Forte correspondance avec ta marque';
+  return 'StudioGen écrit presque comme toi';
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -378,7 +378,7 @@ function SettingsPageInner() {
     setAnalyzeError(null);
     setAnalyzeResult(null);
     const url = form.website.trim();
-    if (!url) { setAnalyzeError("Entrez d'abord votre site internet."); return; }
+    if (!url) { setAnalyzeError("Entrez d'abord ton site internet."); return; }
     setAnalyzing(true);
     try {
       const res = await fetch('/api/scrape-description', {
@@ -454,7 +454,7 @@ function SettingsPageInner() {
         if (emailError) {
           setEmailMessage({ type: 'error', text: emailError.message });
         } else {
-          setEmailMessage({ type: 'info', text: 'Un courriel de confirmation a été envoyé à votre nouvelle adresse. Vérifiez votre boîte de réception.' });
+          setEmailMessage({ type: 'info', text: 'Un courriel de confirmation a été envoyé à ta nouvelle adresse. Vérifie ta boîte de réception.' });
           setOriginalEmail(newEmail);
         }
       }
@@ -545,7 +545,7 @@ function SettingsPageInner() {
       <main className="max-w-2xl mx-auto px-4 py-10">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
-          <p className="mt-1 text-sm text-gray-500">Plus votre profil est complet, plus l'IA crée des publications qui ressemblent à votre clinique.</p>
+          <p className="mt-1 text-sm text-gray-500">Plus ton profil est complet, plus l'IA crée des publications qui ressemblent à ta clinique.</p>
         </div>
 
         {/* Tabs */}
@@ -606,7 +606,7 @@ function SettingsPageInner() {
                 <div>
                   <label className={labelClass}>Courriel du compte</label>
                   <input type="email" name="email" value={form.email} onChange={(e) => { handleChange(e); setEmailMessage(null); setSaved(false); }}
-                    placeholder="votre@courriel.com" className={inputClass} />
+                    placeholder="toi@courriel.com" className={inputClass} />
                   {emailMessage && (
                     <p className={`text-xs mt-1.5 ${emailMessage.type === 'error' ? 'text-red-500' : 'text-violet-600'}`}>
                       {emailMessage.text}
@@ -685,7 +685,7 @@ function SettingsPageInner() {
 
               {completion < 100 && missingItems.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-100">
-                  <p className="text-xs font-medium text-gray-500 mb-2">Complétez ces éléments pour améliorer vos résultats :</p>
+                  <p className="text-xs font-medium text-gray-500 mb-2">Complétez ces éléments pour améliorer tes résultats :</p>
                   <ul className="space-y-1">
                     {missingItems.map(label => (
                       <li key={label} className="flex items-center gap-2 text-xs text-gray-400">
@@ -699,7 +699,7 @@ function SettingsPageInner() {
 
               {completion === 100 && (
                 <p className="text-xs text-green-600 font-medium mt-2">
-                  ✓ Profil complet — StudioGen a tout ce qu'il faut pour écrire comme votre entreprise.
+                  ✓ Profil complet — StudioGen a tout ce qu'il faut pour écrire comme ton entreprise.
                 </p>
               )}
             </div>
@@ -707,15 +707,15 @@ function SettingsPageInner() {
             {/* Value proposition */}
             <div className="mb-6 bg-violet-50 border border-violet-100 rounded-2xl p-5 space-y-3">
               <p className="text-sm font-semibold text-violet-900">
-                Plus votre profil est complet, plus StudioGen écrit comme votre entreprise.
+                Plus ton profil est complet, plus StudioGen écrit comme ton entreprise.
               </p>
               <p className="text-xs text-violet-700 leading-relaxed">
-                StudioGen utilise ces informations pour comprendre votre ton, vos services, votre clientèle et votre façon de communiquer.
+                StudioGen utilise ces informations pour comprendre ton ton, tes services, ta clientèle et ta façon de communiquer.
               </p>
               <ul className="space-y-1.5 pt-0.5">
                 {[
                   'Des publications plus personnalisées',
-                  'Un ton cohérent avec votre marque',
+                  'Un ton cohérent avec ta marque',
                   'Moins de modifications après génération',
                 ].map((benefit) => (
                   <li key={benefit} className="flex items-center gap-2 text-xs text-violet-700 font-medium">
@@ -728,9 +728,9 @@ function SettingsPageInner() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
 
-              {/* ── Votre marque ── */}
+              {/* ── Ta marque ── */}
               <section className="rounded-2xl border border-gray-100 bg-white p-6 space-y-5">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Votre marque</h2>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Ta marque</h2>
 
                 <div>
                   <div className="mb-5">
@@ -844,7 +844,7 @@ function SettingsPageInner() {
                   <div className="mb-5">
                     <label className={labelClass}>Description de l'entreprise</label>
                     <p className="text-xs text-gray-400 mb-2">
-                      Décrivez vos services, valeurs et ce qui vous rend unique. L'IA l'utilisera dans chaque publication.
+                      Décrivez tes services, valeurs et ce qui te rend unique. L'IA l'utilisera dans chaque publication.
                     </p>
                     <textarea name="service_description" value={form.service_description} onChange={handleChange}
                       rows={5} placeholder="ex. Nous sommes une clinique esthétique et médico-esthétique située à Sherbrooke..."
@@ -860,7 +860,7 @@ function SettingsPageInner() {
 
                   <div className="mb-5">
                     <label className={labelClass}>Voix de marque</label>
-                    <p className="text-xs text-gray-400 mb-2">Sélectionnez les tons qui définissent votre communication.</p>
+                    <p className="text-xs text-gray-400 mb-2">Sélectionnez les tons qui définissent ta communication.</p>
                     <ChipSelect options={BRAND_VOICE_OPTIONS} value={form.brand_voice}
                       onChange={(v) => setField('brand_voice', v)} />
                   </div>
@@ -878,7 +878,7 @@ function SettingsPageInner() {
                       <span className="text-xs text-gray-400">{form.priority_services.length}/3</span>
                     </div>
                     <p className="text-xs text-gray-400 mb-2">
-                      Quels services génèrent le plus de revenus ou représentent le mieux votre entreprise ? Maximum 3.
+                      Quels services génèrent le plus de revenus ou représentent le mieux ton entreprise ? Maximum 3.
                     </p>
                     <TagInput value={form.priority_services} onChange={(v) => setField('priority_services', v)}
                       placeholder="ex. Épilation laser, HydraFacial..." maxItems={3} />
@@ -893,7 +893,7 @@ function SettingsPageInner() {
                 <div>
                   <div className="mb-5">
                     <label className={labelClass}>Types de contenu préférés</label>
-                    <p className="text-xs text-gray-400 mb-2">L'IA privilégiera ces formats dans vos publications.</p>
+                    <p className="text-xs text-gray-400 mb-2">L'IA privilégiera ces formats dans tes publications.</p>
                     <ChipSelect options={CONTENT_PREFS_OPTIONS} value={form.content_preferences}
                       onChange={(v) => setField('content_preferences', v)} />
                   </div>
@@ -931,7 +931,7 @@ function SettingsPageInner() {
                   <div className="mb-5">
                     <label className={labelClass}>Objectifs de transformation</label>
                     <p className="text-xs text-gray-400 mb-1.5">
-                      Qu'espèrent obtenir vos clientes grâce à vos services ?
+                      Qu'espèrent obtenir tes clientes grâce à tes services ?
                     </p>
                     <p className="text-xs text-gray-300 mb-2 italic">
                       Ex. : Plus de confiance en soi &middot; Peau plus lumineuse &middot; Gain de temps le matin
@@ -942,13 +942,13 @@ function SettingsPageInner() {
 
                   <div>
                     <div className="flex items-start gap-2 mb-1.5 flex-wrap">
-                      <label className={labelClass + ' mb-0'}>Publications qui vous ressemblent</label>
+                      <label className={labelClass + ' mb-0'}>Publications qui te ressemblent</label>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full whitespace-nowrap">
                         ⭐ Améliore fortement la qualité
                       </span>
                     </div>
                     <p className="text-xs text-gray-400 mb-3">
-                      Collez 1 à 3 publications que vous aimez déjà ou que vous avez publiées. StudioGen les utilisera comme référence de style, ton et vocabulaire.
+                      Collez 1 à 3 publications que tu aimes déjà ou que tu as publiées. StudioGen les utilisera comme référence de style, ton et vocabulaire.
                     </p>
                     <ExampleInput value={form.brand_examples} onChange={(v) => setField('brand_examples', v)} />
                   </div>
@@ -963,10 +963,10 @@ function SettingsPageInner() {
                   <div className="mb-5">
                     <label className={labelClass}>Expressions favorites</label>
                     <p className="text-xs text-gray-400 mb-2">
-                      Mots ou formulations que vous aimez. L'IA les intégrera naturellement.
+                      Mots ou formulations que tu aimes. L'IA les intégrera naturellement.
                     </p>
                     <TagInput value={form.favorite_phrases} onChange={(v) => setField('favorite_phrases', v)}
-                      placeholder="ex. Peau lumineuse, Résultats naturels, Prenez soin de vous..." />
+                      placeholder="ex. Peau lumineuse, Résultats naturels, Prenez soin de toi..." />
                   </div>
 
                   <div>
@@ -984,7 +984,7 @@ function SettingsPageInner() {
               <section className="rounded-2xl border border-gray-100 bg-white p-6 space-y-4">
                 <div>
                   <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Langue des publications</h2>
-                  <p className="text-xs text-gray-400 mb-4">Choisissez dans quelle langue StudioGen rédige vos publications.</p>
+                  <p className="text-xs text-gray-400 mb-4">Choisissez dans quelle langue StudioGen rédige tes publications.</p>
                   <div className="space-y-2">
                     {([
                       { value: 'fr_qc', label: 'Français québécois', desc: 'Contenu en français naturel, adapté au marché québécois.' },
@@ -1026,7 +1026,7 @@ function SettingsPageInner() {
                 )}
                 <div className="flex items-end justify-between gap-4">
                   <p className="text-xs text-gray-400 leading-relaxed max-w-xs">
-                    Votre profil devient le cerveau de votre marque dans StudioGen.<br />
+                    Ton profil devient le cerveau de ta marque dans StudioGen.<br />
                     <span className="text-gray-300">Chaque publication future utilisera ces informations.</span>
                   </p>
                   <button type="submit" disabled={saving}
@@ -1042,7 +1042,7 @@ function SettingsPageInner() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-800">Réinitialiser l'ADN de marque IA</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Efface tous vos paramètres IA. Vos informations de profil et votre abonnement ne sont pas affectés.</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Efface tous tes paramètres IA. Tes informations de profil et ton abonnement ne sont pas affectés.</p>
                   </div>
                   <button
                     type="button"
@@ -1071,8 +1071,8 @@ function SettingsPageInner() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
             <h3 className="text-base font-bold text-gray-900">Réinitialiser l'ADN de marque IA ?</h3>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Tous vos paramètres IA seront effacés : description, services, voix de marque, expressions, exemples de publications, etc.<br /><br />
-              Cette action est <strong>irréversible</strong>. Vos informations de profil et votre abonnement ne sont pas affectés.
+              Tous tes paramètres IA seront effacés : description, services, voix de marque, expressions, exemples de publications, etc.<br /><br />
+              Cette action est <strong>irréversible</strong>. Tes informations de profil et ton abonnement ne sont pas affectés.
             </p>
             <div className="flex gap-3 pt-1">
               <button

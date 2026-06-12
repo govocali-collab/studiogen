@@ -86,7 +86,7 @@ export default function StrategicSuggestions({ isPro, onUpgrade }: { isPro: bool
             <p className="text-sm font-semibold text-gray-700">🔒 Suggestions stratégiques automatiques</p>
           </div>
           <p className="text-xs text-gray-500 leading-relaxed">
-            StudioGen analyse votre ADN de marque et vous suggère automatiquement quoi publier chaque semaine.
+            StudioGen analyse ton ADN de marque et te suggère automatiquement quoi publier chaque semaine.
           </p>
           <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
             ✨ Pro
@@ -115,7 +115,7 @@ export default function StrategicSuggestions({ isPro, onUpgrade }: { isPro: bool
             </span>
           </div>
           <p className="text-xs text-gray-400">
-            Des idées personnalisées générées automatiquement selon votre entreprise.
+            Des idées personnalisées générées automatiquement selon ton entreprise.
           </p>
         </div>
         <button
@@ -136,7 +136,7 @@ export default function StrategicSuggestions({ isPro, onUpgrade }: { isPro: bool
       {loading && !suggestions ? (
         <div className="flex items-center justify-center gap-2 py-6 text-xs text-gray-400">
           <Spinner />
-          <span>Analyse de votre ADN de marque en cours…</span>
+          <span>Analyse de ton ADN de marque en cours…</span>
         </div>
       ) : error ? (
         <div className="text-xs text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-3">

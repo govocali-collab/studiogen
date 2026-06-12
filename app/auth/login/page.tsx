@@ -73,7 +73,7 @@ function LoginPageInner() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoFocus
-                placeholder="vous@example.com"
+                placeholder="toi@example.com"
                 className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
               />
             </div>

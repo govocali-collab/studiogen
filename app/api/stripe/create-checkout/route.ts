@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         const invoiceId = typeof latestInvoiceId === 'string' ? latestInvoiceId : latestInvoiceId.id;
         const invoice = await stripe.invoices.retrieve(invoiceId);
         if (invoice.status !== 'paid') {
-          return NextResponse.json({ error: 'Paiement refusé. Veuillez mettre à jour votre mode de paiement via le portail de facturation.' }, { status: 402 });
+          return NextResponse.json({ error: 'Paiement refusé. Veuillez mettre à jour ton mode de paiement via le portail de facturation.' }, { status: 402 });
         }
       }
 

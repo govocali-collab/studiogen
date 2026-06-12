@@ -65,10 +65,10 @@ export default function SignupPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Vérifiez votre courriel</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-2">Vérifiez ton courriel</h2>
           <p className="text-sm text-gray-500 leading-relaxed">
             Un lien de confirmation a été envoyé à <strong className="text-gray-800">{email}</strong>.{' '}
-            Cliquez sur le lien pour activer votre compte.
+            Cliquez sur le lien pour activer ton compte.
           </p>
           <Link href="/auth/login" className="mt-6 block text-xs text-violet-500 hover:text-violet-700 font-medium transition-colors">
             Retour à la connexion
@@ -128,7 +128,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="vous@example.com"
+                placeholder="toi@example.com"
                 className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
               />
             </div>

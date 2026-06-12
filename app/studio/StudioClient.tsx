@@ -349,7 +349,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
     const id = crypto.randomUUID();
     setTextOverlays(prev => [...prev, {
       id,
-      text: 'Votre texte',
+      text: 'Ton texte',
       x: 0.5,
       y: 0.4,
       fontSize: 72,
@@ -497,9 +497,9 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-violet-900">Des publications à votre image</p>
+                <p className="text-sm font-semibold text-violet-900">Des publications à ton image</p>
                 <p className="text-xs text-violet-700 mt-0.5">
-                  Complétez votre profil et l'IA rédige dans votre ton, avec vos services.
+                  Complétez ton profil et l'IA rédige dans ton ton, avec tes services.
                 </p>
               </div>
             </div>
