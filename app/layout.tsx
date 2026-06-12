@@ -75,16 +75,16 @@ export const metadata: Metadata = {
     locale: 'fr_CA',
     type: 'website',
     url: 'https://studiogen.ca',
-    title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
+    title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
     description:
-      'Générez vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
-    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'StudioGen — Contenu IA pour professionnels de la beauté' }],
+      'StudioGen génère tes publications Facebook et Instagram en français québécois grâce à ton ADN de marque IA. Essai gratuit 7 jours, aucune carte requise.',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'StudioGen — Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
+    title: 'Récupère jusqu\'à 10 heures par semaine sur tes réseaux sociaux',
     description:
-      'Générez vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
+      'StudioGen génère tes publications Facebook et Instagram en français québécois grâce à ton ADN de marque IA. Essai gratuit 7 jours, aucune carte requise.',
     images: ['/opengraph-image.png'],
   },
 };
