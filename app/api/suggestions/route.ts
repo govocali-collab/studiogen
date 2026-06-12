@@ -116,7 +116,7 @@ export async function GET() {
 Tu analyses le profil d'une entreprise et son historique de contenu pour générer des recommandations stratégiques ultra-personnalisées.
 Réponds UNIQUEMENT avec un tableau JSON valide, sans aucun texte avant ou après.`;
 
-  const userPrompt = `Analyse cette entreprise et génère entre 3 et 5 suggestions de publications stratégiques.
+  const userPrompt = `Analyse cette entreprise et génère exactement 6 suggestions de publications stratégiques.
 
 ENTREPRISE : ${businessName}
 ${serviceDesc ? `Description : ${serviceDesc}` : ''}
@@ -140,7 +140,7 @@ RÈGLES D'ANALYSE
 - Chaque suggestion doit être actionnable et spécifique à cette entreprise
 - Varie les types de contenu suggérés
 
-Retourne UNIQUEMENT un tableau JSON de 3 à 5 objets avec EXACTEMENT ces clés :
+Retourne UNIQUEMENT un tableau JSON de exactement 6 objets avec EXACTEMENT ces clés :
 - "emoji": un seul emoji représentant le type de suggestion
 - "headline": observation courte et directe sur le calendrier ou l'opportunité (max 80 caractères)
 - "action": action recommandée spécifique à cette entreprise (max 100 caractères)
