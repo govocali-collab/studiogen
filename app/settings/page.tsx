@@ -569,11 +569,8 @@ function SettingsPageInner() {
                     </p>
                   )}
                 </div>
-              </section>
-
-              <section className="bg-white rounded-2xl border border-gray-100 p-6">
                 {error && (
-                  <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">{error}</p>
+                  <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-xl px-4 py-3">{error}</p>
                 )}
                 <div className="flex justify-end">
                   <button type="submit" disabled={saving}
