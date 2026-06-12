@@ -462,6 +462,49 @@ function SettingsPageInner() {
     }
   };
 
+  const [resetting, setResetting] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  const handleResetIA = async () => {
+    setShowResetConfirm(false);
+    setResetting(true);
+    setError(null);
+    const emptyIA = {
+      service_description: '',
+      target_audience: '',
+      brand_voice: [] as string[],
+      services: [] as string[],
+      priority_services: [] as string[],
+      transformation_goals: [] as string[],
+      brand_examples: [] as string[],
+      favorite_phrases: [] as string[],
+      avoid_phrases: [] as string[],
+      content_preferences: [] as string[],
+      cta_style: '',
+    };
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(emptyIA),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error ?? `Erreur ${res.status}`);
+      }
+      setForm(prev => ({ ...prev, ...emptyIA }));
+      setAnalyzeResult(null);
+      setResetDone(true);
+      setTimeout(() => setResetDone(false), 3000);
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue');
+    } finally {
+      setResetting(false);
+    }
+  };
+
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwMessage(null);
@@ -516,7 +559,7 @@ function SettingsPageInner() {
               tab === 'ia' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            IA
+            ADN de marque IA
           </button>
         </div>
 
@@ -938,6 +981,25 @@ function SettingsPageInner() {
                   </button>
                 </div>
               </section>
+
+              {/* ── Zone dangereuse ── */}
+              <section className="bg-white rounded-2xl border border-red-100 p-6">
+                <h2 className="text-sm font-semibold text-red-500 uppercase tracking-wide mb-1">Zone dangereuse</h2>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">Réinitialiser l'ADN de marque IA</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Efface tous vos paramètres IA. Vos informations de profil et votre abonnement ne sont pas affectés.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowResetConfirm(true)}
+                    disabled={resetting}
+                    className="shrink-0 text-sm font-semibold border border-red-300 text-red-600 hover:bg-red-50 disabled:opacity-50 px-4 py-2 rounded-xl transition-colors"
+                  >
+                    {resetting ? 'Réinitialisation…' : resetDone ? 'Réinitialisé ✓' : 'Réinitialiser'}
+                  </button>
+                </div>
+              </section>
             </form>
 
             <div className="mt-6 flex justify-center">
@@ -948,6 +1010,33 @@ function SettingsPageInner() {
           </>
         )}
       </main>
+
+      {/* ── Confirmation réinitialisation ── */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+            <h3 className="text-base font-bold text-gray-900">Réinitialiser l'ADN de marque IA ?</h3>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              Tous vos paramètres IA seront effacés : description, services, voix de marque, expressions, exemples de publications, etc.<br /><br />
+              Cette action est <strong>irréversible</strong>. Vos informations de profil et votre abonnement ne sont pas affectés.
+            </p>
+            <div className="flex gap-3 pt-1">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-600 hover:border-gray-400 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleResetIA}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white transition-colors"
+              >
+                Oui, réinitialiser
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
