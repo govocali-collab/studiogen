@@ -235,7 +235,7 @@ export default function ContactForm({ profile }: { profile: Profile }) {
 
       <button
         type="submit"
-        disabled={sending || !turnstileToken}
+        disabled={sending}
         className="w-full py-3 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 active:scale-[0.98] transition-all disabled:opacity-50"
       >
         {sending ? 'Envoi en cours…' : 'Envoyer le message'}
