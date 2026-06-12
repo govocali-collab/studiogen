@@ -7,7 +7,7 @@ export const PRICING = {
     description: "L'IA écrit comme votre entreprise.",
     features: [
       '20 publications / mois',
-      'Studio complet + Brand Brain',
+      'Studio complet + ADN de marque IA',
       'Analyse du site web',
       'Voix de marque, ton et services',
       'Calendrier de contenu',
@@ -27,7 +27,7 @@ export const PRICING = {
       'Planifier ma semaine avec l\'IA',
       'Planifier mon mois avec l\'IA',
       'Calendrier généré automatiquement',
-      'Suggestions stratégiques basées sur votre Brand Brain',
+      'Suggestions stratégiques basées sur votre ADN de marque IA',
       'Régénération intelligente d\'idées',
       'Priorité de support',
     ],

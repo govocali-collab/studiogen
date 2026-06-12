@@ -100,12 +100,11 @@ export default function LogoManager({
 }: LogoManagerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const maxLogos = tier === 'pro' ? Infinity : 1;
+  const maxLogos = 2;
   const atLimit = logos.length >= maxLogos;
 
   const handleRemoveBg = async (e: React.MouseEvent, logo: Logo) => {
     e.stopPropagation();
-    if (tier !== 'pro') { onUpgradeClick?.(); return; }
     setProcessingId(logo.id);
     try {
       const newDataUrl = await removeBg(logo.dataUrl);
@@ -183,15 +182,13 @@ export default function LogoManager({
             </div>
           )}
           <button
-            onClick={() => atLimit ? onUpgradeClick?.() : inputRef.current?.click()}
-            title={atLimit ? `Maximum ${maxLogos} logo pour le plan Essentiel` : 'Ajouter un logo'}
-            className="text-xs font-semibold text-violet-600 hover:text-violet-800 flex items-center gap-1 transition-colors"
+            onClick={() => inputRef.current?.click()}
+            disabled={atLimit}
+            title={atLimit ? 'Maximum 2 logos' : 'Ajouter un logo'}
+            className="text-xs font-semibold text-violet-600 hover:text-violet-800 flex items-center gap-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {atLimit
-              ? <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
-              : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-            }
-            {atLimit ? 'Pro requis' : 'Ajouter'}
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+            Ajouter
           </button>
         </div>
         <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
@@ -249,31 +246,19 @@ export default function LogoManager({
               <button
                 onClick={(e) => handleRemoveBg(e, logo)}
                 disabled={processingId === logo.id}
-                className={`flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors disabled:opacity-60 ${
-                  tier === 'pro'
-                    ? 'border-violet-200 text-violet-600 hover:bg-violet-100 bg-white'
-                    : 'border-gray-200 text-gray-400 hover:border-amber-300 hover:text-amber-600 bg-white'
-                }`}
+                className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-violet-200 text-violet-600 hover:bg-violet-100 bg-white transition-colors disabled:opacity-60"
               >
                 {processingId === logo.id ? (
                   <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8h4z" />
                   </svg>
-                ) : tier === 'pro' ? (
+                ) : (
                   <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243zm7.364-9.243a3 3 0 10-4.243 4.243" />
                   </svg>
-                ) : (
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
                 )}
-                {processingId === logo.id
-                  ? 'Traitement…'
-                  : tier === 'pro'
-                  ? 'Retirer le fond'
-                  : 'Retirer le fond · Pro'}
+                {processingId === logo.id ? 'Traitement…' : 'Retirer le fond'}
               </button>
             </div>
           </div>

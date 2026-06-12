@@ -633,7 +633,7 @@ function PlannedItemModal({ item, targetAudience, onClose, onDelete, onItemUpdat
               title="Cette idée a été créée à partir de votre clientèle, vos services, votre ton et vos préférences de contenu."
             >
               <span>✨</span>
-              Généré par votre Brand Brain
+              Généré par votre ADN de marque IA
             </div>
           )}
 
@@ -788,7 +788,7 @@ function ProUpgradeModal({ onClose }: { onClose: () => void }) {
           </p>
 
           <div className="space-y-2">
-            {['Plus jamais de page blanche', 'Un mois complet d\'idées en quelques secondes', 'Basé sur votre Brand Brain', 'Adapté à votre clientèle'].map(b => (
+            {['Plus jamais de page blanche', 'Un mois complet d\'idées en quelques secondes', 'Basé sur votre ADN de marque IA', 'Adapté à votre clientèle'].map(b => (
               <div key={b} className="flex items-center gap-2 text-sm text-gray-600">
                 <span className="text-violet-500 font-bold">✓</span> {b}
               </div>

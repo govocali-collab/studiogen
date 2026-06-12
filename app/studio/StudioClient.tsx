@@ -559,19 +559,20 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
         )}
 
 
+        {/* Badge (gauche) + Calendrier (droite, aligné avec la boite logo) */}
+        <div className="flex items-center justify-between gap-2 mb-4">
+          <BillingBadge profile={profile} />
+          <Link href="/calendrier" className="flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-xl shadow-md shadow-violet-200 transition-colors shrink-0">
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Calendrier
+          </Link>
+        </div>
+
         <div className="space-y-4 lg:grid lg:grid-cols-[260px_1fr_340px] lg:gap-4 lg:space-y-0 lg:items-start">
 
           <div className="space-y-4">
-            {/* Badge + Calendrier sur la même rangée */}
-            <div className="px-1 flex items-center justify-between gap-2">
-              <BillingBadge profile={profile} />
-              <Link href="/calendrier" className="flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-xl shadow-md shadow-violet-200 transition-colors shrink-0">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                Calendrier
-              </Link>
-            </div>
             <Card>
               <FormatPicker format={format} onFormatChange={setFormat} />
             </Card>
@@ -599,28 +600,15 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                   <span className="text-xs text-gray-400 tabular-nums hidden sm:inline">
                     {canvasWidth} × {canvasHeight} px
                   </span>
-                  {/* Text overlay button — Pro + trial */}
-                  {effectiveTier === 'pro' ? (
-                    <button
-                      onClick={addTextOverlay}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-2 rounded-xl transition-colors"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                      </svg>
-                      Texte
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => openUpgrade('L\'ajout de texte sur les visuels est une fonctionnalité Pro.')}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 bg-gray-50 border border-gray-200 px-3 py-2 rounded-xl transition-colors hover:border-violet-300 hover:text-violet-500"
-                    >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                      </svg>
-                      Texte
-                    </button>
-                  )}
+                  <button
+                    onClick={addTextOverlay}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 px-3 py-2 rounded-xl transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Texte
+                  </button>
                   <button
                     onClick={() => canvasRef.current?.download()}
                     disabled={photos.length === 0}
