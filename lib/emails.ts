@@ -115,7 +115,7 @@ export async function sendSubscriptionConfirmation(email: string, tier: string) 
       <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#374151">Ce qui est inclus :</p>
       ${(tier === 'pro'
         ? ['150 posts / mois', 'Accès complet à toutes les fonctionnalités', 'Facebook + Instagram simultanément', 'Logos illimités', 'Priorité de support']
-        : ['50 posts / mois', 'Accès complet à toutes les fonctionnalités', 'Facebook + Instagram simultanément', 'Logos illimités']
+        : ['20 publications / mois', 'Accès complet à toutes les fonctionnalités', 'Facebook + Instagram simultanément', 'Logos illimités']
       ).map(f => `<p style="margin:0 0 8px;font-size:14px;color:#374151"><span style="color:#7c3aed;font-weight:700;margin-right:8px">✓</span>${f}</p>`).join('')}
 
       <div style="text-align:center">
@@ -142,7 +142,7 @@ export async function sendTrialEndingReminder(email: string) {
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf5ff;border-radius:12px;padding:20px;margin-bottom:24px">
         <tr><td>
           <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em">Choisis ton plan</p>
-          <p style="margin:0 0 6px;font-size:14px;color:#374151"><strong>Essentiel — 57 $ / mois</strong> · 50 posts / mois</p>
+          <p style="margin:0 0 6px;font-size:14px;color:#374151"><strong>Essentiel — 57 $ / mois</strong> · 20 publications / mois</p>
           <p style="margin:0;font-size:14px;color:#374151"><strong>Pro — 127 $ / mois</strong> · 150 posts / mois + priorité de support</p>
         </td></tr>
       </table>

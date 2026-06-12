@@ -331,8 +331,8 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
         if (data.code === 'LIMIT_REACHED') {
           const t = (profile?.subscription_tier ?? 'essentiel') as 'essentiel' | 'pro';
           const reason = t === 'essentiel'
-            ? `Tu as atteint ta limite de 50 générations ce mois-ci. Passe au plan Pro pour 150 générations par mois.`
-            : `Tu as atteint ta limite de 150 générations ce mois-ci.`;
+            ? `Tu as atteint ta limite de 20 publications ce mois-ci. Passe au plan Pro pour 150 publications par mois.`
+            : `Tu as atteint ta limite de 150 publications ce mois-ci.`;
           setUpgradeModal({ reason, tier: 'pro' });
           return;
         }

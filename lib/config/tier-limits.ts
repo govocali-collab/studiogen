@@ -9,7 +9,7 @@ export const ESSENTIEL_LAYOUTS: LayoutType[] = [
 
 export const TIER_LIMITS = {
   essentiel: {
-    generationsPerMonth: 50,
+    generationsPerMonth: 20,
     maxLogos: Infinity,
     maxPhotos: 6,
     availableLayouts: 'all' as const,

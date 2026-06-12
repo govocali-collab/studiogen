@@ -574,7 +574,7 @@ export default async function LandingPage() {
               </div>
               <ul className="space-y-2.5 mb-6 flex-1">
                 {[
-                  '50 publications / mois',
+                  '20 publications / mois',
                   'Studio complet',
                   'ADN de marque IA',
                   'Calendrier de contenu',

@@ -6,7 +6,7 @@ export const PRICING = {
     stripePriceId: process.env.STRIPE_PRICE_ESSENTIEL,
     description: "L'IA écrit comme votre entreprise.",
     features: [
-      '50 publications / mois',
+      '20 publications / mois',
       'Studio complet + Brand Brain',
       'Analyse du site web',
       'Voix de marque, ton et services',
