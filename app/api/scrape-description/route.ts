@@ -90,21 +90,6 @@ export async function POST(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const admin = createAdminClient();
-  const { data: profile } = await admin
-    .from('profiles')
-    .select('subscription_tier, subscription_status')
-    .eq('id', session.user.id)
-    .single();
-
-  const tier = (profile as { subscription_tier?: string } | null)?.subscription_tier ?? 'essentiel';
-  const status = (profile as { subscription_status?: string } | null)?.subscription_status ?? 'trialing';
-  const effectiveTier = status === 'trialing' ? 'pro' : tier;
-
-  if (effectiveTier !== 'pro') {
-    return NextResponse.json({ error: 'Fonctionnalité réservée au plan Pro.' }, { status: 403 });
-  }
-
   let body: { url: string };
   try {
     body = await request.json();
