@@ -305,6 +305,7 @@ function SettingsPageInner() {
   const [teamLoading, setTeamLoading] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteFirstName, setInviteFirstName] = useState('');
+  const [inviteFormReady, setInviteFormReady] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [inviteError, setInviteError] = useState('');
   const [inviteSent, setInviteSent] = useState(false);
@@ -386,7 +387,13 @@ function SettingsPageInner() {
 
   const handleTabChange = (t: 'profil' | 'ia' | 'equipe') => {
     setTab(t);
-    if (t === 'equipe' && !teamData) loadTeam();
+    if (t === 'equipe') {
+      if (!teamData) loadTeam();
+      if (!inviteFormReady) {
+        setInviteFirstName(form.first_name || '');
+        setInviteFormReady(true);
+      }
+    }
   };
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -399,7 +406,7 @@ function SettingsPageInner() {
     });
     const data = await res.json();
     if (!res.ok) { setInviteError(data.error ?? 'Erreur'); }
-    else { setInviteSent(true); setInviteEmail(''); setInviteFirstName(''); loadTeam(); }
+    else { setInviteSent(true); setInviteEmail(''); setInviteFirstName(form.first_name || ''); loadTeam(); }
     setInviting(false);
   };
 

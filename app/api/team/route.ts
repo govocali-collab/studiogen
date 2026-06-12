@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getWorkspaceContext } from '@/lib/workspace';
 import { sendTeamInvitation } from '@/lib/emails';
 import { NextRequest, NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 
 const MAX_SEATS = 3; // Pro: 3 users total (owner + 2 collaborators)
 
@@ -74,24 +75,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Adresse courriel invalide.' }, { status: 400 });
   }
 
-  // Check for duplicate
+  // Block self-invitation
+  if (email === user.email?.toLowerCase()) {
+    return NextResponse.json({ error: 'Vous ne pouvez pas vous inviter vous-même.' }, { status: 400 });
+  }
+
+  // Check for duplicate existing member
   const { data: existingUser } = await admin.from('profiles').select('id').eq('email', email).maybeSingle();
   if (existingUser) {
     const { data: alreadyMember } = await admin.from('workspace_users').select('id').eq('workspace_id', workspaceId).eq('user_id', (existingUser as { id: string }).id).maybeSingle();
     if (alreadyMember) return NextResponse.json({ error: 'Cet utilisateur est déjà membre de l\'équipe.' }, { status: 400 });
   }
 
+  // Generate token in app code (avoids dependency on pgcrypto DB default)
+  const token = randomBytes(32).toString('hex');
+
   // Create invitation
-  const { data: invitation, error: invError } = await admin
+  const { error: invError } = await admin
     .from('team_invitations')
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .insert({ workspace_id: workspaceId, invited_by: user.id, email, first_name: firstName, role: 'collaborator' } as any)
-    .select('token')
-    .single();
+    .insert({ workspace_id: workspaceId, invited_by: user.id, email, first_name: firstName, role: 'collaborator', token } as any);
 
-  if (invError || !invitation) return NextResponse.json({ error: 'Erreur lors de la création de l\'invitation.' }, { status: 500 });
-
-  const token = (invitation as { token: string }).token;
+  if (invError) {
+    console.error('[team invite] insert error:', invError);
+    return NextResponse.json({ error: 'Erreur lors de la création de l\'invitation.' }, { status: 500 });
+  }
   const ownerName = (op?.first_name as string | null) ?? 'Le propriétaire';
   const workspaceName = (op?.business_name as string | null) ?? 'StudioGen';
 
