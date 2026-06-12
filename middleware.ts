@@ -8,6 +8,14 @@ const UNPROTECTED = ['/billing/success'];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Maintenance mode — set MAINTENANCE_MODE=1 in Vercel env vars to activate
+  if (process.env.MAINTENANCE_MODE === '1') {
+    if (pathname !== '/maintenance') {
+      return NextResponse.redirect(new URL('/maintenance', request.url));
+    }
+    return NextResponse.next();
+  }
+
   // Only protect specific routes
   const isProtected = !UNPROTECTED.includes(pathname)
     && PROTECTED.some(p => pathname === p || pathname.startsWith(p + '/'));
