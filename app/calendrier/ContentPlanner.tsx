@@ -155,6 +155,16 @@ export default function ContentPlanner({ calYear, calMonth, onPlanSaved }: Conte
         {error && (
           <span className="text-xs text-red-600 font-medium">{error}</span>
         )}
+
+        <a
+          href="/studio"
+          className="ml-auto flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-xl shadow-md shadow-violet-200 transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+          </svg>
+          Studio
+        </a>
       </div>
 
       {/* Plan review modal */}
