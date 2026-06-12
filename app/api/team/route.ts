@@ -67,6 +67,9 @@ export async function POST(request: NextRequest) {
   const email = body.email?.trim().toLowerCase();
   const firstName = body.firstName?.trim() || null;
 
+  if (!firstName) {
+    return NextResponse.json({ error: 'Le prénom est requis.' }, { status: 400 });
+  }
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: 'Adresse courriel invalide.' }, { status: 400 });
   }
@@ -92,7 +95,8 @@ export async function POST(request: NextRequest) {
   const ownerName = (op?.first_name as string | null) ?? 'Le propriétaire';
   const workspaceName = (op?.business_name as string | null) ?? 'StudioGen';
 
-  await sendTeamInvitation({ toEmail: email, toFirstName: firstName ?? undefined, ownerName, workspaceName, token });
+  // Fire-and-forget — invite exists in DB even if email fails
+  sendTeamInvitation({ toEmail: email, toFirstName: firstName ?? undefined, ownerName, workspaceName, token }).catch(console.error);
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }

@@ -697,11 +697,12 @@ function SettingsPageInner() {
                     <h3 className="text-sm font-semibold text-gray-800">Inviter un collaborateur</h3>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-1.5">Prénom <span className="font-normal text-gray-400">(optionnel)</span></label>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1.5">Prénom <span className="text-red-400">*</span></label>
                         <input
                           type="text"
                           value={inviteFirstName}
                           onChange={e => setInviteFirstName(e.target.value)}
+                          required
                           placeholder="ex. Sarah"
                           className="w-full text-sm rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
                         />
