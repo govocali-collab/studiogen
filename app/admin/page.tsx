@@ -19,8 +19,23 @@ interface AdminUser {
   stripe_customer_id: string | null;
 }
 
+interface PromoCode {
+  id: string;
+  code: string;
+  active: boolean;
+  discountLabel: string;
+  duration: string;
+  durationLabel: string;
+  maxRedemptions: number | null;
+  timesRedeemed: number;
+  expiresAt: string | null;
+  couponId: string;
+  createdAt: string;
+}
+
 export default function AdminPage() {
   const router = useRouter();
+  const [tab, setTab] = useState<'users' | 'promo'>('users');
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,6 +44,18 @@ export default function AdminPage() {
   const [magicLink, setMagicLink] = useState<{ email: string; link: string } | null>(null);
   const [loadingLink, setLoadingLink] = useState('');
   const [copied, setCopied] = useState(false);
+
+  // Promo codes state
+  const [codes, setCodes] = useState<PromoCode[]>([]);
+  const [codesLoading, setCodesLoading] = useState(false);
+  const [codesError, setCodesError] = useState('');
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    code: '', percentOff: '', duration: 'once', durationMonths: '', maxRedemptions: '', expiresAt: '',
+  });
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
+  const [togglingId, setTogglingId] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/users')
@@ -40,6 +67,62 @@ export default function AdminPage() {
       .then(d => { setUsers(d.users ?? []); setLoading(false); })
       .catch(e => { setError(e.message); setLoading(false); });
   }, []);
+
+  const loadCodes = () => {
+    setCodesLoading(true);
+    setCodesError('');
+    fetch('/api/admin/promo-codes')
+      .then(r => r.json())
+      .then(d => { setCodes(d.codes ?? []); setCodesLoading(false); })
+      .catch(() => { setCodesError('Erreur lors du chargement'); setCodesLoading(false); });
+  };
+
+  useEffect(() => { if (tab === 'promo') loadCodes(); }, [tab]);
+
+  const handleCreateCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    setCreateError('');
+    try {
+      const body: Record<string, unknown> = {
+        code: createForm.code.trim().toUpperCase(),
+        percentOff: Number(createForm.percentOff),
+        duration: createForm.duration,
+      };
+      if (createForm.duration === 'repeating') body.durationMonths = Number(createForm.durationMonths);
+      if (createForm.maxRedemptions) body.maxRedemptions = Number(createForm.maxRedemptions);
+      if (createForm.expiresAt) body.expiresAt = createForm.expiresAt;
+
+      const res = await fetch('/api/admin/promo-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? 'Erreur');
+      setShowCreateForm(false);
+      setCreateForm({ code: '', percentOff: '', duration: 'once', durationMonths: '', maxRedemptions: '', expiresAt: '' });
+      loadCodes();
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Erreur');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const toggleCode = async (id: string, active: boolean) => {
+    setTogglingId(id);
+    try {
+      await fetch(`/api/admin/promo-codes/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active }),
+      });
+      setCodes(prev => prev.map(c => c.id === id ? { ...c, active } : c));
+    } finally {
+      setTogglingId('');
+    }
+  };
 
   const generateMagicLink = async (email: string) => {
     setLoadingLink(email);
@@ -117,11 +200,199 @@ export default function AdminPage() {
       </header>
 
       <div className="max-w-screen-xl mx-auto px-6 py-10 space-y-8">
-        {/* Title */}
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Tableau de bord</h1>
-          <p className="text-sm text-gray-400 mt-0.5">{users.length} compte{users.length !== 1 ? 's' : ''} enregistré{users.length !== 1 ? 's' : ''}</p>
+        {/* Title + tabs */}
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Tableau de bord</h1>
+            <p className="text-sm text-gray-400 mt-0.5">{users.length} compte{users.length !== 1 ? 's' : ''} enregistré{users.length !== 1 ? 's' : ''}</p>
+          </div>
+          <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+            <button
+              onClick={() => setTab('users')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${tab === 'users' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Utilisateurs
+            </button>
+            <button
+              onClick={() => setTab('promo')}
+              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors ${tab === 'promo' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Codes promo
+            </button>
+          </div>
         </div>
+
+        {tab === 'promo' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">Codes promo</h2>
+                <p className="text-xs text-gray-400 mt-0.5">Gérés via Stripe — les réductions apparaissent sur les reçus.</p>
+              </div>
+              <button
+                onClick={() => setShowCreateForm(v => !v)}
+                className="bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors"
+              >
+                + Nouveau code
+              </button>
+            </div>
+
+            {/* Create form */}
+            {showCreateForm && (
+              <form onSubmit={handleCreateCode} className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
+                <h3 className="text-sm font-semibold text-gray-800">Créer un code promo</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Code *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="LAUNCH20"
+                      value={createForm.code}
+                      onChange={e => setCreateForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-violet-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Réduction (%) *</label>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={100}
+                      placeholder="20"
+                      value={createForm.percentOff}
+                      onChange={e => setCreateForm(f => ({ ...f, percentOff: e.target.value }))}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Durée *</label>
+                    <select
+                      value={createForm.duration}
+                      onChange={e => setCreateForm(f => ({ ...f, duration: e.target.value }))}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                    >
+                      <option value="once">Une fois</option>
+                      <option value="repeating">Récurrent (X mois)</option>
+                      <option value="forever">Pour toujours</option>
+                    </select>
+                  </div>
+                  {createForm.duration === 'repeating' && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Nombre de mois *</label>
+                      <input
+                        type="number"
+                        required
+                        min={1}
+                        placeholder="3"
+                        value={createForm.durationMonths}
+                        onChange={e => setCreateForm(f => ({ ...f, durationMonths: e.target.value }))}
+                        className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Max utilisations</label>
+                    <input
+                      type="number"
+                      min={1}
+                      placeholder="Illimité"
+                      value={createForm.maxRedemptions}
+                      onChange={e => setCreateForm(f => ({ ...f, maxRedemptions: e.target.value }))}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Date d&apos;expiration</label>
+                    <input
+                      type="date"
+                      value={createForm.expiresAt}
+                      onChange={e => setCreateForm(f => ({ ...f, expiresAt: e.target.value }))}
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-400"
+                    />
+                  </div>
+                </div>
+                {createError && <p className="text-xs text-red-500">{createError}</p>}
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    {creating ? 'Création…' : 'Créer le code'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowCreateForm(false); setCreateError(''); }}
+                    className="text-sm text-gray-400 hover:text-gray-600 px-4 py-2 rounded-xl hover:bg-gray-100 transition-colors"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Codes table */}
+            <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+              {codesLoading ? (
+                <div className="py-12 text-center text-sm text-gray-400">Chargement…</div>
+              ) : codesError ? (
+                <div className="py-12 text-center text-sm text-red-500">{codesError}</div>
+              ) : codes.length === 0 ? (
+                <div className="py-12 text-center text-sm text-gray-400">Aucun code promo — créez-en un ci-dessus.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-100 bg-gray-50 text-xs text-gray-400 font-medium">
+                        <th className="px-5 py-3 text-left">Code</th>
+                        <th className="px-4 py-3 text-left">Réduction</th>
+                        <th className="px-4 py-3 text-left">Durée</th>
+                        <th className="px-4 py-3 text-left">Utilisations</th>
+                        <th className="px-4 py-3 text-left">Expiration</th>
+                        <th className="px-4 py-3 text-left">Statut</th>
+                        <th className="px-4 py-3 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {codes.map(c => (
+                        <tr key={c.id} className={`hover:bg-gray-50 transition-colors ${!c.active ? 'opacity-50' : ''}`}>
+                          <td className="px-5 py-3 font-mono font-bold text-gray-800 tracking-wider">{c.code}</td>
+                          <td className="px-4 py-3 font-semibold text-violet-700">{c.discountLabel}</td>
+                          <td className="px-4 py-3 text-gray-500 text-xs">{c.durationLabel}</td>
+                          <td className="px-4 py-3 text-gray-500 tabular-nums">
+                            {c.timesRedeemed}{c.maxRedemptions ? ` / ${c.maxRedemptions}` : ''}
+                          </td>
+                          <td className="px-4 py-3 text-gray-400 text-xs">
+                            {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString('fr-CA') : '—'}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${c.active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-400'}`}>
+                              {c.active ? 'Actif' : 'Inactif'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <button
+                              onClick={() => toggleCode(c.id, !c.active)}
+                              disabled={togglingId === c.id}
+                              className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 whitespace-nowrap ${c.active ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-700 hover:bg-green-100'}`}
+                            >
+                              {togglingId === c.id ? '…' : c.active ? 'Désactiver' : 'Réactiver'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'users' && <>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -260,6 +531,8 @@ export default function AdminPage() {
             </table>
           </div>
         </div>
+
+        </>}
       </div>
 
       {/* Magic link modal */}

@@ -9,16 +9,57 @@ interface UpgradeModalProps {
   checkoutTier?: 'essentiel' | 'pro';
 }
 
+interface PromoResult {
+  promotionCodeId: string;
+  couponId: string;
+  summary: string;
+}
+
 export default function UpgradeModal({ reason, onClose }: UpgradeModalProps) {
   const [loading, setLoading] = useState<'essentiel' | 'pro' | null>(null);
+  const [promoOpen, setPromoOpen] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [promoError, setPromoError] = useState('');
+  const [promoApplied, setPromoApplied] = useState<PromoResult | null>(null);
+
+  const applyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setPromoLoading(true);
+    setPromoError('');
+    setPromoApplied(null);
+    try {
+      const res = await fetch('/api/stripe/validate-promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoInput.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.valid) {
+        setPromoError(data.error ?? 'Code invalide ou expiré');
+      } else {
+        setPromoApplied({ promotionCodeId: data.promotionCodeId, couponId: data.couponId, summary: data.summary });
+        setPromoError('');
+      }
+    } catch {
+      setPromoError('Erreur de connexion');
+    } finally {
+      setPromoLoading(false);
+    }
+  };
 
   const handleCheckout = async (tier: 'essentiel' | 'pro') => {
     setLoading(tier);
     try {
+      const body: Record<string, string> = { tier };
+      if (promoApplied) {
+        body.promotionCodeId = promoApplied.promotionCodeId;
+        body.couponId = promoApplied.couponId;
+      }
       const res = await fetch('/api/stripe/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
@@ -86,6 +127,58 @@ export default function UpgradeModal({ reason, onClose }: UpgradeModalProps) {
                 {loading === 'pro' ? 'Redirection…' : 'Choisir →'}
               </span>
             </button>
+          </div>
+
+          {/* Promo code */}
+          <div>
+            {!promoOpen && !promoApplied && (
+              <button
+                onClick={() => setPromoOpen(true)}
+                className="text-xs text-violet-600 hover:text-violet-800 underline underline-offset-2 transition-colors"
+              >
+                Vous avez un code promo ?
+              </button>
+            )}
+
+            {promoApplied && (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
+                <svg className="w-4 h-4 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-xs font-semibold text-green-700 flex-1">{promoApplied.summary}</span>
+                <button
+                  onClick={() => { setPromoApplied(null); setPromoInput(''); setPromoOpen(true); }}
+                  className="text-xs text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {promoOpen && !promoApplied && (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={promoInput}
+                    onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoError(''); }}
+                    onKeyDown={e => e.key === 'Enter' && applyPromo()}
+                    placeholder="CODE PROMO"
+                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-violet-400 tracking-widest"
+                  />
+                  <button
+                    onClick={applyPromo}
+                    disabled={promoLoading || !promoInput.trim()}
+                    className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold rounded-xl transition-colors disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {promoLoading ? '…' : 'Appliquer'}
+                  </button>
+                </div>
+                {promoError && (
+                  <p className="text-xs text-red-500">{promoError}</p>
+                )}
+              </div>
+            )}
           </div>
 
           <button

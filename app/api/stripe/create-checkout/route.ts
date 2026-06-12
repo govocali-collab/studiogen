@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-    const { tier } = await request.json() as { tier: 'essentiel' | 'pro' };
+    const { tier, promotionCodeId, couponId } = await request.json() as { tier: 'essentiel' | 'pro'; promotionCodeId?: string; couponId?: string };
     const priceId = PRICING[tier]?.stripePriceId;
     if (!priceId) return NextResponse.json({ error: 'Plan invalide' }, { status: 400 });
 
@@ -56,11 +56,13 @@ export async function POST(request: NextRequest) {
         // Already on this plan
         return NextResponse.json({ url: `${appUrl}/billing` });
       }
-      const updatedSub = await stripe.subscriptions.update(existingSub.id, {
+      const updateParams: import('stripe').Stripe.SubscriptionUpdateParams = {
         items: [{ id: item.id, price: priceId }],
         proration_behavior: 'always_invoice',
         metadata: { supabase_user_id: user.id, tier },
-      });
+      };
+      if (couponId) updateParams.discounts = [{ coupon: couponId }];
+      const updatedSub = await stripe.subscriptions.update(existingSub.id, updateParams);
 
       // Verify the proration invoice was actually paid before upgrading profile
       const latestInvoiceId = updatedSub.latest_invoice;
@@ -78,7 +80,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: `${appUrl}/billing?activated=1` });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: import('stripe').Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
       client_reference_id: user.id,
       mode: 'subscription',
@@ -90,7 +92,12 @@ export async function POST(request: NextRequest) {
       success_url: `${appUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/billing?canceled=1`,
       locale: 'fr',
-    });
+      allow_promotion_codes: !promotionCodeId,
+    };
+    if (promotionCodeId) {
+      sessionParams.discounts = [{ promotion_code: promotionCodeId }];
+    }
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return NextResponse.json({ url: session.url });
   } catch (err: unknown) {
