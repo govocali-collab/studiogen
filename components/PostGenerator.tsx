@@ -45,10 +45,10 @@ const CONTENT_TYPES: { id: ContentType; label: string }[] = [
   { id: 'promo',             label: 'Promo' },
 ];
 
-const TONES: { id: Tone; label: string }[] = [
-  { id: 'chaleureux',    label: '🌸 Chaleureux' },
-  { id: 'énergique',     label: '⚡ Énergique' },
-  { id: 'professionnel', label: '💎 Pro' },
+const TONES: { id: Tone; label: string; emoji?: string }[] = [
+  { id: 'chaleureux',    label: 'Chaleureux', emoji: '🌸' },
+  { id: 'énergique',     label: 'Énergique',  emoji: '⚡' },
+  { id: 'professionnel', label: 'Pro',         emoji: '💎' },
 ];
 
 const LENGTHS: { id: TextLength; label: string; sub: string }[] = [
@@ -286,9 +286,10 @@ export default function PostGenerator({ isGenerating, posts, onGenerate, onPosts
             <button
               key={t.id}
               onClick={() => setTone(t.id)}
-              className={`flex-1 chip text-center ${!activeBrandVoice && tone === t.id ? 'chip-active' : ''}`}
+              className={`flex-1 chip text-center flex flex-col items-center leading-tight ${!activeBrandVoice && tone === t.id ? 'chip-active' : ''}`}
             >
-              {t.label}
+              {t.emoji && <span className="text-base leading-none mb-0.5">{t.emoji}</span>}
+              <span>{t.label}</span>
             </button>
           ))}
         </div>

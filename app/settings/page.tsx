@@ -686,7 +686,7 @@ function SettingsPageInner() {
                   <div className="mb-5">
                     <label className={labelClass}>Nom de l'entreprise</label>
                     <input type="text" name="business_name" value={form.business_name} onChange={handleChange}
-                      placeholder="ex. Clinique Esthétique Lumière" className={inputClass} />
+                      placeholder="ex. Clinique Dermavia" className={inputClass} />
                   </div>
 
                   <div className="mb-5">
