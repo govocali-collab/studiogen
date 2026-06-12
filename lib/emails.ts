@@ -185,7 +185,7 @@ export async function sendContactNotification({
   const fullName = [from.firstName, from.lastName].filter(Boolean).join(' ') || 'Inconnu';
   await resend.emails.send({
     from: FROM,
-    to: 'formulaire@studiogen.ca',
+    to: 'support@studiogen.ca',
     replyTo: from.email,
     subject: `[StudioGen] ${subject} — ${fullName}`,
     html: baseTemplate(`
