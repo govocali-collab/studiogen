@@ -980,15 +980,6 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
                   ✨ Planifier mon mois
                   <span className="bg-violet-100 text-violet-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full">PRO</span>
                 </button>
-                <Link
-                  href="/studio"
-                  className="ml-auto flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-xl shadow-md shadow-violet-200 transition-colors"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-                  </svg>
-                  Studio
-                </Link>
               </div>
             </div>
             <a href="/billing" className="shrink-0 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap">
