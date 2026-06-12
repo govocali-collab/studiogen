@@ -269,3 +269,52 @@ export async function sendPaymentFailedWarning(email: string) {
     `),
   });
 }
+
+export async function sendTeamInvitation({
+  toEmail,
+  toFirstName,
+  ownerName,
+  workspaceName,
+  token,
+}: {
+  toEmail: string;
+  toFirstName?: string;
+  ownerName: string;
+  workspaceName: string;
+  token: string;
+}) {
+  const greeting = toFirstName ? `Bonjour ${toFirstName} !` : 'Bonjour !';
+  const joinUrl = `${APP_URL}/join/${token}`;
+  await resend.emails.send({
+    from: FROM,
+    to: toEmail,
+    subject: `${ownerName} t'invite à rejoindre ${workspaceName} sur StudioGen`,
+    html: baseTemplate(`
+      <h1 style="margin:0 0 8px;font-size:26px;font-weight:800;color:#0f0a1e">${greeting} 👋</h1>
+      <p style="margin:0 0 24px;font-size:15px;color:#6b7280">
+        <strong style="color:#374151">${ownerName}</strong> t'invite à rejoindre l'espace de travail
+        <strong style="color:#374151">${workspaceName}</strong> sur StudioGen en tant que <strong style="color:#7c3aed">collaborateur·trice</strong>.
+      </p>
+
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf5ff;border-radius:12px;padding:20px;margin-bottom:24px">
+        <tr><td>
+          <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em">Ce que tu pourras faire</p>
+          ${['Créer et générer des publications', 'Utiliser le studio complet', 'Gérer le calendrier de contenu', 'Utiliser les suggestions stratégiques IA'].map(f => `
+          <p style="margin:0 0 6px;font-size:14px;color:#374151">
+            <span style="color:#7c3aed;font-weight:700;margin-right:8px">✓</span>${f}
+          </p>`).join('')}
+        </td></tr>
+      </table>
+
+      <p style="margin:0 0 8px;font-size:14px;color:#6b7280">Clique sur le bouton ci-dessous pour créer ton compte et accepter l'invitation. Ce lien est valide pendant <strong>7 jours</strong>.</p>
+
+      <div style="text-align:center">
+        ${primaryButton(joinUrl, 'Accepter l\'invitation →')}
+      </div>
+
+      <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;border-top:1px solid #f3f4f6;padding-top:24px">
+        Si tu ne connais pas ${ownerName} ou si tu n'attendais pas cette invitation, tu peux ignorer ce courriel.
+      </p>
+    `),
+  });
+}

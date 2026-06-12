@@ -49,6 +49,8 @@ function BillingPageInner() {
     const pollProfile = async (attempt: number) => {
       const d = await fetchProfile();
       const p = d?.profile ?? null;
+      // Collaborators cannot manage billing
+      if (p?.role === 'collaborator') { window.location.href = '/studio'; return; }
       setProfile(p);
       setLoading(false);
       setSyncing(false);

@@ -293,9 +293,23 @@ function SettingsPageInner() {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [tab, setTab] = useState<'profil' | 'ia'>(
-    searchParams.get('tab') === 'ia' ? 'ia' : 'profil'
+  const [tab, setTab] = useState<'profil' | 'ia' | 'equipe'>(
+    searchParams.get('tab') === 'ia' ? 'ia' : searchParams.get('tab') === 'equipe' ? 'equipe' : 'profil'
   );
+
+  const [teamData, setTeamData] = useState<{
+    members: Array<{ id: string; user_id: string; role: string; accepted_at: string; profiles?: { first_name?: string; last_name?: string; email?: string } }>;
+    pending: Array<{ id: string; email: string; first_name: string | null; created_at: string }>;
+    seats: { used: number; total: number };
+  } | null>(null);
+  const [teamLoading, setTeamLoading] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteFirstName, setInviteFirstName] = useState('');
+  const [inviting, setInviting] = useState(false);
+  const [inviteError, setInviteError] = useState('');
+  const [inviteSent, setInviteSent] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<'owner' | 'collaborator'>('owner');
 
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
@@ -362,6 +376,46 @@ function SettingsPageInner() {
 
   const effectiveTier = form.subscription_status === 'trialing' ? 'pro' : form.subscription_tier;
   const isPro = effectiveTier === 'pro';
+
+  const loadTeam = async () => {
+    setTeamLoading(true);
+    const res = await fetch('/api/team');
+    if (res.ok) setTeamData(await res.json());
+    setTeamLoading(false);
+  };
+
+  const handleTabChange = (t: 'profil' | 'ia' | 'equipe') => {
+    setTab(t);
+    if (t === 'equipe' && !teamData) loadTeam();
+  };
+
+  const handleInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviting(true); setInviteError(''); setInviteSent(false);
+    const res = await fetch('/api/team', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: inviteEmail, firstName: inviteFirstName }),
+    });
+    const data = await res.json();
+    if (!res.ok) { setInviteError(data.error ?? 'Erreur'); }
+    else { setInviteSent(true); setInviteEmail(''); setInviteFirstName(''); loadTeam(); }
+    setInviting(false);
+  };
+
+  const handleRemoveMember = async (memberId: string) => {
+    setRemovingId(memberId);
+    await fetch(`/api/team/${memberId}`, { method: 'DELETE' });
+    setRemovingId(null);
+    loadTeam();
+  };
+
+  // Detect collaborator role from /api/me
+  useEffect(() => {
+    fetch('/api/me').then(r => r.json()).then(d => {
+      setUserRole(d?.profile?.role === 'collaborator' ? 'collaborator' : 'owner');
+    }).catch(() => {});
+  }, []);
   const completion = computeCompletion(form);
   const missingItems = COMPLETION_ITEMS.filter(item => !item.check(form)).map(item => item.label);
 
@@ -552,7 +606,7 @@ function SettingsPageInner() {
         <div className="flex gap-1 bg-gray-100 p-1 rounded-xl mb-6 w-fit">
           <button
             type="button"
-            onClick={() => setTab('profil')}
+            onClick={() => handleTabChange('profil')}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
               tab === 'profil' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
@@ -561,13 +615,24 @@ function SettingsPageInner() {
           </button>
           <button
             type="button"
-            onClick={() => setTab('ia')}
+            onClick={() => handleTabChange('ia')}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${
               tab === 'ia' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             ADN de marque IA
           </button>
+          {userRole === 'owner' && (
+            <button
+              type="button"
+              onClick={() => handleTabChange('equipe')}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                tab === 'equipe' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Équipe
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -579,6 +644,150 @@ function SettingsPageInner() {
                 <div className="h-11 bg-gray-100 rounded-xl animate-pulse" />
               </div>
             ))}
+          </div>
+        ) : tab === 'equipe' ? (
+          <div className="space-y-6">
+            {/* Équipe section */}
+            {!isPro ? (
+              /* ── Upsell for Essentiel ── */
+              <div className="bg-white rounded-2xl border border-gray-200 p-6 text-center space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto text-xl">🔒</div>
+                <div>
+                  <h2 className="text-base font-bold text-gray-900 mb-1">Collaboration d&apos;équipe</h2>
+                  <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+                    Disponible avec le plan <strong>Pro</strong>. Invite jusqu&apos;à 3 membres pour gérer ton contenu ensemble.
+                  </p>
+                </div>
+                <div className="flex flex-col items-center gap-1.5 text-sm text-gray-400">
+                  <span>Exemples : réceptionniste · adjointe marketing · gestionnaire réseaux sociaux</span>
+                </div>
+                <Link href="/billing" className="inline-block mt-2 px-6 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 transition-colors">
+                  Passer au Pro →
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* ── Seat counter ── */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-5 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-gray-900">Collaboration d&apos;équipe</h2>
+                    {teamData && (
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {teamData.seats.used} / {teamData.seats.total} utilisateurs
+                      </p>
+                    )}
+                  </div>
+                  {teamData && teamData.seats.used < teamData.seats.total && (
+                    <button
+                      type="button"
+                      onClick={() => setInviteSent(false)}
+                      className="flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3.5 py-2 rounded-xl transition-colors"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      Inviter un collaborateur
+                    </button>
+                  )}
+                </div>
+
+                {/* ── Invite form ── */}
+                {!inviteSent && teamData && teamData.seats.used < teamData.seats.total && (
+                  <form onSubmit={handleInvite} className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+                    <h3 className="text-sm font-semibold text-gray-800">Inviter un collaborateur</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1.5">Prénom <span className="font-normal text-gray-400">(optionnel)</span></label>
+                        <input
+                          type="text"
+                          value={inviteFirstName}
+                          onChange={e => setInviteFirstName(e.target.value)}
+                          placeholder="ex. Sarah"
+                          className="w-full text-sm rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1.5">Courriel <span className="text-red-400">*</span></label>
+                        <input
+                          type="email"
+                          value={inviteEmail}
+                          onChange={e => setInviteEmail(e.target.value)}
+                          required
+                          placeholder="sarah@salon.ca"
+                          className="w-full text-sm rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-400 bg-gray-50 rounded-xl px-3 py-2">
+                      <svg className="w-3.5 h-3.5 shrink-0 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                      </svg>
+                      Rôle : Collaborateur — peut créer du contenu, pas gérer l&apos;abonnement
+                    </div>
+                    {inviteError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{inviteError}</p>}
+                    <button
+                      type="submit"
+                      disabled={inviting}
+                      className="w-full py-2.5 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 transition-colors disabled:opacity-50"
+                    >
+                      {inviting ? 'Envoi…' : 'Envoyer l\'invitation par courriel'}
+                    </button>
+                  </form>
+                )}
+
+                {inviteSent && (
+                  <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 text-sm text-green-700">
+                    <svg className="w-5 h-5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Invitation envoyée ! Ton collaborateur recevra un courriel pour créer son compte.
+                  </div>
+                )}
+
+                {/* ── Members list ── */}
+                {teamLoading ? (
+                  <div className="space-y-3">
+                    {[1, 2].map(i => <div key={i} className="h-14 bg-white rounded-2xl border border-gray-100 animate-pulse" />)}
+                  </div>
+                ) : teamData && (teamData.members.length > 0 || teamData.pending.length > 0) ? (
+                  <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div className="px-5 py-3 border-b border-gray-100">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Membres</span>
+                    </div>
+                    {/* Accepted members */}
+                    {teamData.members.map(m => {
+                      const p = (m as { profiles?: { first_name?: string; last_name?: string; email?: string } }).profiles;
+                      const name = [p?.first_name, p?.last_name].filter(Boolean).join(' ') || p?.email || 'Collaborateur';
+                      return (
+                        <div key={m.id} className="flex items-center justify-between px-5 py-3.5 border-b border-gray-50 last:border-0">
+                          <div>
+                            <p className="text-sm font-medium text-gray-800">{name}</p>
+                            <p className="text-xs text-gray-400">{p?.email} · Collaborateur</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMember(m.id)}
+                            disabled={removingId === m.id}
+                            className="text-xs text-red-400 hover:text-red-600 font-medium transition-colors disabled:opacity-50"
+                          >
+                            {removingId === m.id ? '…' : 'Retirer'}
+                          </button>
+                        </div>
+                      );
+                    })}
+                    {/* Pending invitations */}
+                    {teamData.pending.map(inv => (
+                      <div key={inv.id} className="flex items-center justify-between px-5 py-3.5 border-b border-gray-50 last:border-0">
+                        <div>
+                          <p className="text-sm font-medium text-gray-500">{inv.first_name ? `${inv.first_name} (` : ''}{inv.email}{inv.first_name ? ')' : ''}</p>
+                          <p className="text-xs text-amber-500 font-medium">Invitation en attente</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            )}
           </div>
         ) : tab === 'profil' ? (
           <>

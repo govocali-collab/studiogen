@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getWorkspaceContext } from '@/lib/workspace';
 
-async function getOwnedLogo(userId: string, id: string) {
+async function getWorkspaceLogo(workspaceId: string, id: string) {
   const admin = createAdminClient();
   const { data } = await admin
     .from('user_logos')
-    .select('user_id, storage_path')
+    .select('workspace_id, storage_path')
     .eq('id', id)
     .single();
-  return data?.user_id === userId ? data : null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data as any)?.workspace_id === workspaceId ? data : null;
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -18,7 +20,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const logo = await getOwnedLogo(user.id, id);
+  const { workspaceId } = await getWorkspaceContext(user.id);
+  const logo = await getWorkspaceLogo(workspaceId, id);
   if (!logo) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 });
 
   const contentType = request.headers.get('content-type') ?? '';
@@ -65,7 +68,8 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
-  const logo = await getOwnedLogo(user.id, id);
+  const { workspaceId } = await getWorkspaceContext(user.id);
+  const logo = await getWorkspaceLogo(workspaceId, id);
   if (!logo) return NextResponse.json({ error: 'Non trouvé' }, { status: 404 });
 
   const admin = createAdminClient();

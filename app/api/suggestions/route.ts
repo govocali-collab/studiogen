@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getWorkspaceContext } from '@/lib/workspace';
 
 const ai = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -34,13 +35,14 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
+  const { workspaceId } = await getWorkspaceContext(user.id);
   const admin = createAdminClient();
 
-  // ── Fetch profile ─────────────────────────────────────────────────────────
+  // ── Fetch owner's brand profile ───────────────────────────────────────────
   const { data: profileData } = await admin
     .from('profiles')
     .select('subscription_tier, subscription_status, business_name, service_description, target_audience, brand_voice, services, priority_services, transformation_goals, content_preferences, cta_style, content_language')
-    .eq('id', user.id)
+    .eq('id', workspaceId)
     .single();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,11 +52,11 @@ export async function GET() {
   const isPro = status === 'trialing' || tier === 'pro';
   if (!isPro) return NextResponse.json({ error: 'Plan Pro requis', code: 'PRO_REQUIRED' }, { status: 403 });
 
-  // ── Fetch planned content (calendar) ─────────────────────────────────────
+  // ── Fetch planned content ─────────────────────────────────────────────────
   const { data: plannedData } = await admin
     .from('planned_content')
     .select('content_type, title, suggested_date, status')
-    .eq('user_id', user.id)
+    .eq('workspace_id', workspaceId)
     .order('suggested_date', { ascending: false })
     .limit(30);
 
@@ -62,7 +64,7 @@ export async function GET() {
   const { data: historyData } = await admin
     .from('post_history')
     .select('content_type, created_at')
-    .eq('user_id', user.id)
+    .eq('workspace_id', workspaceId)
     .order('created_at', { ascending: false })
     .limit(20);
 

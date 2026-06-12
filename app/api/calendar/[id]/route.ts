@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getWorkspaceContext } from '@/lib/workspace';
 
-// PATCH /api/calendar/[id] — update scheduled_date
+// PATCH /api/calendar/[id]
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
+  const { workspaceId } = await getWorkspaceContext(user.id);
   const { id } = await params;
   const body = await request.json();
   const { scheduled_date } = body;
@@ -19,7 +21,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .update({ scheduled_date } as any)
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('workspace_id', workspaceId)
     .select()
     .single();
 
@@ -29,23 +31,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
 // DELETE /api/calendar/[id]
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  void request;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
+  const { workspaceId } = await getWorkspaceContext(user.id);
   const { id } = await params;
   const admin = createAdminClient();
 
-  // Fetch post to get image_url for storage cleanup
   const { data: post } = await admin
     .from('calendar_posts')
-    .select('image_url, user_id')
+    .select('image_url')
     .eq('id', id)
-    .eq('user_id', user.id)
+    .eq('workspace_id', workspaceId)
     .single();
 
   if (post?.image_url) {
-    const path = post.image_url.split('/post-images/')[1];
+    const path = (post as { image_url: string }).image_url.split('/post-images/')[1];
     if (path) await supabase.storage.from('post-images').remove([path]);
   }
 
@@ -53,7 +56,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     .from('calendar_posts')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id);
+    .eq('workspace_id', workspaceId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return new NextResponse(null, { status: 204 });

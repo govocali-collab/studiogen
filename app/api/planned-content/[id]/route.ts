@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getWorkspaceContext } from '@/lib/workspace';
 
-// PATCH /api/planned-content/[id] — update status or date
+// PATCH /api/planned-content/[id]
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -12,14 +13,11 @@ export async function PATCH(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
+  const { workspaceId } = await getWorkspaceContext(user.id);
+
   const body = await request.json() as {
-    status?: string;
-    suggested_date?: string;
-    title?: string;
-    objective?: string | null;
-    service_focus?: string | null;
-    tone?: string | null;
-    cta?: string | null;
+    status?: string; suggested_date?: string; title?: string;
+    objective?: string | null; service_focus?: string | null; tone?: string | null; cta?: string | null;
   };
   const updates: Record<string, unknown> = {};
   if (body.status) updates.status = body.status;
@@ -37,11 +35,12 @@ export async function PATCH(
   const admin = createAdminClient();
   const { data: existing } = await admin
     .from('planned_content')
-    .select('user_id')
+    .select('workspace_id')
     .eq('id', id)
     .single();
 
-  if (!existing || (existing as { user_id: string }).user_id !== user.id) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!existing || (existing as any).workspace_id !== workspaceId) {
     return NextResponse.json({ error: 'Non trouvé' }, { status: 404 });
   }
 
@@ -62,14 +61,17 @@ export async function DELETE(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
+  const { workspaceId } = await getWorkspaceContext(user.id);
   const admin = createAdminClient();
+
   const { data: existing } = await admin
     .from('planned_content')
-    .select('user_id')
+    .select('workspace_id')
     .eq('id', id)
     .single();
 
-  if (!existing || (existing as { user_id: string }).user_id !== user.id) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (!existing || (existing as any).workspace_id !== workspaceId) {
     return NextResponse.json({ error: 'Non trouvé' }, { status: 404 });
   }
 

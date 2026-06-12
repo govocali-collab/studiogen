@@ -746,6 +746,7 @@ export default async function LandingPage() {
                   'Planifier ma semaine',
                   'Planifier mon mois',
                   'Suggestions stratégiques automatiques',
+                  'Collaboration d\'équipe',
                 ].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-400">
                     <svg className="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -780,7 +781,7 @@ export default async function LandingPage() {
                   'Suggestions stratégiques automatiques',
                   'Suggestions adaptées à ta saison',
                   'Priorisation automatique des services',
-                  'Contenu ultra personnalisé',
+                  'Collaboration d\'équipe — jusqu\'à 3 utilisateurs',
                 ].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-300">
                     <svg className="w-4 h-4 text-violet-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getTierLimits } from '@/lib/config/tier-limits';
 import { PRICING } from '@/lib/config/pricing';
 import { GeneratePostRequest } from '@/lib/types';
+import { getWorkspaceContext } from '@/lib/workspace';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -236,12 +237,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
   }
 
-  // ── Load profile ─────────────────────────────────────────────────────────
+  // ── Load profile (always owner's profile for brand + limits) ────────────
+  const { workspaceId } = await getWorkspaceContext(user.id);
   const admin = createAdminClient();
   const { data: profileData } = await admin
     .from('profiles')
     .select('subscription_tier, subscription_status, generations_used, trial_generations_used, business_name, website, service_description, city, province, target_audience, brand_voice, services, priority_services, transformation_goals, brand_examples, favorite_phrases, avoid_phrases, content_preferences, cta_style, content_language, created_at')
-    .eq('id', user.id)
+    .eq('id', workspaceId)
     .single();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -435,11 +437,11 @@ ${isEnglish ? 'Return ONLY the JSON with keys "fb" and "ig".' : 'Rappel : retour
     const newUsed = generationsUsed + 1;
     if (status === 'trialing') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: updateError } = await admin.from('profiles').update({ trial_generations_used: newTrialUsed } as any).eq('id', user.id);
+      const { error: updateError } = await admin.from('profiles').update({ trial_generations_used: newTrialUsed } as any).eq('id', workspaceId);
       if (updateError) console.error('[generate-post] trial counter update failed:', updateError);
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: updateError } = await admin.from('profiles').update({ generations_used: newUsed } as any).eq('id', user.id);
+      const { error: updateError } = await admin.from('profiles').update({ generations_used: newUsed } as any).eq('id', workspaceId);
       if (updateError) console.error('[generate-post] counter update failed:', updateError);
     }
 
@@ -448,6 +450,7 @@ ${isEnglish ? 'Return ONLY the JSON with keys "fb" and "ig".' : 'Rappel : retour
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await admin.from('post_history').insert({
         user_id: user.id,
+        workspace_id: workspaceId,
         fb_content: parsed.fb,
         ig_content: parsed.ig || null,
         content_type: contentType,

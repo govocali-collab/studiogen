@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { getWorkspaceContext } from '@/lib/workspace';
 
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
+  const { workspaceId } = await getWorkspaceContext(user.id);
   const admin = createAdminClient();
   const { data, error } = await admin
     .from('user_logos')
     .select('id, name, public_url, remembered_size, remembered_position')
-    .eq('user_id', user.id)
+    .eq('workspace_id', workspaceId)
     .order('created_at', { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -25,6 +27,8 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
+  const { workspaceId } = await getWorkspaceContext(user.id);
+
   const form = await request.formData();
   const imageFile = form.get('image') as File | null;
   const name = (form.get('name') as string) || 'Logo';
@@ -34,7 +38,7 @@ export async function POST(request: NextRequest) {
   }
 
   const ext = imageFile.type === 'image/png' ? 'png' : 'jpg';
-  const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+  const path = `${workspaceId}/${crypto.randomUUID()}.${ext}`;
   const arrayBuffer = await imageFile.arrayBuffer();
 
   const admin = createAdminClient();
@@ -48,7 +52,8 @@ export async function POST(request: NextRequest) {
   const { data: { publicUrl } } = admin.storage.from('logos').getPublicUrl(path);
   const { data, error } = await admin
     .from('user_logos')
-    .insert({ user_id: user.id, name, storage_path: path, public_url: publicUrl })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert({ user_id: user.id, workspace_id: workspaceId, name, storage_path: path, public_url: publicUrl } as any)
     .select('id, name, public_url, remembered_size, remembered_position')
     .single();
 
