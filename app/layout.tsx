@@ -65,6 +65,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://studiogen.ca',
   },
+  appleWebApp: {
+    title: 'StudioGen',
+    statusBarStyle: 'default',
+    capable: true,
+  },
   openGraph: {
     siteName: 'StudioGen',
     locale: 'fr_CA',
