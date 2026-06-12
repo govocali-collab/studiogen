@@ -270,6 +270,7 @@ export default async function LandingPage() {
         {/* App preview mockup */}
         <div className="relative max-w-5xl mx-auto mt-16 hidden sm:block">
           <div className="bg-white rounded-3xl shadow-2xl shadow-violet-100 border border-gray-200 overflow-hidden">
+            {/* Browser chrome */}
             <div className="bg-gray-50 border-b border-gray-200 px-4 py-3 flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-400" />
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
@@ -278,57 +279,180 @@ export default async function LandingPage() {
                 app.studiogen.ca/studio
               </div>
             </div>
-            <div className="bg-gray-50 p-6">
-              <div className="grid grid-cols-3 gap-4">
+
+            {/* Nav bar */}
+            <div className="bg-white border-b border-gray-100 px-5 py-2.5 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 bg-violet-600 rounded-lg" />
+                <span className="text-xs font-bold text-gray-800">StudioGen</span>
+                <span className="text-[10px] text-gray-400 ml-1">par Astrova</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="bg-violet-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">⚡ PRO</div>
+                <div className="bg-violet-600 text-white text-[10px] font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1">
+                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  Calendrier
+                </div>
+              </div>
+            </div>
+
+            {/* Studio body */}
+            <div className="bg-gray-50 p-4">
+              <div className="grid grid-cols-[200px_1fr_240px] gap-3">
+
+                {/* Col 1 — Format + Mise en page */}
                 <div className="space-y-3">
+                  {/* Format */}
                   <div className="bg-white rounded-xl border border-gray-200 p-3">
-                    <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Format</div>
+                    <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Format</div>
                     <div className="flex gap-1.5">
-                      {['1:1','4:5','16:9'].map((f, i) => (
-                        <div key={f} className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium text-center ${i === 0 ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-500'}`}>{f}</div>
+                      {[
+                        { label: 'Carré 1:1', w: 'w-8', h: 'h-8' },
+                        { label: 'Portrait 4:5', w: 'w-6', h: 'h-8' },
+                        { label: 'Story 9:16', w: 'w-4', h: 'h-8' },
+                      ].map((f, i) => (
+                        <div key={f.label} className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg border ${i === 0 ? 'border-violet-500 bg-violet-50' : 'border-gray-200 bg-white'}`}>
+                          <div className={`${f.w} ${f.h} rounded-sm ${i === 0 ? 'bg-violet-600' : 'bg-gray-200'}`} />
+                          <span className={`text-[8px] font-semibold leading-none text-center ${i === 0 ? 'text-violet-700' : 'text-gray-400'}`}>{f.label}</span>
+                        </div>
                       ))}
                     </div>
                   </div>
+                  {/* Mise en page */}
                   <div className="bg-white rounded-xl border border-gray-200 p-3">
-                    <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Mise en page</div>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {[...Array(4)].map((_, i) => (
-                        <div key={i} className={`h-10 rounded-lg ${i === 0 ? 'bg-violet-600' : 'bg-gray-100'}`} />
+                    <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">Mise en page</div>
+                    <div className="grid grid-cols-4 gap-1">
+                      {[
+                        { bg: 'bg-violet-600' },
+                        { lines: 2 },
+                        { lines: 3 },
+                        { lines: 4 },
+                        { grid: '2x2' },
+                        { grid: '2x3' },
+                        { hero: true },
+                        { grid: '3x3' },
+                      ].map((layout, i) => (
+                        <div key={i} className={`h-8 rounded-lg overflow-hidden border ${i === 0 ? 'border-violet-400' : 'border-gray-100'} ${layout.bg ?? 'bg-gray-50'} flex flex-col justify-center items-center gap-0.5 p-1`}>
+                          {layout.lines && [...Array(layout.lines)].map((_, j) => (
+                            <div key={j} className="w-full h-px bg-gray-300" />
+                          ))}
+                          {layout.grid === '2x2' && <div className="grid grid-cols-2 gap-px w-full h-full"><div className="bg-gray-200 rounded-sm" /><div className="bg-gray-200 rounded-sm" /><div className="bg-gray-200 rounded-sm" /><div className="bg-gray-200 rounded-sm" /></div>}
+                          {layout.grid === '2x3' && <div className="grid grid-cols-3 gap-px w-full h-full"><div className="col-span-2 bg-gray-200 rounded-sm" /><div className="bg-gray-200 rounded-sm" /><div className="bg-gray-200 rounded-sm" /><div className="col-span-2 bg-gray-200 rounded-sm" /></div>}
+                          {layout.hero && <div className="grid grid-rows-2 gap-px w-full h-full"><div className="bg-gray-200 rounded-sm" /><div className="grid grid-cols-3 gap-px"><div className="bg-gray-200 rounded-sm" /><div className="bg-gray-200 rounded-sm" /><div className="bg-gray-200 rounded-sm" /></div></div>}
+                          {layout.grid === '3x3' && <div className="grid grid-cols-3 gap-px w-full h-full">{[...Array(9)].map((_, k) => <div key={k} className="bg-gray-200 rounded-sm" />)}</div>}
+                        </div>
                       ))}
                     </div>
                   </div>
                 </div>
+
+                {/* Col 2 — Photos + Aperçu */}
                 <div className="space-y-3">
+                  {/* Photos */}
                   <div className="bg-white rounded-xl border border-gray-200 p-3">
-                    <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-2">Photos</div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {['bg-violet-200','bg-fuchsia-200','bg-pink-200'].map((c) => (
-                        <div key={c} className={`${c} rounded-lg h-12`} />
-                      ))}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Photos</div>
+                      <div className="text-[9px] text-gray-400">0/6</div>
+                    </div>
+                    <div className="border-2 border-dashed border-gray-200 rounded-lg py-3 flex flex-col items-center gap-1">
+                      <svg className="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      <div className="text-[9px] font-semibold text-gray-500">Glissez vos photos ici</div>
+                      <div className="text-[8px] text-gray-400">JPG, PNG, WebP</div>
                     </div>
                   </div>
-                  <div className="bg-white rounded-xl border border-gray-200 p-3 aspect-square flex items-center justify-center">
-                    <div className="w-full aspect-square rounded-xl bg-gradient-to-br from-violet-200 via-fuchsia-100 to-pink-200" />
-                  </div>
-                </div>
-                <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
-                  <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Publication IA</div>
-                  <div className="space-y-1.5">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className={`h-2 rounded bg-gray-100 ${i === 4 ? 'w-2/3' : 'w-full'}`} />
-                    ))}
-                  </div>
-                  <div className="pt-1 space-y-1.5">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className={`h-2 rounded bg-gray-100 ${i === 2 ? 'w-1/2' : 'w-full'}`} />
-                    ))}
-                  </div>
-                  <div className="pt-2">
-                    <div className="bg-violet-600 rounded-lg py-2 text-[10px] text-white font-semibold text-center">
-                      ⚡ Générer le contenu
+                  {/* Aperçu */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Aperçu</div>
+                      <div className="flex items-center gap-1.5">
+                        <div className="text-[8px] text-gray-400">1080 × 1080 px</div>
+                        <div className="bg-violet-50 border border-violet-200 text-violet-700 text-[8px] font-semibold px-2 py-0.5 rounded-lg flex items-center gap-0.5">
+                          <span>+</span> Texte
+                        </div>
+                        <div className="bg-violet-600 text-white text-[8px] font-semibold px-2 py-0.5 rounded-lg">⬇ Télécharger</div>
+                      </div>
+                    </div>
+                    <div className="aspect-square rounded-xl bg-gradient-to-br from-violet-100 via-fuchsia-50 to-pink-100 flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="text-[10px] text-gray-400 font-medium">Ajoutez des photos</div>
+                        <div className="text-[9px] text-gray-300">pour créer votre collage</div>
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Col 3 — Logo + Générer */}
+                <div className="space-y-3">
+                  {/* Logo */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Logo</div>
+                      <div className="text-[9px] font-semibold text-violet-600">+ Ajouter</div>
+                    </div>
+                    <div className="border-2 border-violet-500 bg-violet-50 rounded-lg px-2.5 py-2 flex items-center gap-2">
+                      <span className="text-[10px] text-gray-400">∅</span>
+                      <span className="text-[10px] font-medium text-violet-700 flex-1">Sans logo</span>
+                      <div className="w-3.5 h-3.5 bg-violet-600 rounded-full flex items-center justify-center">
+                        <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Générer */}
+                  <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2.5">
+                    <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Générer les publications</div>
+
+                    <div>
+                      <div className="text-[9px] font-semibold text-gray-600 mb-1.5">Type de contenu</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {['Formation','Résultats','Produit','Engagement','Éducatif','Promo'].map((t, i) => (
+                          <div key={t} className={`text-center text-[8px] font-semibold py-1 rounded-lg border ${i === 1 ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-gray-600 border-gray-200'}`}>{t}</div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-[9px] font-semibold text-gray-600 mb-1.5">Ton</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {[
+                          { label: 'Chaleureux', icon: '🌸' },
+                          { label: 'Énergique', icon: '⚡' },
+                          { label: 'Pro', icon: '💎' },
+                        ].map((t, i) => (
+                          <div key={t.label} className={`flex flex-col items-center py-1.5 rounded-lg border text-[7px] font-semibold ${i === 0 ? 'border-violet-300 bg-violet-50 text-violet-700' : 'border-gray-200 bg-white text-gray-500'}`}>
+                            <span className="text-base leading-none mb-0.5">{t.icon}</span>
+                            {t.label}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-[9px] font-semibold text-gray-600 mb-1.5">Longueur</div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {[
+                          { label: 'Court', sub: '~75 mots' },
+                          { label: 'Moyen', sub: '~180 mots' },
+                          { label: 'Long', sub: '~350 mots' },
+                        ].map((l, i) => (
+                          <div key={l.label} className={`text-center py-1.5 rounded-lg border ${i === 1 ? 'bg-violet-600 text-white border-violet-600' : 'bg-white text-gray-600 border-gray-200'}`}>
+                            <div className="text-[8px] font-bold leading-none">{l.label}</div>
+                            <div className={`text-[7px] mt-0.5 ${i === 1 ? 'text-violet-200' : 'text-gray-400'}`}>{l.sub}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg px-2.5 py-2 h-10 flex items-start">
+                      <span className="text-[8px] text-gray-400">Ex. : Nouveau soin visage au collagène…</span>
+                    </div>
+
+                    <div className="bg-violet-600 rounded-xl py-2.5 text-center text-[9px] text-white font-bold">
+                      ✦ Générer les publications
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
