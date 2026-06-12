@@ -621,20 +621,21 @@ function SettingsPageInner() {
             </div>
           </>
         ) : (
-          <div className="relative">
+          <div>
             {!isPro && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-center p-8 bg-white/75 backdrop-blur-sm rounded-2xl">
-                <div className="text-4xl">💎</div>
-                <p className="font-bold text-gray-900 text-lg">Fonctionnalité Pro</p>
-                <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
-                  Le profil de marque IA est réservé au plan Pro. Passez au Pro pour personnaliser votre voix de marque et générer du contenu ultra-ciblé.
-                </p>
-                <a href="/billing" className="inline-block bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors">
-                  Passer au plan Pro →
+              <div className="mb-4 rounded-2xl bg-gradient-to-r from-violet-600 to-purple-700 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex-1">
+                  <p className="font-bold text-white text-sm">💎 Profil de marque IA — Plan Pro requis</p>
+                  <p className="text-violet-200 text-xs mt-1 leading-relaxed">
+                    Voyez tout ce que vous pourriez personnaliser. Passez au Pro pour activer ces fonctionnalités et générer du contenu parfaitement adapté à votre clinique.
+                  </p>
+                </div>
+                <a href="/billing" className="shrink-0 bg-white text-violet-700 font-semibold text-sm px-4 py-2 rounded-xl hover:bg-violet-50 transition-colors whitespace-nowrap">
+                  Passer au Pro →
                 </a>
               </div>
             )}
-          <div className={!isPro ? 'pointer-events-none select-none' : ''}>
+          <div className={!isPro ? 'pointer-events-none opacity-50' : ''}>
             {/* ── Onglet IA ── */}
 
             {/* Profile completion card */}
