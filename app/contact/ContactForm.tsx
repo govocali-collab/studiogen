@@ -20,7 +20,12 @@ const SUBJECTS = [
 const MAX_FILES = 3;
 const MAX_FILE_MB = 5;
 
+const inputCls = 'w-full text-sm rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-400 placeholder-gray-300 text-gray-800';
+
 export default function ContactForm({ profile }: { profile: Profile }) {
+  const [firstName, setFirstName] = useState(profile.first_name ?? '');
+  const [lastName, setLastName] = useState(profile.last_name ?? '');
+  const [businessName, setBusinessName] = useState(profile.business_name ?? '');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [files, setFiles] = useState<File[]>([]);
@@ -28,7 +33,6 @@ export default function ContactForm({ profile }: { profile: Profile }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
-  // Honeypot — must stay empty
   const [hp, setHp] = useState('');
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,12 +51,15 @@ export default function ContactForm({ profile }: { profile: Profile }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (hp) return; // bot trap
+    if (hp) return;
     if (!subject || !message.trim()) { setError('Remplis tous les champs obligatoires.'); return; }
     setSending(true);
     setError('');
 
     const fd = new FormData();
+    fd.append('firstName', firstName.trim());
+    fd.append('lastName', lastName.trim());
+    fd.append('businessName', businessName.trim());
     fd.append('subject', subject);
     fd.append('message', message.trim());
     files.forEach(f => fd.append('files', f));
@@ -61,7 +68,7 @@ export default function ContactForm({ profile }: { profile: Profile }) {
       const res = await fetch('/api/contact', { method: 'POST', body: fd });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? 'Erreur lors de l\'envoi. Réessaie dans quelques instants.');
+        setError(data.error ?? "Erreur lors de l'envoi. Réessaie dans quelques instants.");
       } else {
         setSent(true);
       }
@@ -97,34 +104,56 @@ export default function ContactForm({ profile }: { profile: Profile }) {
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 space-y-5">
 
-      {/* Honeypot — hidden from real users */}
+      {/* Honeypot */}
       <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }} aria-hidden="true">
         <input tabIndex={-1} autoComplete="off" value={hp} onChange={e => setHp(e.target.value)} />
       </div>
 
-      {/* Pre-filled info */}
+      {/* Nom / Prénom */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1.5">Prénom</label>
-          <div className="px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm text-gray-500">{profile.first_name ?? '—'}</div>
+          <label className="block text-xs font-semibold text-gray-700 mb-1.5">Prénom</label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={e => setFirstName(e.target.value)}
+            placeholder="ex. Marie"
+            className={inputCls}
+          />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-500 mb-1.5">Nom</label>
-          <div className="px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm text-gray-500">{profile.last_name ?? '—'}</div>
+          <label className="block text-xs font-semibold text-gray-700 mb-1.5">Nom</label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={e => setLastName(e.target.value)}
+            placeholder="ex. Tremblay"
+            className={inputCls}
+          />
         </div>
       </div>
 
+      {/* Entreprise */}
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1.5">Entreprise</label>
-        <div className="px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm text-gray-500">{profile.business_name ?? '—'}</div>
+        <label className="block text-xs font-semibold text-gray-700 mb-1.5">Entreprise <span className="text-gray-400 font-normal">(optionnel)</span></label>
+        <input
+          type="text"
+          value={businessName}
+          onChange={e => setBusinessName(e.target.value)}
+          placeholder="ex. Salon Belle Vue"
+          className={inputCls}
+        />
       </div>
 
+      {/* Courriel — lecture seule, c'est l'adresse de réponse */}
       <div>
-        <label className="block text-xs font-semibold text-gray-500 mb-1.5">Courriel</label>
-        <div className="px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm text-gray-500">{profile.email}</div>
+        <label className="block text-xs font-semibold text-gray-700 mb-1.5">Courriel</label>
+        <div className="px-3 py-2.5 rounded-xl bg-gray-50 border border-gray-100 text-sm text-gray-500 select-all">
+          {profile.email}
+        </div>
       </div>
 
-      {/* Editable fields */}
+      {/* Sujet */}
       <div>
         <label className="block text-xs font-semibold text-gray-700 mb-1.5">
           Sujet <span className="text-red-400">*</span>
@@ -133,13 +162,14 @@ export default function ContactForm({ profile }: { profile: Profile }) {
           value={subject}
           onChange={e => setSubject(e.target.value)}
           required
-          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 bg-white"
+          className={`${inputCls} bg-white`}
         >
           <option value="">Sélectionne un sujet…</option>
           {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
 
+      {/* Message */}
       <div>
         <label className="block text-xs font-semibold text-gray-700 mb-1.5">
           Message <span className="text-red-400">*</span>
@@ -150,11 +180,11 @@ export default function ContactForm({ profile }: { profile: Profile }) {
           required
           rows={5}
           placeholder="Décris ta question ou ton problème en détail…"
-          className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none placeholder-gray-300"
+          className={`${inputCls} resize-none`}
         />
       </div>
 
-      {/* File attachments */}
+      {/* Captures d'écran */}
       <div>
         <label className="block text-xs font-semibold text-gray-700 mb-1.5">
           Captures d&apos;écran <span className="text-gray-400 font-normal">(optionnel · max {MAX_FILES} images · {MAX_FILE_MB} Mo chacune)</span>
@@ -171,14 +201,7 @@ export default function ContactForm({ profile }: { profile: Profile }) {
             Ajouter une image
           </button>
         )}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={handleFiles}
-        />
+        <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
         {files.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {files.map((f, i) => (

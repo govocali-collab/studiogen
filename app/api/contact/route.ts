@@ -40,6 +40,9 @@ export async function POST(request: NextRequest) {
 
     const subject = (formData.get('subject') as string | null)?.trim();
     const message = (formData.get('message') as string | null)?.trim();
+    const firstName = (formData.get('firstName') as string | null)?.trim() ?? '';
+    const lastName = (formData.get('lastName') as string | null)?.trim() ?? '';
+    const businessName = (formData.get('businessName') as string | null)?.trim() ?? '';
 
     if (!subject || !message) {
       return NextResponse.json({ error: 'Sujet et message requis.' }, { status: 400 });
@@ -47,19 +50,6 @@ export async function POST(request: NextRequest) {
     if (message.length > 5000) {
       return NextResponse.json({ error: 'Message trop long (max 5000 caractères).' }, { status: 400 });
     }
-
-    // Fetch profile
-    const admin = createAdminClient();
-    const { data: profileRaw } = await admin
-      .from('profiles')
-      .select('first_name, last_name, business_name')
-      .eq('id', user.id)
-      .single();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const p = profileRaw as any;
-    const firstName = (p?.first_name as string | null) ?? '';
-    const lastName = (p?.last_name as string | null) ?? '';
-    const businessName = (p?.business_name as string | null) ?? '';
 
     // Process attachments
     interface Attachment { filename: string; content: Buffer; content_type: string; }
