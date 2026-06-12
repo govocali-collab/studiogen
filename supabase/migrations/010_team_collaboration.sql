@@ -47,6 +47,10 @@ UPDATE planned_content SET workspace_id = user_id WHERE workspace_id IS NULL;
 UPDATE calendar_posts  SET workspace_id = user_id WHERE workspace_id IS NULL;
 UPDATE user_logos      SET workspace_id = user_id WHERE workspace_id IS NULL;
 
+-- ── Permissions ──────────────────────────────────────────────────────────────
+GRANT ALL ON TABLE public.team_invitations TO postgres, anon, authenticated, service_role;
+GRANT ALL ON TABLE public.workspace_users  TO postgres, anon, authenticated, service_role;
+
 -- ── Indexes ─────────────────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_post_history_workspace    ON post_history(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_planned_content_workspace ON planned_content(workspace_id);
