@@ -4,14 +4,24 @@ import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: 'StudioGen - Le système de contenu IA pour les professionnels de la beauté du Québec',
-  description: 'StudioGen planifie votre contenu, génère vos publications et s\'adapte à votre entreprise grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec. Essai gratuit 7 jours.',
+  title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
+  description:
+    'StudioGen génère automatiquement vos publications Facebook et Instagram en français québécois grâce à votre ADN de marque IA. Économisez 10 h/semaine. Essai gratuit 7 jours, aucune carte requise.',
+  keywords: [
+    'publications réseaux sociaux Québec',
+    'intelligence artificielle marketing beauté',
+    'contenu Facebook Instagram esthéticienne',
+    'ADN de marque IA',
+    'planification contenu automatique',
+    'logiciel marketing salon beauté Québec',
+  ],
   alternates: {
     canonical: 'https://studiogen.ca',
   },
   openGraph: {
     title: 'Récupérez jusqu\'à 10 heures par semaine sur vos réseaux sociaux',
-    description: 'StudioGen planifie votre contenu, génère vos publications et s\'adapte à votre entreprise grâce à votre ADN de marque IA.',
+    description:
+      'StudioGen génère vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
     url: 'https://studiogen.ca',
     siteName: 'StudioGen',
     locale: 'fr_CA',
@@ -20,7 +30,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Récupérez jusqu\'à 10 heures par semaine sur vos réseaux sociaux',
-    description: 'StudioGen planifie votre contenu, génère vos publications et s\'adapte à votre entreprise grâce à votre ADN de marque IA.',
+    description:
+      'StudioGen génère vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
   },
 };
 
@@ -114,39 +125,60 @@ const faqLd = {
   })),
 };
 
-const jsonLd = {
+const softwareLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
   name: 'StudioGen',
   applicationCategory: 'BusinessApplication',
-  operatingSystem: 'Web',
+  applicationSubCategory: 'Social Media Marketing',
+  operatingSystem: 'Web, iOS, Android',
   url: 'https://studiogen.ca',
-  description: 'Le système de contenu IA conçu pour les professionnels de la beauté du Québec. Planification automatique, ADN de marque IA, publications Facebook et Instagram en français québécois.',
-  offers: [
-    { '@type': 'Offer', name: 'Essentiel', price: '57', priceCurrency: 'CAD', billingIncrement: 'P1M' },
-    { '@type': 'Offer', name: 'Pro', price: '127', priceCurrency: 'CAD', billingIncrement: 'P1M' },
-  ],
-  publisher: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
-};
-
-const localBusinessLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: 'StudioGen',
-  url: 'https://studiogen.ca',
-  applicationCategory: 'BusinessApplication',
-  availableOnDevice: 'Desktop, Mobile',
   inLanguage: 'fr-CA',
-  areaServed: {
-    '@type': 'Country',
-    name: 'Canada',
-    containsPlace: { '@type': 'AdministrativeArea', name: 'Québec' },
-  },
+  description:
+    'Le système de contenu IA conçu pour les professionnels de la beauté du Québec. Planification automatique, ADN de marque IA, publications Facebook et Instagram en français québécois.',
+  featureList: [
+    'ADN de marque IA personnalisé',
+    'Génération de publications Facebook et Instagram',
+    'Calendrier de contenu mensuel',
+    'Planification automatique IA (semaine / mois)',
+    'Collages photo professionnels',
+    'Rédaction en français québécois',
+  ],
+  availableOnDevice: 'Desktop, Mobile',
+  areaServed: { '@type': 'AdministrativeArea', name: 'Québec, Canada' },
   audience: {
     '@type': 'BusinessAudience',
     audienceType: 'Professionnels de la beauté',
     geographicArea: { '@type': 'AdministrativeArea', name: 'Québec, Canada' },
   },
+  offers: [
+    {
+      '@type': 'Offer',
+      name: 'Essai gratuit',
+      price: '0.00',
+      priceCurrency: 'CAD',
+      description: "7 jours d'essai gratuit, 7 publications, aucune carte de crédit requise.",
+      eligibleDuration: { '@type': 'QuantitativeValue', value: 7, unitCode: 'DAY' },
+    },
+    {
+      '@type': 'Offer',
+      name: 'Essentiel',
+      price: '57.00',
+      priceCurrency: 'CAD',
+      description: '20 publications par mois, ADN de marque IA complet, calendrier de contenu, Facebook + Instagram.',
+      eligibleQuantity: { '@type': 'QuantitativeValue', value: 20, unitText: 'publications/mois' },
+    },
+    {
+      '@type': 'Offer',
+      name: 'Pro',
+      price: '127.00',
+      priceCurrency: 'CAD',
+      description: '150 publications par mois, planification IA automatique de semaines et mois, suggestions stratégiques, support prioritaire.',
+      eligibleQuantity: { '@type': 'QuantitativeValue', value: 150, unitText: 'publications/mois' },
+    },
+  ],
+  brand: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
+  publisher: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
 };
 
 export default async function LandingPage() {
@@ -155,8 +187,7 @@ export default async function LandingPage() {
   const isActive = !!session?.user;
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
@@ -173,11 +204,8 @@ export default async function LandingPage() {
                 <Link href="/auth/login" className="hidden sm:inline text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors px-3 py-1.5">
                   Connexion
                 </Link>
-                <Link href="/auth/signup" className="hidden sm:inline text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
+                <Link href="/auth/signup" className="text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
                   Essai gratuit →
-                </Link>
-                <Link href="/auth/login" className="sm:hidden text-sm font-semibold bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl transition-colors">
-                  Connexion
                 </Link>
               </>
             )}
@@ -477,7 +505,7 @@ export default async function LandingPage() {
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-            <div className="grid grid-cols-3 text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest border-b border-gray-100">
+            <div className="grid grid-cols-[3fr_1fr_1fr] text-center text-[10px] sm:text-xs font-bold uppercase tracking-widest border-b border-gray-100">
               <div className="py-3 sm:py-4 px-3 sm:px-4 text-left text-gray-500">Fonctionnalité</div>
               <div className="py-3 sm:py-4 px-3 sm:px-4 bg-violet-600 text-white">StudioGen</div>
               <div className="py-3 sm:py-4 px-3 sm:px-4 text-gray-500">Canva</div>
@@ -485,7 +513,7 @@ export default async function LandingPage() {
             {comparisonRows.map((row, i) => (
               <div
                 key={row.label}
-                className={`grid grid-cols-3 text-center text-xs sm:text-sm items-center ${i < comparisonRows.length - 1 ? 'border-b border-gray-100' : ''}`}
+                className={`grid grid-cols-[3fr_1fr_1fr] text-center text-xs sm:text-sm items-center ${i < comparisonRows.length - 1 ? 'border-b border-gray-100' : ''}`}
               >
                 <div className="py-3 sm:py-3.5 px-3 sm:px-4 text-left text-gray-600 leading-snug">{row.label}</div>
                 <div className="py-3 sm:py-3.5 px-3 sm:px-4 bg-violet-50">

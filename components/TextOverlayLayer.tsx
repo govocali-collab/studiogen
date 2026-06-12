@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { TextOverlay } from '@/lib/types';
 
+const SNAP_THRESHOLD = 0.03; // 3% of canvas dimension — distance to snap to center
+
 export const OVERLAY_FONTS: { label: string; value: string; css: string }[] = [
   { label: 'Helvetica',  value: 'Helvetica Neue',      css: '"Helvetica Neue", Helvetica, Arial, sans-serif' },
   { label: 'Arial',      value: 'Arial',               css: 'Arial, sans-serif' },
@@ -32,6 +34,8 @@ export default function TextOverlayLayer({ overlays, onChange, canvasWidth, disp
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   useEffect(() => { setIsTouchDevice('ontouchstart' in window); }, []);
+
+  const [snapGuides, setSnapGuides] = useState<{ x: boolean; y: boolean }>({ x: false, y: false });
 
   const overlaysRef = useRef(overlays);
   useEffect(() => { overlaysRef.current = overlays; }, [overlays]);
@@ -75,14 +79,19 @@ export default function TextOverlayLayer({ overlays, onChange, canvasWidth, disp
       const { id, sx, sy, ox, oy } = dragRef.current;
       const w = displayWRef.current || 1;
       const h = displayHRef.current || 1;
+      const rawX = ox + (cx - sx) / w;
+      const rawY = oy + (cy - sy) / h;
+      const snapX = Math.abs(rawX - 0.5) < SNAP_THRESHOLD;
+      const snapY = Math.abs(rawY - 0.5) < SNAP_THRESHOLD;
+      setSnapGuides({ x: snapX, y: snapY });
       update(id, {
-        x: Math.max(0.02, Math.min(0.98, ox + (cx - sx) / w)),
-        y: Math.max(0.01, Math.min(0.9, oy + (cy - sy) / h)),
+        x: Math.max(0.02, Math.min(0.98, snapX ? 0.5 : rawX)),
+        y: Math.max(0.01, Math.min(0.9, snapY ? 0.5 : rawY)),
       });
     };
     const mouseMove = (e: MouseEvent) => onMove(e.clientX, e.clientY);
     const touchMove = (e: TouchEvent) => { if (!dragRef.current) return; e.preventDefault(); onMove(e.touches[0].clientX, e.touches[0].clientY); };
-    const end = () => { dragRef.current = null; };
+    const end = () => { dragRef.current = null; setSnapGuides({ x: false, y: false }); };
     window.addEventListener('mousemove', mouseMove);
     window.addEventListener('mouseup', end);
     window.addEventListener('touchmove', touchMove, { passive: false });
@@ -194,6 +203,20 @@ export default function TextOverlayLayer({ overlays, onChange, canvasWidth, disp
       className="absolute inset-0"
       style={{ pointerEvents: 'none' }}
     >
+      {/* ── Snap guides ── */}
+      {snapGuides.x && (
+        <div
+          className="absolute top-0 bottom-0 pointer-events-none"
+          style={{ left: '50%', width: 1, background: 'rgba(124,58,237,0.65)', transform: 'translateX(-0.5px)', zIndex: 50 }}
+        />
+      )}
+      {snapGuides.y && (
+        <div
+          className="absolute left-0 right-0 pointer-events-none"
+          style={{ top: '50%', height: 1, background: 'rgba(124,58,237,0.65)', transform: 'translateY(-0.5px)', zIndex: 50 }}
+        />
+      )}
+
       {overlays.map(ov => {
         const isSelected = ov.id === selectedId;
         const isEditing = ov.id === editingId;
@@ -206,7 +229,17 @@ export default function TextOverlayLayer({ overlays, onChange, canvasWidth, disp
           <div
             key={ov.id}
             className="absolute"
-            style={{ left: `${ov.x * 100}%`, top: `${ov.y * 100}%`, zIndex: isSelected ? 30 : 20, pointerEvents: 'auto' }}
+            style={{
+              left: `${ov.x * 100}%`,
+              top: `${ov.y * 100}%`,
+              zIndex: isSelected ? 30 : 20,
+              pointerEvents: 'auto',
+              transform: align === 'center'
+                ? 'translateX(-50%)'
+                : align === 'right'
+                ? 'translateX(-100%)'
+                : 'none',
+            }}
           >
             {/* ── Toolbar ── */}
             {isSelected && (

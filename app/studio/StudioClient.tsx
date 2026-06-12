@@ -545,7 +545,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                     ? "Essai terminé. Active ton plan."
                     : displayGenInfo.used >= trialLimitNum
                     ? "Limite atteinte. Active ton plan."
-                    : `Essai gratuit · ${displayGenInfo.used}/${trialLimitNum} génér. · ${displayGenInfo.daysLeftInTrial ?? 7}j`}
+                    : `Essai gratuit · ${displayGenInfo.used}/${trialLimitNum} publications · ${displayGenInfo.daysLeftInTrial ?? 7} jours`}
                 </span>
               </div>
               <button
@@ -562,7 +562,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
         {/* Desktop: Calendrier flotte à droite au-dessus de la grille */}
         {effectiveTier === 'pro' && (
           <div className="hidden lg:flex justify-end lg:-mb-8 lg:relative lg:z-10">
-            <Link href="/calendrier" className="flex items-center gap-1.5 text-xs font-semibold bg-white border border-gray-200 hover:border-violet-400 hover:text-violet-700 text-gray-600 px-3 py-1.5 rounded-xl shadow-sm transition-colors">
+            <Link href="/calendrier" className="flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-xl shadow-md shadow-violet-200 transition-colors">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -578,7 +578,7 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
             <div className="px-1 flex items-center justify-between gap-2">
               <BillingBadge profile={profile} />
               {effectiveTier === 'pro' && (
-                <Link href="/calendrier" className="lg:hidden flex items-center gap-1.5 text-xs font-semibold bg-white border border-gray-200 hover:border-violet-400 hover:text-violet-700 text-gray-600 px-3 py-1.5 rounded-xl shadow-sm transition-colors shrink-0">
+                <Link href="/calendrier" className="lg:hidden flex items-center gap-1.5 text-xs font-semibold bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-xl shadow-md shadow-violet-200 transition-colors shrink-0">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>

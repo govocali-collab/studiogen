@@ -1,44 +1,107 @@
 # StudioGen
 
-> StudioGen est un outil d'intelligence artificielle qui crée automatiquement des publications Facebook et Instagram pour les professionnels de la beauté au Québec — montages photo et textes en français québécois en moins de 2 minutes.
-
-## Ce que fait StudioGen
-
-- Génère des publications Facebook et Instagram en moins de 2 minutes
-- Crée des montages photo professionnels à partir de vos photos
-- Rédige des textes en français québécois adaptés à votre marque et à votre clientèle
-- Planifie les publications avec un calendrier de contenu mensuel
-- Mémorise votre ton, vos services et votre style pour personnaliser chaque publication
-
-## Pour qui
-
-Professionnels de la beauté au Québec : esthéticiennes, coiffeuses, spécialistes en épilation laser, cliniques esthétiques et médico-esthétiques, salons de beauté, instituts de soins.
-
-## Résultats mesurables
-
-- Économie de 10 heures par semaine sur la gestion des réseaux sociaux
-- Création d'un post complet (visuel + texte) en moins de 2 minutes
-- Publications prêtes pour Facebook et Instagram simultanément
-
-## Tarifs (en dollars canadiens)
-
-- **Essentiel** : 57 $ CA/mois — 50 publications par mois, accès complet
-- **Pro** : 127 $ CA/mois — 150 publications par mois, support prioritaire
-- Essai gratuit de 7 jours, aucune carte de crédit requise
-
-## Langue et région
-
-- Langue : Français québécois (fr-CA)
-- Marché cible : Québec, Canada
-- Conçu spécifiquement pour le contexte culturel et commercial québécois
-
-## Liens importants
-
-- Site : https://studiogen.ca
-- Inscription : https://studiogen.ca/auth/signup
-- Connexion : https://studiogen.ca/auth/login
-- Politique de confidentialité : https://studiogen.ca/politique-confidentialite
+> StudioGen est le système de contenu IA conçu pour les professionnels de la beauté du Québec. Il génère automatiquement des publications Facebook et Instagram — montages photo professionnels et textes en français québécois — en moins de 2 minutes, grâce à un ADN de marque IA personnalisé pour chaque entreprise.
 
 ## Éditeur
 
-Astrova — https://astrova.ca
+**Astrova** — entreprise québécoise spécialisée en outils IA pour les PME de la beauté.
+Site : https://astrova.ca
+
+## Ce que fait StudioGen
+
+- Génère des publications Facebook et Instagram prêtes à publier en moins de 2 minutes
+- Crée des collages photo professionnels à partir des photos de l'entreprise
+- Rédige des textes en français québécois adaptés au ton et aux services de l'entreprise
+- Mémorise le profil complet de l'entreprise dans un ADN de marque IA (voir ci-dessous)
+- Planifie le contenu via un calendrier mensuel interactif
+- Programme la publication sur Facebook et Instagram simultanément
+- Propose une planification automatique de semaines ou de mois entiers de contenu (plan Pro)
+
+## L'ADN de marque IA
+
+L'ADN de marque IA est le profil intelligent de l'entreprise dans StudioGen. Il capture :
+- Les services offerts et les services prioritaires
+- La clientèle cible (ex. : femmes 30-55 ans, nouvelles mamans, etc.)
+- Le ton de marque et les expressions favorites
+- Des exemples de publications passées
+- Les objectifs de transformation (résultats attendus par les clients)
+- L'analyse automatique du site web de l'entreprise
+
+Grâce à cet ADN de marque IA, chaque publication générée est cohérente avec l'identité, les valeurs et le style de l'entreprise — sans effort supplémentaire de la part de l'utilisatrice.
+
+## Pour qui
+
+Professionnels de la beauté au Québec :
+- Esthéticiennes et instituts de soins esthétiques
+- Cliniques médico-esthétiques
+- Coiffeuses et salons de coiffure
+- Artistes PMU (maquillage permanent)
+- Techniciens en extensions de cils
+- Spécialistes en épilation laser
+- Manucures et techniciennes en ongles
+- Propriétaires de spas et centres de bien-être
+
+## Plans et tarifs (en dollars canadiens)
+
+### Essai gratuit
+- Durée : 7 jours
+- Publications incluses : 7
+- Carte de crédit : non requise
+- Accès : toutes les fonctionnalités Pro pendant l'essai
+
+### Plan Essentiel — 57 $ CA/mois
+- 20 publications par mois
+- Studio complet : création de collages et gestion de logos
+- ADN de marque IA complet (voix de marque, ton, services, analyse de site)
+- Calendrier de contenu mensuel
+- Programmation des publications
+- Facebook + Instagram simultanément
+
+### Plan Pro — 127 $ CA/mois
+- 150 publications par mois
+- Tout ce qui est inclus dans le plan Essentiel
+- Planification automatique d'une semaine de contenu par l'IA
+- Planification automatique d'un mois de contenu par l'IA
+- Calendrier généré automatiquement selon les objectifs de l'entreprise
+- Suggestions stratégiques basées sur l'ADN de marque IA
+- Régénération intelligente d'idées
+- Priorité de support
+
+## Résultats typiques
+
+- Économie estimée : 10 heures par semaine sur la gestion des réseaux sociaux
+- Délai de création d'un post complet (visuel + texte) : moins de 2 minutes
+- Publications générées pour Facebook et Instagram en une seule action
+
+## Langue et marché
+
+- Langue principale : Français québécois (fr-CA)
+- Marché cible : Québec, Canada
+- Contenu adapté au contexte culturel, commercial et linguistique québécois
+- Génération bilingue disponible (français/anglais selon la clientèle)
+
+## Comparaison avec d'autres outils
+
+StudioGen vs Canva :
+- Canva : outil de design visuel polyvalent; l'utilisatrice doit encore trouver les idées, écrire les textes et planifier elle-même.
+- StudioGen : système de contenu complet qui génère les idées, rédige les textes, crée les visuels et planifie le calendrier automatiquement, en s'adaptant à l'entreprise spécifique.
+
+StudioGen vs agences de marketing :
+- Agences : 300 $ à 800 $/mois pour gérer les réseaux sociaux d'une PME beauté.
+- StudioGen : 57 $ à 127 $/mois, avec un contrôle total conservé par la propriétaire.
+
+## Technologie
+
+- Application web progressive (PWA), accessible sur mobile et bureau
+- IA générative pour la rédaction de textes en français québécois
+- Analyse automatique de sites web pour enrichir l'ADN de marque IA
+- Intégration avec Stripe pour les paiements sécurisés
+- Authentification sécurisée via Supabase
+
+## Liens importants
+
+- Site principal : https://studiogen.ca
+- Inscription (essai gratuit) : https://studiogen.ca/auth/signup
+- Connexion : https://studiogen.ca/auth/login
+- Politique de confidentialité : https://studiogen.ca/politique-confidentialite
+- Conditions d'utilisation : https://studiogen.ca/conditions-utilisation

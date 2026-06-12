@@ -4,8 +4,23 @@ import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité — StudioGen',
-  description: 'Politique de confidentialité de StudioGen — Comment nous collectons, utilisons et protégeons vos données personnelles.',
+  description:
+    'Politique de confidentialité de StudioGen — Comment nous collectons, utilisons et protégeons vos données personnelles. Service d\'Astrova, entreprise québécoise.',
+  alternates: { canonical: 'https://studiogen.ca/politique-confidentialite' },
   robots: { index: true, follow: true },
+  openGraph: {
+    title: 'Politique de confidentialité — StudioGen',
+    description: 'Comment nous collectons, utilisons et protégeons vos données personnelles.',
+    url: 'https://studiogen.ca/politique-confidentialite',
+    siteName: 'StudioGen',
+    locale: 'fr_CA',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Politique de confidentialité — StudioGen',
+    description: 'Comment nous collectons, utilisons et protégeons vos données personnelles.',
+  },
 };
 
 export default function PolitiqueConfidentialitePage() {
@@ -46,7 +61,7 @@ export default function PolitiqueConfidentialitePage() {
             <p>Lors de votre utilisation de StudioGen, nous collectons les données suivantes :</p>
             <ul className="list-disc pl-6 mt-3 space-y-2">
               <li><strong>Compte :</strong> adresse courriel et mot de passe (chiffré).</li>
-              <li><strong>Profil entreprise :</strong> nom, prénom, nom de l&apos;entreprise, site internet et description des services. Ces informations sont utilisées par l&apos;IA pour personnaliser vos publications.</li>
+              <li><strong>ADN de marque IA :</strong> nom, prénom, nom de l&apos;entreprise, site internet et description des services. Ces informations constituent votre ADN de marque IA, utilisé pour personnaliser vos publications selon votre voix et vos objectifs.</li>
               <li><strong>Photos :</strong> les images que vous importez dans le studio pour créer vos collages. Elles sont traitées localement dans votre navigateur et ne sont pas stockées sur nos serveurs.</li>
               <li><strong>Logos :</strong> les logos que vous ajoutez sont stockés localement dans votre navigateur (localStorage) et ne sont pas transmis à nos serveurs.</li>
               <li><strong>Images planifiées :</strong> les visuels que vous planifiez dans le calendrier de contenu sont stockés sur nos serveurs afin d&apos;être accessibles ultérieurement.</li>
@@ -76,6 +91,7 @@ export default function PolitiqueConfidentialitePage() {
               <li><strong>Supabase</strong> — hébergement de la base de données, authentification et stockage des images. Données stockées au Canada ou aux États-Unis.</li>
               <li><strong>Stripe</strong> — traitement des paiements. Stripe est certifié PCI DSS niveau 1. La facturation apparaît sous le nom <strong>Astrova</strong> sur votre relevé bancaire.</li>
               <li><strong>Moteur IA</strong> — génération de textes pour vos publications. Seule la description de votre entreprise est transmise lors de la génération.</li>
+              <li><strong>Resend</strong> — envoi de courriels transactionnels (bienvenue, confirmation d&apos;abonnement, rappels). Seule votre adresse courriel est transmise.</li>
               <li><strong>Vercel</strong> — hébergement de l&apos;application web.</li>
             </ul>
           </section>

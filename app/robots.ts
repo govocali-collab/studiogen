@@ -6,7 +6,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/studio', '/settings', '/admin', '/api/', '/auth/callback'],
+        disallow: [
+          '/studio',
+          '/settings',
+          '/billing',
+          '/calendrier',
+          '/admin',
+          '/api/',
+          '/auth/callback',
+          '/auth/login',
+        ],
       },
     ],
     sitemap: 'https://studiogen.ca/sitemap.xml',

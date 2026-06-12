@@ -38,16 +38,88 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://studiogen.ca'),
   title: {
-    default: 'StudioGen - Publications pour professionnels de la beauté au Québec',
+    default: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
     template: '%s | StudioGen',
   },
-  description: 'StudioGen crée automatiquement tes publications Facebook et Instagram. Conçu pour les professionnels de la beauté au Québec. Essai gratuit 7 jours, aucune carte requise.',
+  description:
+    'StudioGen génère automatiquement vos publications Facebook et Instagram en français québécois. ADN de marque IA, calendrier de contenu, planification automatique. Essai gratuit 7 jours, aucune carte requise.',
+  keywords: [
+    'publications réseaux sociaux Québec',
+    'intelligence artificielle marketing beauté',
+    'contenu Facebook Instagram esthétique',
+    'ADN de marque IA',
+    'planification contenu automatique',
+    'logiciel marketing salon beauté Québec',
+    'publications automatiques esthéticienne',
+    'StudioGen',
+    'Astrova',
+  ],
+  authors: [{ name: 'Astrova', url: 'https://astrova.ca' }],
+  creator: 'Astrova',
+  publisher: 'Astrova',
   robots: {
     index: true,
     follow: true,
+    googleBot: { index: true, follow: true },
   },
   alternates: {
     canonical: 'https://studiogen.ca',
+  },
+  openGraph: {
+    siteName: 'StudioGen',
+    locale: 'fr_CA',
+    type: 'website',
+    url: 'https://studiogen.ca',
+    title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
+    description:
+      'Générez vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
+    images: [{ url: '/opengraph-image.png', width: 1200, height: 630, alt: 'StudioGen — Contenu IA pour professionnels de la beauté' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
+    description:
+      'Générez vos publications Facebook et Instagram en moins de 2 minutes grâce à votre ADN de marque IA. Conçu pour les professionnels de la beauté du Québec.',
+    images: ['/opengraph-image.png'],
+  },
+};
+
+const websiteLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'StudioGen',
+  url: 'https://studiogen.ca',
+  description:
+    'Le système de contenu IA conçu pour les professionnels de la beauté du Québec. Publications Facebook et Instagram en français québécois, ADN de marque IA, planification automatique.',
+  inLanguage: 'fr-CA',
+  publisher: {
+    '@type': 'Organization',
+    name: 'Astrova',
+    url: 'https://astrova.ca',
+  },
+  potentialAction: {
+    '@type': 'RegisterAction',
+    target: 'https://studiogen.ca/auth/signup',
+    name: 'Essai gratuit 7 jours',
+  },
+};
+
+const organizationLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Astrova',
+  url: 'https://astrova.ca',
+  sameAs: ['https://studiogen.ca'],
+  knowsAbout: [
+    'Marketing de réseaux sociaux',
+    'Intelligence artificielle',
+    'Professionnels de la beauté',
+    'Québec',
+    'Français québécois',
+  ],
+  areaServed: {
+    '@type': 'AdministrativeArea',
+    name: 'Québec, Canada',
   },
 };
 
@@ -55,6 +127,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr-CA" className={`${roboto.variable} ${ebGaramond.variable} ${cormorantGaramond.variable}`}>
       <body suppressHydrationWarning>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }} />
         <SplashScreen />
         <AuthHashHandler />
         {children}
