@@ -23,15 +23,15 @@ export default function ContactPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push('/auth/login'); return; }
-      const { data } = await supabase
-        .from('profiles')
-        .select('first_name, last_name, business_name')
-        .eq('id', user.id)
-        .single();
+
+      const [profileRes] = await Promise.all([
+        fetch('/api/profile').then(r => r.ok ? r.json() : null),
+      ]);
+
       setProfile({
-        first_name: (data as { first_name?: string | null } | null)?.first_name ?? null,
-        last_name: (data as { last_name?: string | null } | null)?.last_name ?? null,
-        business_name: (data as { business_name?: string | null } | null)?.business_name ?? null,
+        first_name: profileRes?.first_name ?? null,
+        last_name: profileRes?.last_name ?? null,
+        business_name: profileRes?.business_name ?? null,
         email: user.email ?? null,
       });
       setLoading(false);
