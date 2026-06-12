@@ -7,7 +7,6 @@ import { PRICING } from '@/lib/config/pricing';
 import { TIER_LIMITS } from '@/lib/config/tier-limits';
 import type { Profile } from '@/lib/supabase/types';
 import AppHeader from '@/components/AppHeader';
-import { createClient } from '@/lib/supabase/client';
 
 export default function BillingPage() {
   return <Suspense><BillingPageInner /></Suspense>;
@@ -34,10 +33,12 @@ function BillingPageInner() {
   const [actionLoading, setActionLoading] = useState('');
   const [toast, setToast] = useState('');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [cancelConfirm, setCancelConfirm] = useState(false);
+  const [cancelStep, setCancelStep] = useState<'none' | 'save' | 'confirm'>('none');
   const [cancelLoading, setCancelLoading] = useState(false);
-  const [cancelled, setCancelled] = useState(false);
+  const [downgradeLoading, setDowngradeLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [upgradeConfirm, setUpgradeConfirm] = useState<{ tier: 'essentiel' | 'pro'; amountDue: number; currency: string } | null>(null);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   useEffect(() => {
     const isActivated = !!(searchParams.get('success') || searchParams.get('activated'));
@@ -80,6 +81,10 @@ function BillingPageInner() {
     : (profile?.generations_used ?? 0);
   const limits = TIER_LIMITS[effectiveTier];
   const trialMax = 7;
+  const trialDaysRemaining = profile?.created_at
+    ? Math.max(0, 7 - Math.floor((Date.now() - new Date(profile.created_at).getTime()) / 86400000))
+    : 7;
+  const isTrialExpired = status === 'trialing' && trialDaysRemaining <= 0;
   const generationsMax = isTrialing ? trialMax : (limits.generationsPerMonth === Infinity ? '∞' : limits.generationsPerMonth);
   const generationsPct = isTrialing
     ? Math.min(100, (generationsUsed / trialMax) * 100)
@@ -87,6 +92,23 @@ function BillingPageInner() {
     : Math.min(100, (generationsUsed / limits.generationsPerMonth) * 100);
 
   const handleCheckout = async (targetTier: 'essentiel' | 'pro') => {
+    const isUpgrade = targetTier === 'pro' && tier === 'essentiel' && status === 'active';
+
+    if (isUpgrade) {
+      // Preview proration amount before charging
+      setActionLoading(targetTier);
+      const res = await fetch('/api/stripe/preview-upgrade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tier: targetTier }),
+      });
+      const data = await res.json();
+      setActionLoading('');
+      if (data.error) { setToast(data.error); return; }
+      setUpgradeConfirm({ tier: targetTier, amountDue: data.amountDue, currency: data.currency });
+      return;
+    }
+
     setActionLoading(targetTier);
     const res = await fetch('/api/stripe/create-checkout', {
       method: 'POST',
@@ -98,17 +120,43 @@ function BillingPageInner() {
     window.location.href = url;
   };
 
+  const handleUpgradeConfirm = async () => {
+    if (!upgradeConfirm) return;
+    setUpgradeLoading(true);
+    const res = await fetch('/api/stripe/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier: upgradeConfirm.tier }),
+    });
+    const { url, error } = await res.json();
+    setUpgradeLoading(false);
+    if (error) { setToast(error); setUpgradeConfirm(null); return; }
+    setUpgradeConfirm(null);
+    window.location.href = url;
+  };
+
   const handleCancel = async () => {
     setCancelLoading(true);
     const res = await fetch('/api/stripe/cancel-subscription', { method: 'POST' });
     const { error } = await res.json();
-    if (error) { setToast(error); setCancelLoading(false); setCancelConfirm(false); return; }
-    setCancelled(true);
-    setCancelConfirm(false);
-    setTimeout(async () => {
-      await createClient().auth.signOut();
-      router.push('/');
-    }, 8000);
+    setCancelLoading(false);
+    if (error) { setToast(error); setCancelStep('none'); return; }
+    setCancelStep('none');
+    // Reload profile to reflect canceled status
+    const d = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
+    setProfile(d?.profile ?? null);
+  };
+
+  const handleDowngrade = async () => {
+    setDowngradeLoading(true);
+    const res = await fetch('/api/stripe/downgrade', { method: 'POST' });
+    const { error } = await res.json();
+    setDowngradeLoading(false);
+    if (error) { setToast(error); return; }
+    setCancelStep('none');
+    setToast('Votre abonnement a été changé pour le plan Essentiel.');
+    const d = await fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
+    setProfile(d?.profile ?? null);
   };
 
   const handlePortal = async () => {
@@ -127,48 +175,15 @@ function BillingPageInner() {
     );
   }
 
-  if (cancelled) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center p-6">
-        <div className="max-w-sm w-full text-center space-y-6">
-          <div className="w-16 h-16 rounded-full bg-violet-50 flex items-center justify-center mx-auto">
-            <svg className="w-8 h-8 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Merci d'avoir essayé StudioGen</h2>
-            <p className="text-sm text-gray-500 leading-relaxed">
-              Votre abonnement a été annulé. Nous espérons vous revoir bientôt.
-            </p>
-            <p className="text-xs text-gray-400 mt-3">
-              Vous pouvez vous reconnecter en tout temps pour consulter ou télécharger vos reçus.
-            </p>
-          </div>
-          <p className="text-xs text-gray-400">Déconnexion dans quelques secondes...</p>
-          <button
-            onClick={async () => {
-              await createClient().auth.signOut();
-              router.push('/');
-            }}
-            className="w-full py-2.5 rounded-xl text-sm font-semibold bg-gray-900 text-white hover:bg-gray-700 transition-colors"
-          >
-            Se déconnecter maintenant
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const isSubscribed = status === 'active';
   const statusLabel: Record<string, string> = {
-    trialing: 'Essai gratuit',
+    trialing: 'StudioGen Pro – essai gratuit 7 jours',
     active: 'Actif',
     past_due: 'Paiement en attente',
     canceled: 'Annulé',
   };
   const statusColor: Record<string, string> = {
-    trialing: 'text-blue-700 bg-blue-50 border-blue-200',
+    trialing: 'text-green-700 bg-green-50 border-green-200',
     active: 'text-green-700 bg-green-50 border-green-200',
     past_due: 'text-amber-700 bg-amber-50 border-amber-200',
     canceled: 'text-red-700 bg-red-50 border-red-200',
@@ -177,6 +192,47 @@ function BillingPageInner() {
   return (
     <div className="min-h-screen bg-gray-50">
       <AppHeader />
+
+      {/* Upgrade confirmation modal */}
+      {upgradeConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-violet-50 flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Confirmer la mise à niveau</p>
+                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                  Vous serez chargé immédiatement{' '}
+                  <span className="font-bold text-gray-800">
+                    {(upgradeConfirm.amountDue / 100).toLocaleString('fr-CA', { style: 'currency', currency: upgradeConfirm.currency.toUpperCase() })}
+                  </span>{' '}
+                  pour les jours restants du mois actuel (pro-rata Essentiel → Pro).
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setUpgradeConfirm(null)}
+                disabled={upgradeLoading}
+                className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2 rounded-xl transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleUpgradeConfirm}
+                disabled={upgradeLoading}
+                className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 px-5 py-2 rounded-xl transition-colors"
+              >
+                {upgradeLoading ? 'Traitement…' : 'Confirmer et payer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="max-w-screen-md mx-auto px-6 py-12 space-y-8">
         <div>
@@ -205,29 +261,55 @@ function BillingPageInner() {
         {toast && (
           <div className="bg-gradient-to-r from-fuchsia-950 to-violet-950 text-white text-sm rounded-2xl px-5 py-3.5 flex items-center justify-between shadow-lg">
             <span>{toast}</span>
-            <button onClick={() => setToast('')} className="ml-4 opacity-50 hover:opacity-100 text-lg leading-none">×</button>
+            <button onClick={() => { setToast(''); router.replace('/billing'); }} className="ml-4 opacity-50 hover:opacity-100 text-lg leading-none">×</button>
           </div>
         )}
 
         {/* ── Abonnement tab ── */}
         {tab === 'abonnement' && (
           <div className="space-y-8">
-            {/* Status + usage */}
-            <div className="bg-white rounded-2xl border border-gray-200 px-6 py-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Trial expired banner */}
+            {isTrialExpired && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4 flex items-start gap-3">
+                <svg className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-semibold text-amber-800">Votre période d&apos;essai est terminée</p>
+                  <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                    Vos 7 jours d&apos;essai gratuit sont écoulés. Choisissez un plan ci-dessous pour continuer à utiliser StudioGen.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Canceled banner */}
+            {status === 'canceled' && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 flex items-start gap-3">
+                <svg className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-semibold text-red-800">Votre abonnement est annulé</p>
+                  <p className="text-xs text-red-600 mt-0.5 leading-relaxed">
+                    Vos outils sont désactivés. Choisissez un plan ci-dessous pour réactiver votre accès.
+                  </p>
+                </div>
+              </div>
+            )}
+            {/* Status + usage — hidden for expired trial */}
+            {!isTrialExpired && <div className="bg-white rounded-2xl border border-gray-200 px-6 py-4 shadow-sm flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex items-center gap-3 flex-1 flex-wrap">
                 <span className={`text-xs font-semibold px-3 py-1 rounded-full border whitespace-nowrap ${statusColor[status] ?? statusColor.trialing}`}>
                   {statusLabel[status] ?? status}
                 </span>
-                <span className="text-sm font-bold text-gray-800">
-                  {isTrialing ? 'Essai Pro' : `Plan ${PRICING[tier].name}`}
-                </span>
-                {isTrialing && (
-                  <span className="text-xs text-gray-400">· 7 publications incluses</span>
+                {!isTrialing && (
+                  <span className="text-sm font-bold text-gray-800">{`Plan ${PRICING[tier].name}`}</span>
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
-                  <span>Publications ce mois-ci</span>
+                  <span>{isTrialing ? `Publications pour les ${trialDaysRemaining} prochain${trialDaysRemaining > 1 ? 's' : ''} jour${trialDaysRemaining > 1 ? 's' : ''}` : 'Publications ce mois-ci'}</span>
                   <span className="font-semibold tabular-nums text-gray-700">{generationsUsed} / {generationsMax}</span>
                 </div>
                 {limits.generationsPerMonth !== Infinity && (
@@ -245,7 +327,7 @@ function BillingPageInner() {
                   Synchronisation…
                 </span>
               )}
-            </div>
+            </div>}
 
             {/* Plan selection */}
             <div className="grid gap-5 sm:grid-cols-2">
@@ -358,16 +440,63 @@ function BillingPageInner() {
             {/* Cancel subscription */}
             {status === 'active' && (
               <div className="pt-2">
-                {!cancelConfirm ? (
+                {cancelStep === 'none' && (
                   <div className="flex justify-center">
                     <button
-                      onClick={() => setCancelConfirm(true)}
+                      onClick={() => setCancelStep(tier === 'pro' ? 'save' : 'confirm')}
                       className="text-xs text-gray-400 hover:text-red-500 transition-colors underline underline-offset-2"
                     >
                       Annuler mon abonnement
                     </button>
                   </div>
-                ) : (
+                )}
+
+                {/* Step 1 (Pro only): offer downgrade to Essentiel */}
+                {cancelStep === 'save' && (
+                  <div className="bg-white border border-violet-100 rounded-2xl p-6 space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-violet-50 flex items-center justify-center shrink-0 mt-0.5">
+                        <svg className="w-4 h-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Avant d&apos;annuler — passez à Essentiel</p>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                          Plutôt que d&apos;annuler, vous pouvez passer au plan <span className="font-semibold text-gray-700">Essentiel à {PRICING.essentiel.price} $/mois</span>.
+                          Vous recevrez un crédit pro-rata pour les jours restants de votre abonnement Pro,
+                          et votre plan sera renouvelé à {PRICING.essentiel.price} $/mois dès le prochain cycle.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                      <button
+                        onClick={() => setCancelStep('confirm')}
+                        disabled={downgradeLoading}
+                        className="text-sm font-medium text-gray-400 hover:text-gray-600 px-4 py-2 rounded-xl transition-colors order-last sm:order-first"
+                      >
+                        Non, annuler quand même
+                      </button>
+                      <button
+                        onClick={() => setCancelStep('none')}
+                        disabled={downgradeLoading}
+                        className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2 rounded-xl transition-colors"
+                      >
+                        Garder le Pro
+                      </button>
+                      <button
+                        onClick={handleDowngrade}
+                        disabled={downgradeLoading}
+                        className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 px-5 py-2 rounded-xl transition-colors"
+                      >
+                        {downgradeLoading ? 'Traitement…' : `Passer à Essentiel · ${PRICING.essentiel.price} $/mois`}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: final cancel confirmation */}
+                {cancelStep === 'confirm' && (
                   <div className="bg-white border border-red-100 rounded-2xl p-6 space-y-4">
                     <div className="flex items-start gap-3">
                       <div className="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center shrink-0 mt-0.5">
@@ -376,7 +505,7 @@ function BillingPageInner() {
                         </svg>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-gray-900">Confirmer l'annulation</p>
+                        <p className="text-sm font-semibold text-gray-900">Confirmer l&apos;annulation</p>
                         <p className="text-xs text-gray-500 mt-1 leading-relaxed">
                           Votre abonnement sera annulé immédiatement. Vous serez déconnecté et pourrez vous reconnecter pour télécharger vos reçus.
                         </p>
@@ -384,7 +513,7 @@ function BillingPageInner() {
                     </div>
                     <div className="flex gap-3 justify-end">
                       <button
-                        onClick={() => setCancelConfirm(false)}
+                        onClick={() => setCancelStep('none')}
                         disabled={cancelLoading}
                         className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2 rounded-xl transition-colors"
                       >

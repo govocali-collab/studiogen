@@ -1,5 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin';
-import { sendWelcomeEmail } from '@/lib/emails';
+import { sendWelcomeEmail, addToAudience } from '@/lib/emails';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
 
   if (user.email) {
     sendWelcomeEmail(user.email, first_name?.trim()).catch(() => {});
+    addToAudience(user.email, first_name?.trim(), last_name?.trim()).catch(() => {});
   }
 
   return NextResponse.json({ ok: true });

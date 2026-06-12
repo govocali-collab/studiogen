@@ -284,7 +284,8 @@ export default async function LandingPage() {
         <div className="relative max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-200 text-violet-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-8 max-w-full">
             <Image src="/fav.png" alt="" width={16} height={16} className="w-4 h-4 rounded-sm flex-shrink-0" />
-            <span className="truncate sm:whitespace-normal">Propulsé par Astrova · Pour les professionnels de la beauté du Québec</span>
+            <span className="sm:hidden text-center leading-snug">Propulsé par Astrova<br />Pour les professionnels de la beauté du Québec</span>
+            <span className="hidden sm:inline">Propulsé par Astrova · Pour les professionnels de la beauté du Québec</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-[1.1] tracking-tight mb-6">

@@ -52,6 +52,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
 
+  // Canceled or expired-trial users can only access /billing — redirect everything else
+  const isBillingRoute = pathname === '/billing' || pathname.startsWith('/billing/');
+  if (!isBillingRoute && !isAdmin) {
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('subscription_status, created_at')
+      .eq('id', user.id)
+      .single();
+    const p = profileData as { subscription_status?: string; created_at?: string } | null;
+    const isCanceled = p?.subscription_status === 'canceled';
+    const isTrialExpired = p?.subscription_status === 'trialing'
+      && !!p.created_at
+      && Date.now() - new Date(p.created_at).getTime() > 7 * 24 * 60 * 60 * 1000;
+    if (isCanceled || isTrialExpired) {
+      return NextResponse.redirect(new URL('/billing', request.url));
+    }
+  }
+
   return response;
 }
 

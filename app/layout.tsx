@@ -3,6 +3,7 @@ import { Roboto, EB_Garamond, Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 import AuthHashHandler from '@/components/AuthHashHandler';
 import AddToHomeScreenBanner from '@/components/AddToHomeScreenBanner';
+import SplashScreen from '@/components/SplashScreen';
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr-CA" className={`${roboto.variable} ${ebGaramond.variable} ${cormorantGaramond.variable}`}>
       <body suppressHydrationWarning>
+        <SplashScreen />
         <AuthHashHandler />
         {children}
         <AddToHomeScreenBanner />

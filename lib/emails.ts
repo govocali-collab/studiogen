@@ -48,6 +48,18 @@ function primaryButton(url: string, label: string) {
   return `<a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#c026d3,#7c3aed);color:#fff;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;margin-top:24px">${label}</a>`;
 }
 
+export async function addToAudience(email: string, firstName?: string, lastName?: string) {
+  const audienceId = process.env.RESEND_AUDIENCE_ID;
+  if (!audienceId) return;
+  await resend.contacts.create({
+    audienceId,
+    email,
+    firstName: firstName ?? '',
+    lastName: lastName ?? '',
+    unsubscribed: false,
+  });
+}
+
 export async function sendWelcomeEmail(email: string, firstName?: string) {
   const name = firstName ? `, ${firstName}` : '';
   await resend.emails.send({

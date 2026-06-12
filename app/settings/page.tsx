@@ -512,11 +512,17 @@ function SettingsPageInner() {
           <button
             type="button"
             onClick={() => setTab('ia')}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 ${
               tab === 'ia' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             IA
+            {!isPro && (
+              <span className="flex flex-col items-center leading-none bg-violet-100 text-violet-700 rounded-lg px-1.5 py-0.5">
+                <span className="text-[10px]">💎</span>
+                <span className="text-[8px] font-bold">Pro</span>
+              </span>
+            )}
           </button>
         </div>
 
@@ -615,7 +621,20 @@ function SettingsPageInner() {
             </div>
           </>
         ) : (
-          <>
+          <div className="relative">
+            {!isPro && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 text-center p-8 bg-white/75 backdrop-blur-sm rounded-2xl">
+                <div className="text-4xl">💎</div>
+                <p className="font-bold text-gray-900 text-lg">Fonctionnalité Pro</p>
+                <p className="text-sm text-gray-500 max-w-xs leading-relaxed">
+                  Le profil de marque IA est réservé au plan Pro. Passez au Pro pour personnaliser votre voix de marque et générer du contenu ultra-ciblé.
+                </p>
+                <a href="/billing" className="inline-block bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors">
+                  Passer au plan Pro →
+                </a>
+              </div>
+            )}
+          <div className={!isPro ? 'pointer-events-none select-none' : ''}>
             {/* ── Onglet IA ── */}
 
             {/* Profile completion card */}
@@ -948,7 +967,8 @@ function SettingsPageInner() {
                 ← Retour au studio
               </Link>
             </div>
-          </>
+          </div>
+          </div>
         )}
       </main>
     </div>
