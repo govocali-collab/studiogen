@@ -1,7 +1,10 @@
+import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { redirect } from 'next/navigation';
 import StudioClient from './StudioClient';
+
+export const metadata: Metadata = { title: 'StudioGen' };
 
 export default async function StudioPage() {
   const supabase = await createClient();
