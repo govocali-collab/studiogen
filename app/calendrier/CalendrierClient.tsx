@@ -747,6 +747,63 @@ function PlannedItemModal({ item, targetAudience, onClose, onDelete, onItemUpdat
   );
 }
 
+// ── Pro upgrade modal ─────────────────────────────────────────────────────────
+function ProUpgradeModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="p-6 space-y-5">
+          <button onClick={onClose} className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+          <div className="text-center">
+            <div className="text-3xl mb-2">✨</div>
+            <h2 className="text-lg font-bold text-gray-900">Disponible avec StudioGen Pro</h2>
+            <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+              StudioGen analyse votre entreprise et planifie automatiquement votre contenu selon vos services, votre clientèle et vos objectifs.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-bold text-gray-700 uppercase tracking-wide">Essentiel</p>
+              {['Créer du contenu personnalisé', 'Utiliser le calendrier', 'Programmer des publications'].map(f => (
+                <div key={f} className="flex items-start gap-1.5 text-xs text-gray-600">
+                  <span className="text-violet-500 font-bold flex-shrink-0">✓</span> {f}
+                </div>
+              ))}
+            </div>
+            <div className="bg-gradient-to-br from-fuchsia-950 to-violet-950 rounded-xl p-4 space-y-2">
+              <p className="text-xs font-bold text-violet-300 uppercase tracking-wide">Pro</p>
+              {["L'IA décide quoi publier", 'Génère votre semaine automatiquement', 'Génère votre mois automatiquement', 'Stratégie adaptée à votre clinique'].map(f => (
+                <div key={f} className="flex items-start gap-1.5 text-xs text-gray-300">
+                  <span className="text-violet-400 font-bold flex-shrink-0">✓</span> {f}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-center text-sm font-semibold text-gray-800">
+            Laissez StudioGen planifier votre contenu à votre place.
+          </p>
+
+          <div className="space-y-2">
+            {['Plus jamais de page blanche', 'Un mois complet d\'idées en quelques secondes', 'Basé sur votre Brand Brain', 'Adapté à votre clientèle'].map(b => (
+              <div key={b} className="flex items-center gap-2 text-sm text-gray-600">
+                <span className="text-violet-500 font-bold">✓</span> {b}
+              </div>
+            ))}
+          </div>
+
+          <a href="/billing" className="block w-full text-center bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm py-3 rounded-xl transition-colors">
+            Passer au Pro →
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Page principale ───────────────────────────────────────────────────────────
 export default function CalendrierClient({ isPro = false }: { isPro?: boolean }) {
   const [posts, setPosts] = useState<CalendarPost[]>([]);
@@ -758,6 +815,7 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
   const [filterPlatform, setFilterPlatform] = useState<'fb' | 'ig' | ''>('');
   const [selectedPost, setSelectedPost] = useState<CalendarPost | null>(null);
   const [selectedPlanItem, setSelectedPlanItem] = useState<PlannedContent | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Calendar navigation
   const now = new Date();
@@ -853,31 +911,6 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
     </header>
   );
 
-  if (!isPro) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        {nav}
-        <main className="max-w-md mx-auto px-4 py-20 text-center space-y-5">
-          <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto text-3xl">📅</div>
-          <h1 className="text-xl font-bold text-gray-900">Calendrier de contenu</h1>
-          <p className="text-sm text-gray-500 leading-relaxed">
-            Planifiez vos publications à l'avance, visualisez votre mois d'un coup d'oeil et gardez une longueur d'avance sur votre contenu.
-          </p>
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 text-left space-y-2">
-            {['Calendrier mensuel interactif', 'Vue liste avec filtres par type', 'Image du collage jointe', 'Historique 90 jours'].map(f => (
-              <div key={f} className="flex items-center gap-2 text-sm text-gray-700">
-                <span className="text-violet-500 font-bold">✓</span> {f}
-              </div>
-            ))}
-          </div>
-          <Link href="/billing" className="inline-block bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold px-6 py-3 rounded-xl transition-colors">
-            Passer au plan Pro →
-          </Link>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ── Nav ── */}
@@ -922,12 +955,38 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
           </div>
         </div>
 
-        {/* AI Content Planner */}
-        <ContentPlanner
-          calYear={calYear}
-          calMonth={calMonth}
-          onPlanSaved={fetchPosts}
-        />
+        {/* AI Content Planner — Pro only */}
+        {isPro ? (
+          <ContentPlanner calYear={calYear} calMonth={calMonth} onPlanSaved={fetchPosts} />
+        ) : (
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-1 space-y-2">
+              <p className="text-sm font-semibold text-gray-700">Planification IA</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Laissez StudioGen générer automatiquement votre plan de contenu selon vos services et votre clientèle.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="flex items-center gap-2 bg-gray-50 border border-gray-200 hover:border-violet-300 hover:bg-violet-50 text-gray-500 hover:text-violet-700 text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
+                >
+                  ✨ Planifier ma semaine
+                  <span className="bg-violet-100 text-violet-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full">PRO</span>
+                </button>
+                <button
+                  onClick={() => setShowUpgradeModal(true)}
+                  className="flex items-center gap-2 bg-gray-50 border border-gray-200 hover:border-violet-300 hover:bg-violet-50 text-gray-500 hover:text-violet-700 text-xs font-semibold px-4 py-2 rounded-xl transition-colors"
+                >
+                  ✨ Planifier mon mois
+                  <span className="bg-violet-100 text-violet-700 text-[9px] font-bold px-1.5 py-0.5 rounded-full">PRO</span>
+                </button>
+              </div>
+            </div>
+            <a href="/billing" className="shrink-0 bg-violet-600 hover:bg-violet-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap">
+              Passer au Pro →
+            </a>
+          </div>
+        )}
 
         {loading ? (
           <div className="flex justify-center py-16">
@@ -1025,6 +1084,8 @@ export default function CalendrierClient({ isPro = false }: { isPro?: boolean })
           onItemUpdated={handlePlanItemUpdated}
         />
       )}
+
+      {showUpgradeModal && <ProUpgradeModal onClose={() => setShowUpgradeModal(false)} />}
     </div>
   );
 }

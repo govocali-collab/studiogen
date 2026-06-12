@@ -196,39 +196,58 @@ function BillingPageInner() {
       {/* Upgrade confirmation modal */}
       {upgradeConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-full bg-violet-50 flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" />
-                </svg>
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-xl overflow-hidden">
+            <div className="p-6 space-y-5">
+              <div className="text-center">
+                <p className="text-base font-bold text-gray-900">Laissez StudioGen planifier votre contenu à votre place.</p>
+                <p className="text-xs text-gray-500 mt-1">Passez au Pro et laissez l&apos;IA s&apos;occuper de la stratégie.</p>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-gray-900">Confirmer la mise à niveau</p>
-                <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                  Vous serez chargé immédiatement{' '}
-                  <span className="font-bold text-gray-800">
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 rounded-xl p-3.5 space-y-2">
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Essentiel</p>
+                  {['Créer du contenu personnalisé', 'Utiliser le calendrier', 'Programmer des publications'].map(f => (
+                    <div key={f} className="flex items-start gap-1.5 text-xs text-gray-600">
+                      <span className="text-violet-500 font-bold flex-shrink-0">✓</span> {f}
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-gradient-to-br from-fuchsia-950 to-violet-950 rounded-xl p-3.5 space-y-2">
+                  <p className="text-[10px] font-bold text-violet-300 uppercase tracking-wide">Pro</p>
+                  {["L'IA décide quoi publier", 'Génère votre semaine', 'Génère votre mois', 'Stratégie sur mesure'].map(f => (
+                    <div key={f} className="flex items-start gap-1.5 text-xs text-gray-300">
+                      <span className="text-violet-400 font-bold flex-shrink-0">✓</span> {f}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-violet-50 rounded-xl px-4 py-3 text-center">
+                <p className="text-xs text-gray-600">
+                  Vous serez chargé{' '}
+                  <span className="font-bold text-gray-900">
                     {(upgradeConfirm.amountDue / 100).toLocaleString('fr-CA', { style: 'currency', currency: upgradeConfirm.currency.toUpperCase() })}
                   </span>{' '}
-                  pour les jours restants du mois actuel (pro-rata Essentiel → Pro).
+                  maintenant pour les jours restants du mois (pro-rata Essentiel → Pro).
                 </p>
               </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setUpgradeConfirm(null)}
-                disabled={upgradeLoading}
-                className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2 rounded-xl transition-colors"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleUpgradeConfirm}
-                disabled={upgradeLoading}
-                className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 px-5 py-2 rounded-xl transition-colors"
-              >
-                {upgradeLoading ? 'Traitement…' : 'Confirmer et payer'}
-              </button>
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setUpgradeConfirm(null)}
+                  disabled={upgradeLoading}
+                  className="text-sm font-medium text-gray-500 hover:text-gray-700 px-4 py-2 rounded-xl transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={handleUpgradeConfirm}
+                  disabled={upgradeLoading}
+                  className="text-sm font-semibold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 px-5 py-2 rounded-xl transition-colors"
+                >
+                  {upgradeLoading ? 'Traitement…' : 'Passer au Pro →'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -330,10 +349,15 @@ function BillingPageInner() {
             </div>}
 
             {/* Plan selection */}
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <div className="text-center mb-5">
+                <h2 className="text-base font-bold text-gray-900">Choisissez votre plan</h2>
+                <p className="text-xs text-gray-500 mt-1">Essai gratuit 7 jours · Annulez en tout temps</p>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2">
               {(['essentiel', 'pro'] as const).map((t) => {
                 const p = PRICING[t];
-                const isPro = t === 'pro';
+                const isPlanPro = t === 'pro';
                 const isActive = status === 'active';
 
                 // Plan currently paid for
@@ -341,12 +365,12 @@ function BillingPageInner() {
                 // User is on Pro and looking at Essentiel (no downgrade via checkout)
                 const isLowerThanCurrent = t === 'essentiel' && tier === 'pro' && isActive;
                 // User is on Essentiel and can upgrade
-                const isUpgrade = isPro && tier === 'essentiel' && isActive;
+                const isUpgrade = isPlanPro && tier === 'essentiel' && isActive;
                 // During trial: both plans are purchasable
                 const canBuy = !isPaidPlan && !isLowerThanCurrent;
 
                 // Badge: show "Essai" on Pro during trial, "Actif" on paid plan
-                const showTrialBadge = isPro && isTrialing;
+                const showTrialBadge = isPlanPro && isTrialing;
                 const showActiveBadge = isPaidPlan || showTrialBadge;
 
                 let btnLabel = `S'abonner · ${p.price} $/mois`;
@@ -358,16 +382,16 @@ function BillingPageInner() {
                 return (
                   <div
                     key={t}
-                    className={`rounded-2xl p-6 flex flex-col gap-5 relative overflow-hidden ${
-                      isPro
+                    className={`rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden ${
+                      isPlanPro
                         ? 'bg-gradient-to-br from-fuchsia-950 to-violet-950 border border-fuchsia-900/40'
                         : 'bg-white border-2 border-gray-200'
-                    } ${showActiveBadge ? (isPro ? 'ring-2 ring-violet-400/60' : 'ring-2 ring-violet-400') : ''}`}
+                    } ${showActiveBadge ? (isPlanPro ? 'ring-2 ring-violet-400/60' : 'ring-2 ring-violet-400') : ''}`}
                   >
                     {/* Active / trial badge */}
                     {showActiveBadge && (
                       <div className={`absolute top-4 right-4 flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        isPro
+                        isPlanPro
                           ? 'bg-violet-500/30 text-violet-200'
                           : 'bg-green-100 text-green-700'
                       }`}>
@@ -379,31 +403,33 @@ function BillingPageInner() {
                     )}
 
                     <div>
-                      <div className={`text-sm font-semibold ${isPro ? 'text-gray-400' : 'text-gray-500'}`}>{p.name}</div>
-                      <div className={`text-xs mb-2 ${isPro ? 'text-fuchsia-300' : 'text-violet-500'}`}>{p.description}</div>
-                      <div className={`text-3xl font-extrabold ${isPro ? 'text-white' : 'text-gray-900'}`}>
+                      <div className={`text-xs font-bold uppercase tracking-wider mb-1 ${isPlanPro ? 'text-violet-400' : 'text-gray-400'}`}>{p.name}</div>
+                      <p className={`text-sm font-semibold leading-snug mb-3 ${isPlanPro ? 'text-white' : 'text-gray-800'}`}>{p.description}</p>
+                      <div className={`text-3xl font-extrabold ${isPlanPro ? 'text-white' : 'text-gray-900'}`}>
                         {p.price} $<span className="text-sm font-normal ml-1 text-gray-400">CA/mois</span>
                       </div>
                     </div>
-                    <ul className="space-y-2">
+
+                    <ul className="space-y-2 flex-1">
                       {p.features.map((f) => (
-                        <li key={f} className={`flex items-start gap-2 text-xs ${isPro ? 'text-gray-300' : 'text-gray-600'}`}>
-                          <svg className={`w-4 h-4 flex-shrink-0 mt-0.5 ${isPro ? 'text-violet-400' : 'text-violet-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <li key={f} className={`flex items-start gap-2 text-xs ${isPlanPro ? 'text-gray-300' : 'text-gray-600'}`}>
+                          <svg className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 ${isPlanPro ? 'text-violet-400' : 'text-violet-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                           </svg>
                           {f}
                         </li>
                       ))}
                     </ul>
+
                     <button
                       onClick={() => canBuy && handleCheckout(t)}
                       disabled={!canBuy || !!actionLoading}
-                      className={`mt-auto w-full py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
+                      className={`w-full py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
                         !canBuy
-                          ? isPro
+                          ? isPlanPro
                             ? 'bg-white/10 text-white/40 cursor-default'
                             : 'bg-gray-100 text-gray-400 cursor-default'
-                          : isPro
+                          : isPlanPro
                           ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/50'
                           : 'bg-white text-gray-900 border-2 border-gray-200 hover:border-violet-400 hover:text-violet-600'
                       }`}
@@ -411,13 +437,14 @@ function BillingPageInner() {
                       {btnLabel}
                     </button>
                     {isUpgrade && (
-                      <p className="text-[10px] text-center -mt-2 text-gray-500">
+                      <p className="text-[10px] text-center -mt-1 text-gray-500">
                         Abonnement au prorata pour les jours restants
                       </p>
                     )}
                   </div>
                 );
               })}
+              </div>
             </div>
 
             <p className="text-[11px] text-center text-gray-400">
