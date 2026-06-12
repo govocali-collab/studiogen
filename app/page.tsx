@@ -463,7 +463,7 @@ export default async function LandingPage() {
                 L&apos;IA vous aide à savoir quoi publier
               </h2>
               <p className="text-gray-500 leading-relaxed mb-4">
-                Plus besoin de chercher des idées. StudioGen peut planifier automatiquement votre semaine ou votre mois de contenu selon :
+                Basé sur votre ADN de marque IA, vos services et votre clientèle, StudioGen peut suggérer automatiquement votre semaine ou votre mois de contenu.
               </p>
               <ul className="space-y-2 mb-6">
                 {['vos services prioritaires', 'votre clientèle', 'votre ton', 'vos objectifs'].map(item => (
@@ -653,8 +653,8 @@ export default async function LandingPage() {
                   'Tout ce qui est inclus dans Essentiel',
                   'Planifier ma semaine avec l\'IA',
                   'Planifier mon mois avec l\'IA',
-                  'Suggestions de contenu intelligentes',
-                  'Calendrier IA automatisé',
+                  'Suggestions stratégiques automatiques',
+                  'Suggestions adaptées à votre saison',
                   'Priorisation automatique des services',
                   'Contenu ultra personnalisé',
                 ].map(item => (
@@ -676,6 +676,26 @@ export default async function LandingPage() {
                 </Link>
               )}
             </div>
+          </div>
+
+          {/* Pourquoi choisir Pro */}
+          <div className="max-w-3xl mx-auto mt-12 bg-white rounded-2xl border border-violet-100 p-8">
+            <h3 className="text-lg font-bold text-gray-900 mb-3">Pourquoi choisir Pro ?</h3>
+            <p className="text-sm text-gray-600 leading-relaxed mb-5">
+              Le plan Pro ne se contente pas de créer du contenu.
+              Il analyse votre ADN de marque IA et vous suggère automatiquement quoi publier chaque semaine afin de maintenir une présence cohérente sur Facebook et Instagram.
+            </p>
+            <ul className="space-y-2">
+              {[
+                'Plus jamais de page blanche',
+                'Des idées adaptées à votre entreprise',
+                'Une stratégie de contenu sans agence marketing',
+              ].map(item => (
+                <li key={item} className="flex items-center gap-2.5 text-sm text-gray-700">
+                  <span className="text-violet-600 font-bold">✓</span> {item}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
