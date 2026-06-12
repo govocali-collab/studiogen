@@ -53,11 +53,12 @@ export default function StrategicSuggestions({ isPro, onUpgrade }: { isPro: bool
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSuggestions = async () => {
+  const fetchSuggestions = async (bust = false) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/suggestions');
+      const url = bust ? `/api/suggestions?t=${Date.now()}` : '/api/suggestions';
+      const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error((data as { error?: string }).error ?? `Erreur ${res.status}`);
@@ -118,7 +119,7 @@ export default function StrategicSuggestions({ isPro, onUpgrade }: { isPro: bool
           </p>
         </div>
         <button
-          onClick={fetchSuggestions}
+          onClick={() => fetchSuggestions(true)}
           disabled={loading}
           title="Actualiser les suggestions"
           className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 hover:text-violet-600 hover:border-violet-300 transition-colors disabled:opacity-50"
