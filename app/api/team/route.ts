@@ -3,7 +3,6 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getWorkspaceContext } from '@/lib/workspace';
 import { sendTeamInvitation } from '@/lib/emails';
 import { NextRequest, NextResponse } from 'next/server';
-import { randomBytes } from 'crypto';
 
 const MAX_SEATS = 3; // Pro: 3 users total (owner + 2 collaborators)
 
@@ -87,8 +86,10 @@ export async function POST(request: NextRequest) {
     if (alreadyMember) return NextResponse.json({ error: 'Cet utilisateur est déjà membre de l\'équipe.' }, { status: 400 });
   }
 
-  // Generate token in app code (avoids dependency on pgcrypto DB default)
-  const token = randomBytes(32).toString('hex');
+  // Generate token using Web Crypto (available in all Next.js runtimes)
+  const tokenBytes = new Uint8Array(32);
+  globalThis.crypto.getRandomValues(tokenBytes);
+  const token = Array.from(tokenBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
   // Create invitation
   const { error: invError } = await admin
@@ -97,8 +98,8 @@ export async function POST(request: NextRequest) {
     .insert({ workspace_id: workspaceId, invited_by: user.id, email, first_name: firstName, role: 'collaborator', token } as any);
 
   if (invError) {
-    console.error('[team invite] insert error:', invError);
-    return NextResponse.json({ error: 'Erreur lors de la création de l\'invitation.' }, { status: 500 });
+    console.error('[team invite] insert error:', JSON.stringify(invError));
+    return NextResponse.json({ error: invError.message ?? 'Erreur lors de la création de l\'invitation.' }, { status: 500 });
   }
   const ownerName = (op?.first_name as string | null) ?? 'Le propriétaire';
   const workspaceName = (op?.business_name as string | null) ?? 'StudioGen';
