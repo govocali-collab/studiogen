@@ -17,13 +17,14 @@ export async function POST(request: NextRequest) {
     const admin = createAdminClient();
     const { data: profileRaw } = await admin
       .from('profiles')
-      .select('stripe_customer_id')
+      .select('stripe_customer_id, business_name')
       .eq('id', user.id)
       .single();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const profile = profileRaw as any;
     let customerId = profile?.stripe_customer_id as string | undefined;
+    const businessName = (profile?.business_name as string | null)?.trim() || undefined;
 
     // Verify the stored customer still exists in current Stripe mode (test vs live)
     if (customerId) {
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
+        name: businessName,
         metadata: { supabase_user_id: user.id },
       });
       customerId = customer.id;

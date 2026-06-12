@@ -3,14 +3,14 @@ import { sendWelcomeEmail, addToAudience } from '@/lib/emails';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  let body: { user_id: string; first_name?: string; last_name?: string; phone?: string; email_consent: boolean; sms_consent: boolean };
+  let body: { user_id: string; first_name?: string; last_name?: string; business_name?: string; phone?: string; email_consent: boolean; sms_consent: boolean };
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: 'Corps invalide' }, { status: 400 });
   }
 
-  const { user_id, first_name, last_name, phone, email_consent, sms_consent } = body;
+  const { user_id, first_name, last_name, business_name, phone, email_consent, sms_consent } = body;
   if (!user_id) return NextResponse.json({ error: 'user_id requis' }, { status: 400 });
 
   const admin = createAdminClient();
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
   };
   if (first_name?.trim()) update.first_name = first_name.trim();
   if (last_name?.trim()) update.last_name = last_name.trim();
+  if (business_name?.trim()) update.business_name = business_name.trim();
   if (phone?.trim()) update.phone = phone.trim();
 
   const { error } = await admin

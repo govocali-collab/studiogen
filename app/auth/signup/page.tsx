@@ -10,6 +10,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [businessName, setBusinessName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -49,7 +50,7 @@ export default function SignupPage() {
       await fetch('/api/auth/register-consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, first_name: firstName, last_name: lastName, phone, email_consent: emailConsent, sms_consent: smsConsent }),
+        body: JSON.stringify({ user_id: userId, first_name: firstName, last_name: lastName, business_name: businessName, phone, email_consent: emailConsent, sms_consent: smsConsent }),
       });
     }
 
@@ -119,6 +120,18 @@ export default function SignupPage() {
                   className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Nom de ton entreprise</label>
+              <input
+                type="text"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                required
+                placeholder="ex. Salon Belle Vue"
+                className="w-full text-base rounded-xl border border-gray-200 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-gray-400 placeholder-gray-300"
+              />
             </div>
 
             <div>
