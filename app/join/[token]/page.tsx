@@ -120,8 +120,7 @@ export default function JoinPage() {
             </div>
             <h1 className="text-lg font-bold text-gray-900">Tu es invité·e !</h1>
             <p className="text-sm text-gray-500 leading-relaxed">
-              <span className="font-semibold text-gray-700">{info.ownerName}</span> t&apos;invite à rejoindre{' '}
-              <span className="font-semibold text-gray-700">{info.workspaceName}</span> sur StudioGen en tant que{' '}
+              <span className="font-semibold text-gray-700">{info.ownerName}</span> t&apos;invite à rejoindre son équipe sur StudioGen en tant que{' '}
               <span className="text-violet-600 font-semibold">collaborateur·trice</span>.
             </p>
           </div>
