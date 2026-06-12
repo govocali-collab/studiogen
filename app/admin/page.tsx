@@ -19,6 +19,15 @@ interface AdminUser {
   stripe_customer_id: string | null;
 }
 
+interface MonthRevenue {
+  monthKey: string;
+  monthLabel: string;
+  shortLabel: string;
+  revenue: number;
+  count: number;
+  isCurrent: boolean;
+}
+
 interface PromoCode {
   id: string;
   code: string;
@@ -45,6 +54,13 @@ export default function AdminPage() {
   const [loadingLink, setLoadingLink] = useState('');
   const [copied, setCopied] = useState(false);
 
+  // Revenue state
+  const [revenueMonths, setRevenueMonths] = useState<MonthRevenue[]>([]);
+  const [revenueLoading, setRevenueLoading] = useState(true);
+  const [currentRevenue, setCurrentRevenue] = useState(0);
+  const [lastMonthRevenue, setLastMonthRevenue] = useState(0);
+  const [tooltipData, setTooltipData] = useState<{ x: number; label: string; revenue: number; count: number } | null>(null);
+
   // Promo codes state
   const [codes, setCodes] = useState<PromoCode[]>([]);
   const [codesLoading, setCodesLoading] = useState(false);
@@ -56,6 +72,18 @@ export default function AdminPage() {
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
   const [togglingId, setTogglingId] = useState('');
+
+  useEffect(() => {
+    fetch('/api/admin/revenue')
+      .then(r => r.json())
+      .then(d => {
+        setRevenueMonths(d.months ?? []);
+        setCurrentRevenue(d.currentRevenue ?? 0);
+        setLastMonthRevenue(d.lastMonthRevenue ?? 0);
+        setRevenueLoading(false);
+      })
+      .catch(() => setRevenueLoading(false));
+  }, []);
 
   useEffect(() => {
     fetch('/api/admin/users')
@@ -444,6 +472,66 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Monthly Revenue Chart */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Revenu mensuel (Stripe)</div>
+              {revenueLoading ? (
+                <div className="text-2xl font-bold text-gray-200 animate-pulse">—</div>
+              ) : (
+                <div className="flex items-baseline gap-3">
+                  <span className="text-3xl font-bold text-gray-900">{currentRevenue.toLocaleString('fr-CA')} $</span>
+                  <span className="text-sm text-gray-400">ce mois-ci</span>
+                  {lastMonthRevenue > 0 && currentRevenue !== lastMonthRevenue && (
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${currentRevenue >= lastMonthRevenue ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-500'}`}>
+                      {currentRevenue >= lastMonthRevenue ? '↑' : '↓'} {Math.abs(currentRevenue - lastMonthRevenue).toLocaleString('fr-CA')} $ vs mois dernier
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* SVG Bar Chart */}
+          {!revenueLoading && revenueMonths.length > 0 && (
+            <div className="relative">
+              <RevenueChart
+                data={revenueMonths}
+                tooltip={tooltipData}
+                onTooltip={setTooltipData}
+              />
+            </div>
+          )}
+
+          {/* Month summary table */}
+          {!revenueLoading && revenueMonths.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="py-1.5 text-left font-medium text-gray-400">Mois</th>
+                    <th className="py-1.5 text-right font-medium text-gray-400">Revenus</th>
+                    <th className="py-1.5 text-right font-medium text-gray-400">Factures</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {[...revenueMonths].reverse().map(m => (
+                    <tr key={m.monthKey} className={m.isCurrent ? 'font-semibold' : ''}>
+                      <td className="py-1.5 text-gray-700">
+                        {m.monthLabel}
+                        {m.isCurrent && <span className="ml-1.5 text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full font-semibold">En cours</span>}
+                      </td>
+                      <td className="py-1.5 text-right text-gray-800 tabular-nums">{m.revenue.toLocaleString('fr-CA')} $</td>
+                      <td className="py-1.5 text-right text-gray-400 tabular-nums">{m.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
         {/* Users table */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
           <div className="px-5 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
@@ -571,6 +659,85 @@ export default function AdminPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RevenueChart({
+  data,
+  tooltip,
+  onTooltip,
+}: {
+  data: MonthRevenue[];
+  tooltip: { x: number; label: string; revenue: number; count: number } | null;
+  onTooltip: (t: { x: number; label: string; revenue: number; count: number } | null) => void;
+}) {
+  const CHART_H  = 140;
+  const BAR_W    = 28;
+  const GAP      = 10;
+  const PAD_L    = 52;
+  const PAD_B    = 28;
+  const max = Math.max(...data.map(d => d.revenue), 1);
+  const totalW = PAD_L + data.length * (BAR_W + GAP);
+  const gridValues = [0.25, 0.5, 0.75, 1];
+
+  return (
+    <div className="relative select-none">
+      <svg
+        viewBox={`0 0 ${totalW} ${CHART_H + PAD_B}`}
+        className="w-full overflow-visible"
+        onMouseLeave={() => onTooltip(null)}
+      >
+        {/* Grid lines */}
+        {gridValues.map(pct => {
+          const y = CHART_H - pct * CHART_H;
+          return (
+            <g key={pct}>
+              <line x1={PAD_L} y1={y} x2={totalW} y2={y} stroke="#f3f4f6" strokeWidth={1} />
+              <text x={PAD_L - 6} y={y + 4} textAnchor="end" fontSize={9} fill="#9ca3af">
+                {Math.round(pct * max).toLocaleString('fr-CA')} $
+              </text>
+            </g>
+          );
+        })}
+        <line x1={PAD_L} y1={0} x2={PAD_L} y2={CHART_H} stroke="#f3f4f6" strokeWidth={1} />
+
+        {/* Bars */}
+        {data.map((d, i) => {
+          const barH = Math.max((d.revenue / max) * CHART_H, d.revenue > 0 ? 3 : 0);
+          const x = PAD_L + i * (BAR_W + GAP);
+          const y = CHART_H - barH;
+          return (
+            <g key={d.monthKey}>
+              <rect
+                x={x} y={y} width={BAR_W} height={barH} rx={4}
+                fill={d.isCurrent ? '#7c3aed' : '#ddd6fe'}
+                className="cursor-pointer transition-all"
+                onMouseEnter={() => onTooltip({ x: x + BAR_W / 2, label: d.monthLabel, revenue: d.revenue, count: d.count })}
+              />
+              {d.isCurrent && d.revenue > 0 && (
+                <text x={x + BAR_W / 2} y={y - 5} textAnchor="middle" fontSize={9} fontWeight="700" fill="#7c3aed">
+                  {d.revenue.toLocaleString('fr-CA')} $
+                </text>
+              )}
+              <text x={x + BAR_W / 2} y={CHART_H + 16} textAnchor="middle" fontSize={9} fill={d.isCurrent ? '#7c3aed' : '#6b7280'} fontWeight={d.isCurrent ? '700' : '400'}>
+                {d.shortLabel}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* Hover tooltip */}
+      {tooltip && (
+        <div
+          className="absolute top-0 pointer-events-none z-10 bg-gray-900 text-white text-xs px-2.5 py-1.5 rounded-xl shadow-lg whitespace-nowrap -translate-x-1/2 -translate-y-full -mt-2"
+          style={{ left: `calc(${PAD_L}px + ${tooltip.x - PAD_L}px)` }}
+        >
+          <div className="font-semibold">{tooltip.label}</div>
+          <div className="text-gray-300">{tooltip.revenue.toLocaleString('fr-CA')} $ · {tooltip.count} facture{tooltip.count !== 1 ? 's' : ''}</div>
         </div>
       )}
     </div>
