@@ -1,13 +1,16 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED = ['/studio', '/billing', '/admin', '/settings'];
+const PROTECTED = ['/studio', '/billing', '/admin', '/settings', '/calendrier'];
+// Success page validates via Stripe session_id + admin client — no auth needed
+const UNPROTECTED = ['/billing/success'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Only protect specific routes
-  const isProtected = PROTECTED.some(p => pathname === p || pathname.startsWith(p + '/'));
+  const isProtected = !UNPROTECTED.includes(pathname)
+    && PROTECTED.some(p => pathname === p || pathname.startsWith(p + '/'));
   if (!isProtected) return NextResponse.next();
 
   // Skip auth if Supabase isn't configured yet
@@ -34,13 +37,11 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const user = session?.user ?? null;
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/auth/login';
-    loginUrl.searchParams.set('redirect', pathname);
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 

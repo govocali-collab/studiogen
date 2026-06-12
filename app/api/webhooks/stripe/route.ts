@@ -80,7 +80,20 @@ export async function POST(request: NextRequest) {
           profileEmail = found?.email ?? null;
         }
 
-        if (!profileId) break;
+        if (!profileId) {
+          if (!userId) break;
+          // Profile row doesn't exist — create it
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (admin.from('profiles') as any).upsert({
+            id: userId,
+            stripe_customer_id: customerId,
+            subscription_tier: tier,
+            subscription_status: 'active',
+            generations_used: 0,
+            trial_generations_used: 0,
+          }, { onConflict: 'id' });
+          break;
+        }
 
         await admin.from('profiles').update({
           stripe_customer_id: customerId,

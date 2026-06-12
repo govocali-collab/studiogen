@@ -7,12 +7,16 @@ function parseTier(priceId: string): 'essentiel' | 'pro' {
   return priceId === process.env.STRIPE_PRICE_PRO ? 'pro' : 'essentiel';
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json(null, { status: 401 });
 
-  const { data: profileRaw } = await supabase
+  // Use admin client to bypass RLS — ensures we always read the latest data
+  const admin = createAdminClient();
+  const { data: profileRaw } = await admin
     .from('profiles')
     .select('*')
     .eq('id', user.id)
@@ -21,7 +25,7 @@ export async function GET() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let profile = profileRaw as any;
 
-  // If profile still shows trialing but has a Stripe customer, sync from Stripe
+  // If profile still shows trialing (or doesn't exist) but has a Stripe customer, sync from Stripe
   if (profile?.subscription_status === 'trialing' && profile?.stripe_customer_id) {
     try {
       const [activeList, trialingList] = await Promise.all([
@@ -33,7 +37,6 @@ export async function GET() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const priceId = (sub as any).items?.data[0]?.price?.id ?? '';
         const tier = parseTier(priceId);
-        const admin = createAdminClient();
         await admin.from('profiles').update({
           subscription_tier: tier,
           subscription_status: 'active',

@@ -46,6 +46,38 @@ export async function POST(request: NextRequest) {
     }
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+
+    // If customer already has an active subscription, upgrade it directly (no new checkout)
+    const existingSubs = await stripe.subscriptions.list({ customer: customerId, status: 'active', limit: 1 });
+    const existingSub = existingSubs.data[0];
+    if (existingSub) {
+      const item = existingSub.items.data[0];
+      if (item.price.id === priceId) {
+        // Already on this plan
+        return NextResponse.json({ url: `${appUrl}/billing` });
+      }
+      const updatedSub = await stripe.subscriptions.update(existingSub.id, {
+        items: [{ id: item.id, price: priceId }],
+        proration_behavior: 'always_invoice',
+        metadata: { supabase_user_id: user.id, tier },
+      });
+
+      // Verify the proration invoice was actually paid before upgrading profile
+      const latestInvoiceId = updatedSub.latest_invoice;
+      if (latestInvoiceId) {
+        const invoiceId = typeof latestInvoiceId === 'string' ? latestInvoiceId : latestInvoiceId.id;
+        const invoice = await stripe.invoices.retrieve(invoiceId);
+        if (invoice.status !== 'paid') {
+          return NextResponse.json({ error: 'Paiement refusé. Veuillez mettre à jour votre mode de paiement via le portail de facturation.' }, { status: 402 });
+        }
+      }
+
+      // Payment confirmed — upgrade profile
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await admin.from('profiles').update({ subscription_tier: tier } as any).eq('id', user.id);
+      return NextResponse.json({ url: `${appUrl}/billing?activated=1` });
+    }
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       client_reference_id: user.id,

@@ -40,10 +40,8 @@ function BillingPageInner() {
   const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
-    const isSuccess = !!searchParams.get('success');
+    const isActivated = !!(searchParams.get('success') || searchParams.get('activated'));
 
-    // /api/me now auto-syncs from Stripe if profile shows trialing + has customer ID.
-    // Poll it up to 5 times on success so the DB has time to reflect the payment.
     const fetchProfile = () =>
       fetch('/api/me', { cache: 'no-store' }).then(r => r.json());
 
@@ -53,19 +51,22 @@ function BillingPageInner() {
       setProfile(p);
       setLoading(false);
       setSyncing(false);
-      if (isSuccess && p?.subscription_status === 'trialing' && attempt < 5) {
+      if (isActivated && (p === null || p?.subscription_status === 'trialing') && attempt < 8) {
         setSyncing(true);
         setTimeout(() => pollProfile(attempt + 1), 1500);
+      } else if (isActivated && (p === null || p?.subscription_status === 'trialing') && attempt >= 8) {
+        // Still trialing after all attempts — force a clean reload to bypass any stale cache
+        window.location.href = '/billing?activated=1&reload=1';
       }
     };
 
-    setSyncing(isSuccess);
+    setSyncing(isActivated);
     pollProfile(1);
 
     fetch('/api/stripe/invoices').then(r => r.json()).then(d => {
       setInvoices(d?.invoices ?? []);
     });
-    if (isSuccess || searchParams.get('activated')) setToast('Abonnement activé avec succès !');
+    if (isActivated) setToast('Abonnement activé avec succès !');
     if (searchParams.get('canceled')) setToast('Paiement annulé.');
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -244,30 +245,6 @@ function BillingPageInner() {
                   Synchronisation…
                 </span>
               )}
-              {!syncing && isTrialing && (
-                <button
-                  onClick={() => {
-                    setSyncing(true);
-                    fetch('/api/me', { cache: 'no-store' }).then(r => r.json()).then(d => {
-                      setProfile(d?.profile ?? null);
-                      setSyncing(false);
-                      alert('status: ' + d?.profile?.subscription_status + '\ncustomer: ' + d?.profile?.stripe_customer_id + '\ntier: ' + d?.profile?.subscription_tier);
-                    });
-                  }}
-                  className="text-xs text-violet-500 hover:text-violet-700 font-medium transition-colors whitespace-nowrap underline underline-offset-2"
-                >
-                  Rafraîchir
-                </button>
-              )}
-              {profile?.stripe_customer_id && status !== 'trialing' && (
-                <button
-                  onClick={handlePortal}
-                  disabled={actionLoading === 'portal'}
-                  className="text-sm text-violet-600 hover:text-violet-800 font-medium transition-colors whitespace-nowrap"
-                >
-                  {actionLoading === 'portal' ? 'Chargement…' : 'Gérer le paiement →'}
-                </button>
-              )}
             </div>
 
             {/* Plan selection */}
@@ -364,6 +341,19 @@ function BillingPageInner() {
             <p className="text-[11px] text-center text-gray-400">
               La facturation apparaîtra sous le nom <span className="font-medium text-gray-500">Astrova</span> sur votre relevé bancaire et vos reçus.
             </p>
+
+            {/* Manage payment method */}
+            {profile?.stripe_customer_id && status !== 'trialing' && (
+              <div className="flex justify-center">
+                <button
+                  onClick={handlePortal}
+                  disabled={actionLoading === 'portal'}
+                  className="text-sm text-violet-600 hover:text-violet-800 font-medium transition-colors"
+                >
+                  {actionLoading === 'portal' ? 'Chargement…' : 'Gérer le mode de paiement →'}
+                </button>
+              </div>
+            )}
 
             {/* Cancel subscription */}
             {status === 'active' && (
