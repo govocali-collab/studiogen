@@ -458,70 +458,91 @@ function PostDetailModal({ post, onClose, onDelete }: {
     onDelete(post.id);
   };
 
+  const platformColor = post.platform === 'fb' ? 'bg-blue-500' : 'bg-gradient-to-br from-fuchsia-500 to-orange-400';
+
   return (
     <>
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${c.bg} ${c.text}`}>
-              {post.content_type}
-            </span>
-            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${post.platform === 'fb' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
-              {PLATFORM_LABEL[post.platform]}
-            </span>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-white w-full sm:rounded-2xl sm:max-w-md max-h-[92vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
+
+        {/* Image hero or color header */}
+        {post.image_url ? (
+          <div className="relative cursor-pointer group" onClick={() => setImageExpanded(true)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={post.image_url} alt="Collage" className="w-full max-h-64 object-cover rounded-t-2xl" />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors rounded-t-2xl flex items-center justify-center">
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5">
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg>
+                Agrandir
+              </span>
+            </div>
+            {/* Overlay badges */}
+            <div className="absolute top-3 left-3 flex items-center gap-1.5">
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${platformColor}`}>
+                {PLATFORM_LABEL[post.platform]}
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.bg} ${c.text}`}>
+                {post.content_type}
+              </span>
+            </div>
+            <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
           </div>
-          <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-          </button>
-        </div>
+        ) : (
+          <div className={`h-2 rounded-t-2xl ${c.bg}`} />
+        )}
 
         <div className="p-5 space-y-4">
-          {/* Date */}
-          <p className="text-xs text-gray-400 font-medium">{formatDateFr(post.scheduled_date)}</p>
-
-          {/* Image */}
-          {post.image_url && (
-            <div className="rounded-xl overflow-hidden border border-gray-100 relative group cursor-pointer" onClick={() => setImageExpanded(true)}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={post.image_url} alt="Collage" className="w-full object-contain" />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white text-xs font-semibold px-3 py-1.5 rounded-full">
-                  Agrandir
-                </span>
+          {/* Header row when no image */}
+          {!post.image_url && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full text-white ${platformColor}`}>{PLATFORM_LABEL[post.platform]}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.bg} ${c.text}`}>{post.content_type}</span>
               </div>
+              <button onClick={onClose} className="w-7 h-7 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-100">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
           )}
 
-          {/* Content */}
-          <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans leading-relaxed bg-gray-50 rounded-xl p-4 max-h-60 overflow-y-auto">
-            {post.content}
-          </pre>
+          {/* Date */}
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{formatDateFr(post.scheduled_date)}</p>
 
-          {/* Actions */}
-          <div className="flex gap-2 flex-wrap">
+          {/* Content */}
+          <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
+            {post.content}
+          </p>
+
+          {/* Action row */}
+          <div className="flex items-center gap-2 pt-1">
             <button
               onClick={copy}
-              className={`flex-1 py-2 rounded-xl text-sm font-semibold border transition-colors ${copied ? 'border-violet-600 bg-violet-600 text-white' : 'border-gray-200 text-gray-700 hover:border-gray-400'}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${copied ? 'bg-violet-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
             >
-              {copied ? '✓ Copié' : 'Copier le texte'}
+              {copied ? (
+                <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>Copié</>
+              ) : (
+                <><svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>Copier</>
+              )}
             </button>
             {post.image_url && (
               <button
                 onClick={downloadImage}
-                className="py-2 px-4 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:border-gray-400 transition-colors flex items-center gap-1.5"
+                title="Télécharger l'image"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                Image
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
               </button>
             )}
             <button
               onClick={del}
               disabled={deleting}
-              className="py-2 px-4 rounded-xl text-sm font-semibold border border-red-100 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+              title="Supprimer"
+              className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-colors flex-shrink-0 disabled:opacity-40"
             >
-              {deleting ? '…' : 'Supprimer'}
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </button>
           </div>
 
@@ -536,49 +557,55 @@ function PostDetailModal({ post, onClose, onDelete }: {
                   });
                   setPubResult(null);
                 }}
-                className="w-full py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors flex items-center justify-center gap-2"
+                className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${showPublish ? 'bg-gray-100 text-gray-700' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
               >
                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
-                Publier sur les réseaux
+                {showPublish ? 'Annuler' : 'Publier sur les réseaux'}
               </button>
 
               {showPublish && (
-                <div ref={pubPanelRef} className="bg-gray-50 rounded-xl p-4 space-y-3">
-                  {/* Platform checkboxes */}
-                  <div className="flex gap-3">
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
-                      <input type="checkbox" checked={pubPlatforms.fb} onChange={e => setPubPlatforms(v => ({ ...v, fb: e.target.checked }))} className="rounded" />
-                      <span className="text-blue-600 font-semibold">Facebook</span>
-                    </label>
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
-                      <input type="checkbox" checked={pubPlatforms.ig} onChange={e => setPubPlatforms(v => ({ ...v, ig: e.target.checked }))} className="rounded" />
-                      <span className="text-fuchsia-600 font-semibold">Instagram</span>
-                    </label>
+                <div ref={pubPanelRef} className="bg-gray-50 rounded-2xl p-4 space-y-4">
+                  {/* Platform toggles */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPubPlatforms(v => ({ ...v, fb: !v.fb }))}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${pubPlatforms.fb ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-400'}`}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                      Facebook
+                    </button>
+                    <button
+                      onClick={() => setPubPlatforms(v => ({ ...v, ig: !v.ig }))}
+                      className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-semibold border-2 transition-colors ${pubPlatforms.ig ? 'border-fuchsia-500 bg-fuchsia-50 text-fuchsia-700' : 'border-gray-200 text-gray-400'}`}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
+                      Instagram
+                    </button>
                   </div>
 
                   {/* Date/time picker */}
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Date et heure de publication</label>
+                    <label className="text-xs font-semibold text-gray-500 block mb-1.5">Date et heure</label>
                     <input
                       type="datetime-local"
                       value={pubDateTime}
                       onChange={e => setPubDateTime(e.target.value)}
-                      className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full text-sm border border-gray-200 bg-white rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
                   <button
                     onClick={handlePublish}
                     disabled={publishing || (!pubPlatforms.fb && !pubPlatforms.ig)}
-                    className="w-full py-2 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+                    className="w-full py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
                   >
-                    {publishing ? (isFuture ? 'Planification…' : 'Publication…') : isFuture ? 'Planifier' : 'Publier maintenant'}
+                    {publishing ? (isFuture ? 'Planification…' : 'Publication…') : isFuture ? 'Planifier pour plus tard' : 'Publier maintenant'}
                   </button>
 
                   {pubResult && (
-                    <div className="space-y-1">
-                      {pubResult.fb && <p className={`text-xs font-medium ${pubResult.fb.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>{pubResult.fb}</p>}
-                      {pubResult.ig && <p className={`text-xs font-medium ${pubResult.ig.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>{pubResult.ig}</p>}
+                    <div className="space-y-1 pt-1">
+                      {pubResult.fb && <p className={`text-xs font-semibold flex items-center gap-1.5 ${pubResult.fb.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>{pubResult.fb}</p>}
+                      {pubResult.ig && <p className={`text-xs font-semibold flex items-center gap-1.5 ${pubResult.ig.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>{pubResult.ig}</p>}
                     </div>
                   )}
                 </div>
