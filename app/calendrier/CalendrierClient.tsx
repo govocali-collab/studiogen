@@ -565,9 +565,6 @@ function PostDetailModal({ post, onClose, onDelete }: {
                       onChange={e => setPubDateTime(e.target.value)}
                       className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    {pubPlatforms.ig && new Date(pubDateTime) > new Date() && (
-                      <p className="text-[11px] text-amber-600 mt-1">Instagram ne supporte pas la planification — sera publié immédiatement.</p>
-                    )}
                   </div>
 
                   <button
