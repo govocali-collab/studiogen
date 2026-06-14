@@ -800,7 +800,7 @@ export default async function LandingPage() {
               </div>
               <div className="flex items-center gap-2 mb-6">
                 <span className="text-sm text-gray-500 line-through">127 $ / mois</span>
-                <span className="text-xs font-semibold bg-violet-700/50 text-violet-200 px-2 py-0.5 rounded-full">Prix fondateur</span>
+                <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Prix fondateur</span>
               </div>
               <ul className="space-y-2.5 mb-8 flex-1">
                 {[
