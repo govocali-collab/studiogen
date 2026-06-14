@@ -7,6 +7,9 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import AppHeader from '@/components/AppHeader';
 import HomeScreenInstructions from '@/components/HomeScreenInstructions';
+import MetaConnection from '@/components/MetaConnection';
+
+const META_PUBLISHING_ENABLED = process.env.NEXT_PUBLIC_META_PUBLISHING_ENABLED === 'true';
 
 // ── Chip multi-select ─────────────────────────────────────────────────────────
 
@@ -635,6 +638,17 @@ function SettingsPageInner() {
               Équipe
             </button>
           )}
+          {META_PUBLISHING_ENABLED && (
+            <button
+              type="button"
+              onClick={() => handleTabChange('connexions')}
+              className={`px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                tab === 'connexions' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Connexions
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -778,6 +792,8 @@ function SettingsPageInner() {
               </>
             )}
           </div>
+        ) : tab === 'connexions' && META_PUBLISHING_ENABLED ? (
+          <MetaConnection />
         ) : tab === 'profil' ? (
           <>
             {/* ── Onglet Profil ── */}
