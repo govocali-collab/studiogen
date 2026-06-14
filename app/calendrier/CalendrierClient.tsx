@@ -398,6 +398,8 @@ function PostDetailModal({ post, onClose, onDelete }: {
   const [pubResult, setPubResult] = useState<{ fb?: string; ig?: string } | null>(null);
   const pubPanelRef = useRef<HTMLDivElement>(null);
 
+  const isFuture = new Date(pubDateTime) > new Date();
+
   const handlePublish = async () => {
     const platforms: ('facebook' | 'instagram')[] = [];
     if (pubPlatforms.fb) platforms.push('facebook');
@@ -405,22 +407,30 @@ function PostDetailModal({ post, onClose, onDelete }: {
     if (!platforms.length) return;
     setPublishing(true);
     setPubResult(null);
-    const res = await fetch('/api/meta/publish', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        caption: post.content,
-        imageUrl: post.image_url ?? '',
-        platforms,
-        scheduledTime: pubDateTime,
-      }),
-    });
-    const data = await res.json() as { results?: Record<string, { success: boolean; error?: string }> };
-    const results = data.results ?? {};
-    setPubResult({
-      fb: results.facebook ? (results.facebook.success ? '✓ Publié sur Facebook' : `Erreur: ${results.facebook.error}`) : undefined,
-      ig: results.instagram ? (results.instagram.success ? '✓ Publié sur Instagram' : `Erreur: ${results.instagram.error}`) : undefined,
-    });
+
+    if (isFuture) {
+      // Schedule for later
+      const res = await fetch('/api/meta/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption: post.content, imageUrl: post.image_url ?? '', platforms, scheduledFor: pubDateTime }),
+      });
+      const data = await res.json() as { ok?: boolean; error?: string };
+      setPubResult({ fb: data.ok ? '✓ Planifié — sera publié automatiquement' : `Erreur: ${data.error}` });
+    } else {
+      // Publish immediately
+      const res = await fetch('/api/meta/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caption: post.content, imageUrl: post.image_url ?? '', platforms }),
+      });
+      const data = await res.json() as { results?: Record<string, { success: boolean; error?: string }> };
+      const results = data.results ?? {};
+      setPubResult({
+        fb: results.facebook ? (results.facebook.success ? '✓ Publié sur Facebook' : `Erreur: ${results.facebook.error}`) : undefined,
+        ig: results.instagram ? (results.instagram.success ? '✓ Publié sur Instagram' : `Erreur: ${results.instagram.error}`) : undefined,
+      });
+    }
     setPublishing(false);
   };
 
@@ -565,7 +575,7 @@ function PostDetailModal({ post, onClose, onDelete }: {
                     disabled={publishing || (!pubPlatforms.fb && !pubPlatforms.ig)}
                     className="w-full py-2 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
                   >
-                    {publishing ? 'Publication en cours…' : new Date(pubDateTime) > new Date() ? 'Planifier' : 'Publier maintenant'}
+                    {publishing ? (isFuture ? 'Planification…' : 'Publication…') : isFuture ? 'Planifier' : 'Publier maintenant'}
                   </button>
 
                   {pubResult && (
