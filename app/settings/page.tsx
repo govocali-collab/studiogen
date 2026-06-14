@@ -297,8 +297,8 @@ function SettingsPageInner() {
   const [error, setError] = useState<string | null>(null);
 
   const teamEnabled = process.env.NEXT_PUBLIC_TEAM_ENABLED === 'true';
-  const [tab, setTab] = useState<'profil' | 'ia' | 'equipe'>(
-    searchParams.get('tab') === 'ia' ? 'ia' : (searchParams.get('tab') === 'equipe' && teamEnabled) ? 'equipe' : 'profil'
+  const [tab, setTab] = useState<'profil' | 'ia' | 'equipe' | 'connexions'>(
+    searchParams.get('tab') === 'ia' ? 'ia' : (searchParams.get('tab') === 'equipe' && teamEnabled) ? 'equipe' : searchParams.get('tab') === 'connexions' ? 'connexions' : 'profil'
   );
 
   const [teamData, setTeamData] = useState<{
@@ -389,7 +389,7 @@ function SettingsPageInner() {
     setTeamLoading(false);
   };
 
-  const handleTabChange = (t: 'profil' | 'ia' | 'equipe') => {
+  const handleTabChange = (t: 'profil' | 'ia' | 'equipe' | 'connexions') => {
     setTab(t);
     if (t === 'equipe' && !teamData) loadTeam();
   };
