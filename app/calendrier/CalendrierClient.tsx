@@ -7,6 +7,8 @@ import { CalendarPost, PlannedContent } from '@/lib/supabase/types';
 import ContentPlanner from './ContentPlanner';
 import StrategicSuggestions from '@/components/StrategicSuggestions';
 
+const META_PUBLISHING_ENABLED = process.env.NEXT_PUBLIC_META_PUBLISHING_ENABLED === 'true';
+
 // ── Dropdown filter ───────────────────────────────────────────────────────────
 function FilterDropdown<T extends string>({
   options,
@@ -387,6 +389,40 @@ function PostDetailModal({ post, onClose, onDelete }: {
 
   const [imageExpanded, setImageExpanded] = useState(false);
 
+  // Meta publishing (feature-flagged)
+  const [showPublish, setShowPublish] = useState(false);
+  const [pubPlatforms, setPubPlatforms] = useState<{ fb: boolean; ig: boolean }>({ fb: true, ig: false });
+  const defaultDateTime = post.scheduled_date + 'T09:00';
+  const [pubDateTime, setPubDateTime] = useState(defaultDateTime);
+  const [publishing, setPublishing] = useState(false);
+  const [pubResult, setPubResult] = useState<{ fb?: string; ig?: string } | null>(null);
+
+  const handlePublish = async () => {
+    const platforms: ('facebook' | 'instagram')[] = [];
+    if (pubPlatforms.fb) platforms.push('facebook');
+    if (pubPlatforms.ig) platforms.push('instagram');
+    if (!platforms.length) return;
+    setPublishing(true);
+    setPubResult(null);
+    const res = await fetch('/api/meta/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        caption: post.content,
+        imageUrl: post.image_url ?? '',
+        platforms,
+        scheduledTime: pubDateTime,
+      }),
+    });
+    const data = await res.json() as { results?: Record<string, { success: boolean; error?: string }> };
+    const results = data.results ?? {};
+    setPubResult({
+      fb: results.facebook ? (results.facebook.success ? '✓ Publié sur Facebook' : `Erreur: ${results.facebook.error}`) : undefined,
+      ig: results.instagram ? (results.instagram.success ? '✓ Publié sur Instagram' : `Erreur: ${results.instagram.error}`) : undefined,
+    });
+    setPublishing(false);
+  };
+
   const copy = async () => {
     await navigator.clipboard.writeText(post.content);
     setCopied(true);
@@ -477,6 +513,64 @@ function PostDetailModal({ post, onClose, onDelete }: {
               {deleting ? '…' : 'Supprimer'}
             </button>
           </div>
+
+          {/* Meta publish section — feature-flagged */}
+          {META_PUBLISHING_ENABLED && (
+            <div className="border-t border-gray-100 pt-4 space-y-3">
+              <button
+                onClick={() => { setShowPublish(v => !v); setPubResult(null); }}
+                className="w-full py-2.5 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                Publier sur les réseaux
+              </button>
+
+              {showPublish && (
+                <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                  {/* Platform checkboxes */}
+                  <div className="flex gap-3">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                      <input type="checkbox" checked={pubPlatforms.fb} onChange={e => setPubPlatforms(v => ({ ...v, fb: e.target.checked }))} className="rounded" />
+                      <span className="text-blue-600 font-semibold">Facebook</span>
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                      <input type="checkbox" checked={pubPlatforms.ig} onChange={e => setPubPlatforms(v => ({ ...v, ig: e.target.checked }))} className="rounded" />
+                      <span className="text-fuchsia-600 font-semibold">Instagram</span>
+                    </label>
+                  </div>
+
+                  {/* Date/time picker */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 block mb-1">Date et heure de publication</label>
+                    <input
+                      type="datetime-local"
+                      value={pubDateTime}
+                      onChange={e => setPubDateTime(e.target.value)}
+                      className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {pubPlatforms.ig && new Date(pubDateTime) > new Date() && (
+                      <p className="text-[11px] text-amber-600 mt-1">Instagram ne supporte pas la planification — sera publié immédiatement.</p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handlePublish}
+                    disabled={publishing || (!pubPlatforms.fb && !pubPlatforms.ig)}
+                    className="w-full py-2 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50"
+                  >
+                    {publishing ? 'Publication en cours…' : new Date(pubDateTime) > new Date() ? 'Planifier' : 'Publier maintenant'}
+                  </button>
+
+                  {pubResult && (
+                    <div className="space-y-1">
+                      {pubResult.fb && <p className={`text-xs font-medium ${pubResult.fb.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>{pubResult.fb}</p>}
+                      {pubResult.ig && <p className={`text-xs font-medium ${pubResult.ig.startsWith('✓') ? 'text-green-600' : 'text-red-500'}`}>{pubResult.ig}</p>}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

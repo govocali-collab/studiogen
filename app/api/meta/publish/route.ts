@@ -6,6 +6,7 @@ interface PublishBody {
   caption: string;
   imageUrl: string;         // publicly accessible URL (Supabase Storage public URL)
   platforms: ('facebook' | 'instagram')[];
+  scheduledTime?: string;   // ISO datetime string; if future → Facebook schedules it
 }
 
 interface MetaConnection {
@@ -14,11 +15,17 @@ interface MetaConnection {
   instagram_business_id: string | null;
 }
 
-async function publishToFacebook(pageId: string, pageToken: string, imageUrl: string, caption: string) {
+async function publishToFacebook(pageId: string, pageToken: string, imageUrl: string, caption: string, scheduledTime?: string) {
+  const isFuture = scheduledTime && new Date(scheduledTime) > new Date();
+  const body: Record<string, unknown> = { url: imageUrl, message: caption, access_token: pageToken };
+  if (isFuture) {
+    body.published = false;
+    body.scheduled_publish_time = Math.floor(new Date(scheduledTime!).getTime() / 1000);
+  }
   const res = await fetch(`https://graph.facebook.com/v21.0/${pageId}/photos`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url: imageUrl, message: caption, access_token: pageToken }),
+    body: JSON.stringify(body),
   });
   return res.json() as Promise<{ id?: string; error?: { message: string } }>;
 }
@@ -48,7 +55,7 @@ export async function POST(request: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
 
   const body = await request.json() as PublishBody;
-  const { caption, imageUrl, platforms } = body;
+  const { caption, imageUrl, platforms, scheduledTime } = body;
 
   if (!caption || !imageUrl || !platforms?.length) {
     return NextResponse.json({ error: 'Paramètres manquants (caption, imageUrl, platforms)' }, { status: 400 });
@@ -73,7 +80,7 @@ export async function POST(request: NextRequest) {
     if (!facebook_page_id || !facebook_page_access_token) {
       results.facebook = { success: false, error: 'Aucune Page Facebook connectée.' };
     } else {
-      const r = await publishToFacebook(facebook_page_id, facebook_page_access_token, imageUrl, caption);
+      const r = await publishToFacebook(facebook_page_id, facebook_page_access_token, imageUrl, caption, scheduledTime);
       results.facebook = r.id ? { success: true, id: r.id } : { success: false, error: r.error?.message };
     }
   }
