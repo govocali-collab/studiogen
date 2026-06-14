@@ -5,7 +5,7 @@ import Image from 'next/image';
 export const metadata: Metadata = {
   title: "Conditions d'utilisation — StudioGen",
   description:
-    "Conditions d'utilisation de StudioGen — Les règles qui encadrent l'utilisation du service d'Astrova pour les professionnels de la beauté du Québec.",
+    "Conditions d'utilisation de StudioGen — Les règles qui encadrent l'utilisation du service d'NexusLocale pour les professionnels de la beauté du Québec.",
   alternates: { canonical: 'https://studiogen.ca/conditions-utilisation' },
   robots: { index: true, follow: true },
   openGraph: {
@@ -47,7 +47,7 @@ export default function ConditionsUtilisationPage() {
             <h2 className="text-lg font-bold text-gray-900 mb-3">1. Acceptation des conditions</h2>
             <p>
               En créant un compte et en utilisant StudioGen, vous acceptez les présentes conditions d&apos;utilisation.
-              StudioGen est un produit de <strong>Astrova</strong>, entreprise basée au Québec, Canada.
+              StudioGen est un produit de <strong>NexusLocale</strong>, entreprise basée au Québec, Canada.
               Si vous n&apos;acceptez pas ces conditions, veuillez ne pas utiliser le service.
             </p>
           </section>
@@ -92,7 +92,7 @@ export default function ConditionsUtilisationPage() {
             <h2 className="text-lg font-bold text-gray-900 mb-3">5. Abonnements et paiement</h2>
             <ul className="list-disc pl-6 space-y-2">
               <li>Les abonnements sont mensuels et se renouvellent automatiquement.</li>
-              <li>Les paiements sont traités en dollars canadiens (CAD) via Stripe. La facturation apparaît sous le nom <strong>Astrova</strong> sur votre relevé bancaire.</li>
+              <li>Les paiements sont traités en dollars canadiens (CAD) via Stripe. La facturation apparaît sous le nom <strong>NexusLocale</strong> sur votre relevé bancaire.</li>
               <li>Vous pouvez annuler votre abonnement en tout temps depuis la page Abonnement. Votre accès reste actif jusqu&apos;à la fin de la période payée.</li>
               <li>Nous ne remboursons pas les périodes déjà écoulées, sauf erreur de facturation de notre part.</li>
               <li>Les prix peuvent changer. Vous serez avisé par courriel au moins 30 jours avant toute modification tarifaire.</li>
@@ -127,7 +127,7 @@ export default function ConditionsUtilisationPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">8. Propriété intellectuelle</h2>
             <p>
-              Le code, le design, les algorithmes et la marque StudioGen sont la propriété exclusive d&apos;Astrova.
+              Le code, le design, les algorithmes et la marque StudioGen sont la propriété exclusive d&apos;NexusLocale.
               Les publications générées à partir de vos informations vous appartiennent entièrement.
               Vous conservez tous les droits sur les photos que vous importez dans le service.
             </p>
@@ -145,7 +145,7 @@ export default function ConditionsUtilisationPage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">10. Limitation de responsabilité</h2>
             <p>
-              StudioGen est fourni &ldquo;tel quel&rdquo;. Dans les limites permises par la loi, Astrova ne peut être
+              StudioGen est fourni &ldquo;tel quel&rdquo;. Dans les limites permises par la loi, NexusLocale ne peut être
               tenu responsable des dommages indirects, pertes de revenus ou interruptions d&apos;activité
               découlant de l&apos;utilisation du service. Notre responsabilité totale est limitée au montant
               payé pour le mois en cours.
@@ -192,7 +192,7 @@ export default function ConditionsUtilisationPage() {
 
       <footer className="border-t border-gray-100 py-8 px-6 mt-16">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-          <span>© {new Date().getFullYear()} Astrova. Tous droits réservés.</span>
+          <span>© {new Date().getFullYear()} NexusLocale. Tous droits réservés.</span>
           <div className="flex gap-6">
             <Link href="/politique-confidentialite" className="hover:text-gray-900 transition-colors">Confidentialité</Link>
             <Link href="/conditions-utilisation" className="hover:text-gray-900 transition-colors">Conditions</Link>

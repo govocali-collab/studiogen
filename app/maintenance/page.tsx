@@ -14,7 +14,7 @@ export default function MaintenancePage() {
             Nous serons de retour très bientôt.
           </p>
         </div>
-        <p className="text-xs text-gray-400">© StudioGen — Astrova</p>
+        <p className="text-xs text-gray-400">© StudioGen — NexusLocale</p>
       </div>
     </div>
   );

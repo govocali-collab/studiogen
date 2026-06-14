@@ -5,7 +5,7 @@ import Image from 'next/image';
 export const metadata: Metadata = {
   title: 'Politique de confidentialité — StudioGen',
   description:
-    'Politique de confidentialité de StudioGen — Comment nous collectons, utilisons et protégeons vos données personnelles. Service d\'Astrova, entreprise québécoise.',
+    'Politique de confidentialité de StudioGen — Comment nous collectons, utilisons et protégeons vos données personnelles. Service d\'NexusLocale, entreprise québécoise.',
   alternates: { canonical: 'https://studiogen.ca/politique-confidentialite' },
   robots: { index: true, follow: true },
   openGraph: {
@@ -46,7 +46,7 @@ export default function PolitiqueConfidentialitePage() {
           <section>
             <h2 className="text-lg font-bold text-gray-900 mb-3">1. Qui sommes-nous</h2>
             <p>
-              StudioGen est un produit de <strong>Astrova</strong>, une entreprise basée au Québec, Canada.
+              StudioGen est un produit de <strong>NexusLocale</strong>, une entreprise basée au Québec, Canada.
               StudioGen est un outil en ligne permettant aux professionnels de la beauté de créer des publications
               pour les réseaux sociaux Facebook et Instagram.
             </p>
@@ -89,7 +89,7 @@ export default function PolitiqueConfidentialitePage() {
             <p>Nous faisons appel aux fournisseurs suivants pour opérer notre service :</p>
             <ul className="list-disc pl-6 mt-3 space-y-2">
               <li><strong>Supabase</strong> — hébergement de la base de données, authentification et stockage des images. Données stockées au Canada ou aux États-Unis.</li>
-              <li><strong>Stripe</strong> — traitement des paiements. Stripe est certifié PCI DSS niveau 1. La facturation apparaît sous le nom <strong>Astrova</strong> sur votre relevé bancaire.</li>
+              <li><strong>Stripe</strong> — traitement des paiements. Stripe est certifié PCI DSS niveau 1. La facturation apparaît sous le nom <strong>NexusLocale</strong> sur votre relevé bancaire.</li>
               <li><strong>Moteur IA</strong> — génération de textes pour vos publications. Seule la description de votre entreprise est transmise lors de la génération.</li>
               <li><strong>Resend</strong> — envoi de courriels transactionnels (bienvenue, confirmation d&apos;abonnement, rappels). Seule votre adresse courriel est transmise.</li>
               <li><strong>Vercel</strong> — hébergement de l&apos;application web.</li>
@@ -161,7 +161,7 @@ export default function PolitiqueConfidentialitePage() {
 
       <footer className="border-t border-gray-100 py-8 px-6 mt-16">
         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-          <span>© {new Date().getFullYear()} Astrova. Tous droits réservés.</span>
+          <span>© {new Date().getFullYear()} NexusLocale. Tous droits réservés.</span>
           <div className="flex gap-6">
             <Link href="/politique-confidentialite" className="hover:text-gray-900 transition-colors">Confidentialité</Link>
             <Link href="/conditions-utilisation" className="hover:text-gray-900 transition-colors">Conditions</Link>

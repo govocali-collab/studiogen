@@ -478,7 +478,7 @@ function BillingPageInner() {
             </div>
 
             <p className="text-[11px] text-center text-gray-400">
-              La facturation apparaîtra sous le nom <span className="font-medium text-gray-500">Astrova</span> sur ton relevé bancaire et tes reçus.
+              La facturation apparaîtra sous le nom <span className="font-medium text-gray-500">NexusLocale</span> sur ton relevé bancaire et tes reçus.
             </p>
 
             {/* Manage payment method */}

@@ -178,8 +178,8 @@ const softwareLd = {
       eligibleQuantity: { '@type': 'QuantitativeValue', value: 150, unitText: 'publications/mois' },
     },
   ],
-  brand: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
-  publisher: { '@type': 'Organization', name: 'Astrova', url: 'https://astrova.ca' },
+  brand: { '@type': 'Organization', name: 'NexusLocale', url: 'https://nexuslocale.ca' },
+  publisher: { '@type': 'Organization', name: 'NexusLocale', url: 'https://nexuslocale.ca' },
 };
 
 export default async function LandingPage() {
@@ -286,7 +286,7 @@ export default async function LandingPage() {
               <div className="flex items-center gap-2">
                 <div className="w-5 h-5 bg-violet-600 rounded-lg" />
                 <span className="text-xs font-bold text-gray-800">StudioGen</span>
-                <span className="text-[10px] text-gray-400 ml-1">par Astrova</span>
+                <span className="text-[10px] text-gray-400 ml-1">par NexusLocale</span>
               </div>
               <div className="flex items-center gap-4">
                 <div className="bg-violet-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">⚡ PRO</div>
@@ -937,7 +937,7 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <Image src="/logo-white.png" alt="StudioGen" width={180} height={36} className="h-9 w-auto" />
-            <span className="text-gray-500 text-sm">par Astrova</span>
+            <span className="text-gray-500 text-sm">par NexusLocale</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-gray-500">
             <Link href="/auth/login" className="hover:text-gray-300 transition-colors">Connexion</Link>
@@ -947,7 +947,7 @@ export default async function LandingPage() {
           <div className="flex items-center gap-4 text-xs text-gray-600">
             <Link href="/politique-confidentialite" className="hover:text-gray-400 transition-colors">Confidentialité</Link>
             <Link href="/conditions-utilisation" className="hover:text-gray-400 transition-colors">Conditions</Link>
-            <span>© {new Date().getFullYear()} Astrova.</span>
+            <span>© {new Date().getFullYear()} NexusLocale.</span>
           </div>
         </div>
       </footer>

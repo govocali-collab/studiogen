@@ -52,11 +52,11 @@ export const metadata: Metadata = {
     'logiciel marketing salon beauté Québec',
     'publications automatiques esthéticienne',
     'StudioGen',
-    'Astrova',
+    'NexusLocale',
   ],
-  authors: [{ name: 'Astrova', url: 'https://astrova.ca' }],
-  creator: 'Astrova',
-  publisher: 'Astrova',
+  authors: [{ name: 'NexusLocale', url: 'https://nexuslocale.ca' }],
+  creator: 'NexusLocale',
+  publisher: 'NexusLocale',
   robots: {
     index: true,
     follow: true,
@@ -99,8 +99,8 @@ const websiteLd = {
   inLanguage: 'fr-CA',
   publisher: {
     '@type': 'Organization',
-    name: 'Astrova',
-    url: 'https://astrova.ca',
+    name: 'NexusLocale',
+    url: 'https://nexuslocale.ca',
   },
   potentialAction: {
     '@type': 'RegisterAction',
@@ -112,8 +112,8 @@ const websiteLd = {
 const organizationLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Astrova',
-  url: 'https://astrova.ca',
+  name: 'NexusLocale',
+  url: 'https://nexuslocale.ca',
   sameAs: ['https://studiogen.ca'],
   knowsAbout: [
     'Marketing de réseaux sociaux',

@@ -30,7 +30,7 @@ function baseTemplate(content: string) {
         <!-- Footer -->
         <tr><td style="padding:24px 40px;text-align:center">
           <p style="margin:0;font-size:12px;color:#9ca3af">
-            StudioGen · Propulsé par <a href="https://astrova.ca" style="color:#7c3aed;text-decoration:none">Astrova</a>
+            StudioGen · Propulsé par <a href="https://nexuslocale.ca" style="color:#7c3aed;text-decoration:none">NexusLocale</a>
           </p>
           <p style="margin:6px 0 0;font-size:11px;color:#d1d5db">
             Tu reçois ce courriel car tu as un compte StudioGen.
@@ -124,7 +124,7 @@ export async function sendSubscriptionConfirmation(email: string, tier: string) 
 
       <p style="margin:32px 0 0;font-size:13px;color:#9ca3af;border-top:1px solid #f3f4f6;padding-top:24px">
         Pour gérer ton abonnement, visite la page <a href="${APP_URL}/billing" style="color:#7c3aed">Abonnement</a> dans le studio.
-        La facturation apparaîtra sous le nom <strong>Astrova</strong> sur ton relevé bancaire.
+        La facturation apparaîtra sous le nom <strong>NexusLocale</strong> sur ton relevé bancaire.
       </p>
     `),
   });

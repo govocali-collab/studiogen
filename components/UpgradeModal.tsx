@@ -189,7 +189,7 @@ export default function UpgradeModal({ reason, onClose }: UpgradeModalProps) {
           </button>
 
           <p className="text-[10px] text-center text-gray-400">
-            La facturation apparaîtra sous le nom <span className="font-medium">Astrova</span> sur ton relevé bancaire.
+            La facturation apparaîtra sous le nom <span className="font-medium">NexusLocale</span> sur ton relevé bancaire.
           </p>
         </div>
       </div>
