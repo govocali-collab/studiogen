@@ -1,7 +1,7 @@
 export const PRICING = {
   essentiel: {
     name: 'Essentiel',
-    price: 57, // CAD, monthly
+    price: 27, // CAD, monthly
     trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_ESSENTIEL,
     description: "L'IA écrit comme ton entreprise.",
@@ -17,7 +17,7 @@ export const PRICING = {
   },
   pro: {
     name: 'Pro',
-    price: 127, // CAD, monthly
+    price: 79, // CAD, monthly
     trialGenerations: 7,
     stripePriceId: process.env.STRIPE_PRICE_PRO,
     description: "L'IA pense comme ta coordonnatrice marketing.",

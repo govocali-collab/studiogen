@@ -163,7 +163,7 @@ const softwareLd = {
     {
       '@type': 'Offer',
       name: 'Essentiel',
-      price: '57.00',
+      price: '27.00',
       priceCurrency: 'CAD',
       description: '20 publications par mois, ADN de marque IA complet, calendrier de contenu, Facebook + Instagram.',
       eligibleQuantity: { '@type': 'QuantitativeValue', value: 20, unitText: 'publications/mois' },
@@ -171,7 +171,7 @@ const softwareLd = {
     {
       '@type': 'Offer',
       name: 'Pro',
-      price: '127.00',
+      price: '79.00',
       priceCurrency: 'CAD',
       description: '150 publications par mois, planification IA automatique de semaines et mois, suggestions stratégiques, support prioritaire.',
       eligibleQuantity: { '@type': 'QuantitativeValue', value: 150, unitText: 'publications/mois' },
@@ -721,7 +721,7 @@ export default async function LandingPage() {
               <div className="text-xl font-bold text-gray-800 mb-1">Essentiel</div>
               <div className="text-sm text-gray-500 mb-4 font-medium">Pour les professionnels qui savent déjà quoi publier.</div>
               <div className="flex items-end gap-1 mb-6">
-                <span className="text-4xl font-black text-gray-900">57 $</span>
+                <span className="text-4xl font-black text-gray-900">27 $</span>
                 <span className="text-gray-500 mb-1">CA / mois</span>
               </div>
               <ul className="space-y-2.5 mb-6 flex-1">
@@ -769,7 +769,7 @@ export default async function LandingPage() {
               <div className="text-xl font-bold text-gray-300 mb-1">Pro</div>
               <div className="text-sm text-gray-400 mb-4 font-medium">Pour ceux qui veulent que l&apos;IA planifie leur stratégie de contenu.</div>
               <div className="flex items-end gap-1 mb-6">
-                <span className="text-4xl font-black text-white">127 $</span>
+                <span className="text-4xl font-black text-white">79 $</span>
                 <span className="text-gray-400 mb-1">CA / mois</span>
               </div>
               <ul className="space-y-2.5 mb-8 flex-1">
