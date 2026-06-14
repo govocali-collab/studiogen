@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
+import FounderSpotsCounter from '@/components/FounderSpotsCounter';
 
 export const metadata: Metadata = {
   title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
@@ -163,9 +164,9 @@ const softwareLd = {
     {
       '@type': 'Offer',
       name: 'Essentiel',
-      price: '27.00',
+      price: '29.00',
       priceCurrency: 'CAD',
-      description: '20 publications par mois, ADN de marque IA complet, calendrier de contenu, Facebook + Instagram.',
+      description: '20 publications par mois, studio complet, calendrier de contenu, Facebook + Instagram.',
       eligibleQuantity: { '@type': 'QuantitativeValue', value: 20, unitText: 'publications/mois' },
     },
     {
@@ -707,7 +708,7 @@ export default async function LandingPage() {
       {/* ── Pricing ──────────────────────────────────────────────────────── */}
       <section className="py-16 sm:py-24 px-4 sm:px-6 bg-gray-50" id="tarifs">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <div className="text-xs font-semibold text-violet-600 uppercase tracking-widest mb-3">Tarifs</div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               Simple et transparent
@@ -715,25 +716,49 @@ export default async function LandingPage() {
             <p className="text-gray-500">7 jours d&apos;essai gratuit · Aucune carte requise · Annulation en tout temps</p>
           </div>
 
+          {/* Founder offer banner */}
+          <div className="max-w-3xl mx-auto mb-8 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl px-6 py-5">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1">
+                <p className="text-sm font-bold text-amber-900">🎉 Offre fondateur — Réservée aux 100 premiers membres StudioGen</p>
+                <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                  Accédez à StudioGen au prix fondateur. Votre tarif est garanti à vie, même lorsque les prix augmenteront.
+                </p>
+              </div>
+              <div className="shrink-0 text-center bg-amber-100 border border-amber-200 rounded-xl px-4 py-2.5">
+                <p className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide">Places restantes</p>
+                <p className="text-2xl font-black text-amber-900 tabular-nums leading-tight">
+                  <FounderSpotsCounter />
+                  <span className="text-sm font-semibold text-amber-600"> / 100</span>
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 max-w-3xl gap-6 mx-auto">
             {/* Essentiel */}
             <div className="bg-white rounded-2xl border border-gray-200 p-8 flex flex-col">
               <div className="text-xl font-bold text-gray-800 mb-1">Essentiel</div>
-              <div className="text-sm text-gray-500 mb-4 font-medium">Pour les professionnels qui savent déjà quoi publier.</div>
-              <div className="flex items-end gap-1 mb-6">
-                <span className="text-4xl font-black text-gray-900">27 $</span>
+              <div className="text-sm text-gray-500 mb-4 font-medium">Pour les professionnels qui créent du contenu.</div>
+              <div className="flex items-end gap-2 mb-1">
+                <span className="text-4xl font-black text-gray-900">29 $</span>
                 <span className="text-gray-500 mb-1">CA / mois</span>
+              </div>
+              <div className="flex items-center gap-2 mb-5">
+                <span className="text-sm text-gray-400 line-through">57 $ / mois</span>
+                <span className="text-xs font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Prix fondateur</span>
               </div>
               <ul className="space-y-2.5 mb-6 flex-1">
                 {[
                   '20 publications / mois',
                   'Studio complet',
-                  'ADN de marque IA',
                   'Calendrier de contenu',
-                  'Tous les formats',
+                  'Tous les formats (Carré, Portrait, Story)',
                   'Génération IA de publications',
+                  'Logos illimités',
                   'Historique des publications',
-                  'Analyse du site web',
+                  'Publication en français ou en anglais',
+                  'Planification manuelle du calendrier',
                 ].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-600">
                     <svg className="w-4 h-4 text-violet-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -743,8 +768,9 @@ export default async function LandingPage() {
                   </li>
                 ))}
                 {[
-                  'Planifier ma semaine',
-                  'Planifier mon mois',
+                  'ADN de marque IA complet',
+                  'Planifier ma semaine avec l\'IA',
+                  'Planifier mon mois avec l\'IA',
                   'Suggestions stratégiques automatiques',
                   'Collaboration d\'équipe',
                 ].map(item => (
@@ -767,21 +793,28 @@ export default async function LandingPage() {
                 Recommandé
               </div>
               <div className="text-xl font-bold text-gray-300 mb-1">Pro</div>
-              <div className="text-sm text-gray-400 mb-4 font-medium">Pour ceux qui veulent que l&apos;IA planifie leur stratégie de contenu.</div>
-              <div className="flex items-end gap-1 mb-6">
+              <div className="text-sm text-gray-400 mb-4 font-medium">L&apos;IA pense comme ta coordonnatrice marketing.</div>
+              <div className="flex items-end gap-2 mb-1">
                 <span className="text-4xl font-black text-white">79 $</span>
                 <span className="text-gray-400 mb-1">CA / mois</span>
+              </div>
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-sm text-gray-500 line-through">127 $ / mois</span>
+                <span className="text-xs font-semibold bg-violet-700/50 text-violet-200 px-2 py-0.5 rounded-full">Prix fondateur</span>
               </div>
               <ul className="space-y-2.5 mb-8 flex-1">
                 {[
                   '150 publications / mois',
                   'Tout ce qui est inclus dans Essentiel',
+                  'ADN de marque IA complet',
+                  'Analyse automatique du site web',
                   'Planifier ma semaine avec l\'IA',
                   'Planifier mon mois avec l\'IA',
                   'Suggestions stratégiques automatiques',
-                  'Suggestions adaptées à ta saison',
+                  'Suggestions adaptées à la saison',
                   'Priorisation automatique des services',
                   'Collaboration d\'équipe — jusqu\'à 3 utilisateurs',
+                  'Contenu ultra personnalisé',
                 ].map(item => (
                   <li key={item} className="flex items-center gap-2.5 text-sm text-gray-300">
                     <svg className="w-4 h-4 text-violet-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -807,14 +840,13 @@ export default async function LandingPage() {
           <div className="max-w-3xl mx-auto mt-12 bg-white rounded-2xl border border-violet-100 p-8">
             <h3 className="text-lg font-bold text-gray-900 mb-3">Pourquoi choisir Pro ?</h3>
             <p className="text-sm text-gray-600 leading-relaxed mb-5">
-              Le plan Pro ne se contente pas de créer du contenu.
-              Il analyse ton ADN de marque IA et te suggère automatiquement quoi publier chaque semaine afin de maintenir une présence cohérente sur Facebook et Instagram.
+              Le plan Pro ne se contente pas de générer des publications. Il apprend à connaître votre entreprise grâce à l&apos;ADN de marque IA, analyse votre site web et vous aide à planifier automatiquement votre contenu.
             </p>
             <ul className="space-y-2">
               {[
-                'Plus jamais de page blanche',
-                'Des idées adaptées à ton entreprise',
-                'Une stratégie de contenu sans agence marketing',
+                'Plus d\'idées de contenu',
+                'Moins de temps passé à réfléchir',
+                'Un contenu qui ressemble réellement à votre entreprise',
               ].map(item => (
                 <li key={item} className="flex items-center gap-2.5 text-sm text-gray-700">
                   <span className="text-violet-600 font-bold">✓</span> {item}

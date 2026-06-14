@@ -86,8 +86,8 @@ export default function UpgradeModal({ reason, onClose }: UpgradeModalProps) {
               </svg>
             </div>
             <div>
-              <h2 className="text-base font-bold text-gray-900">Choisis ton forfait</h2>
-              <p className="text-sm text-gray-500 mt-1 leading-relaxed">{reason}</p>
+              <h2 className="text-base font-bold text-gray-900">Disponible avec StudioGen Pro</h2>
+              <p className="text-sm text-gray-500 mt-1 leading-relaxed">{reason || 'Débloquez l\'ADN de marque IA, la planification automatique et les suggestions stratégiques pour laisser l\'IA vous aider à savoir quoi publier.'}</p>
             </div>
           </div>
 

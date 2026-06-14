@@ -73,6 +73,41 @@ export default function AdminPage() {
   const [createError, setCreateError] = useState('');
   const [togglingId, setTogglingId] = useState('');
 
+  // Founder spots state
+  const [founderSpots, setFounderSpots] = useState<number | null>(null);
+  const [founderSpotsInput, setFounderSpotsInput] = useState('');
+  const [savingSpots, setSavingSpots] = useState(false);
+  const [savedSpots, setSavedSpots] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/founder-spots')
+      .then(r => r.json())
+      .then(d => {
+        if (typeof d.spots === 'number') {
+          setFounderSpots(d.spots);
+          setFounderSpotsInput(String(d.spots));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSaveSpots = async () => {
+    const n = parseInt(founderSpotsInput, 10);
+    if (isNaN(n) || n < 0 || n > 100) return;
+    setSavingSpots(true);
+    const res = await fetch('/api/admin/founder-spots', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ spots: n }),
+    });
+    if (res.ok) {
+      setFounderSpots(n);
+      setSavedSpots(true);
+      setTimeout(() => setSavedSpots(false), 2000);
+    }
+    setSavingSpots(false);
+  };
+
   useEffect(() => {
     fetch('/api/admin/revenue')
       .then(r => r.json())
@@ -189,7 +224,7 @@ export default function AdminPage() {
   const canceledUsers  = users.filter(u => u.subscription_status === 'canceled');
   const proUsers       = users.filter(u => u.subscription_tier === 'pro' && u.subscription_status === 'active');
   const essentielUsers = users.filter(u => u.subscription_tier === 'essentiel' && u.subscription_status === 'active');
-  const mrr            = proUsers.length * 79 + essentielUsers.length * 27;
+  const mrr            = proUsers.length * 79 + essentielUsers.length * 29;
 
   if (loading) return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -467,8 +502,39 @@ export default function AdminPage() {
                   <span className="text-3xl font-bold text-gray-900">{mrr}</span>
                   <span className="text-sm text-gray-400 pb-1">$ CA/mois</span>
                 </div>
-                <div className="text-xs text-gray-400 mt-1">{essentielUsers.length} × 27 $ + {proUsers.length} × 79 $</div>
+                <div className="text-xs text-gray-400 mt-1">{essentielUsers.length} × 29 $ + {proUsers.length} × 79 $</div>
               </div>
+            </div>
+
+            {/* Founder spots */}
+            <div className="bg-white rounded-2xl border border-amber-200 p-5 space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="text-xs text-amber-700 font-semibold uppercase tracking-wide mb-0.5">Offre fondateur</div>
+                  <div className="text-xs text-gray-500">Places restantes affichées sur le site</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={founderSpotsInput}
+                    onChange={e => { setFounderSpotsInput(e.target.value); setSavedSpots(false); }}
+                    className="w-20 border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono text-center focus:outline-none focus:ring-2 focus:ring-amber-400"
+                  />
+                  <span className="text-sm text-gray-400">/ 100</span>
+                  <button
+                    onClick={handleSaveSpots}
+                    disabled={savingSpots}
+                    className="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-50"
+                  >
+                    {savingSpots ? '…' : savedSpots ? 'Sauvegardé ✓' : 'Sauvegarder'}
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-gray-400">
+                Valeur actuelle affichée : <strong className="text-gray-700">{founderSpots ?? '—'} / 100</strong>
+              </p>
             </div>
 
             {/* Monthly Revenue Chart */}

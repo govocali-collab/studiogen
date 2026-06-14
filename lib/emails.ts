@@ -95,7 +95,7 @@ export async function sendWelcomeEmail(email: string, firstName?: string) {
 
 export async function sendSubscriptionConfirmation(email: string, tier: string) {
   const planName = tier === 'pro' ? 'Pro' : 'Essentiel';
-  const planPrice = tier === 'pro' ? '127 $' : '57 $';
+  const planPrice = tier === 'pro' ? '79 $' : '29 $';
   await resend.emails.send({
     from: FROM,
     to: email,
@@ -142,8 +142,8 @@ export async function sendTrialEndingReminder(email: string) {
       <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf5ff;border-radius:12px;padding:20px;margin-bottom:24px">
         <tr><td>
           <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:0.05em">Choisis ton plan</p>
-          <p style="margin:0 0 6px;font-size:14px;color:#374151"><strong>Essentiel — 27 $ / mois</strong> · 20 publications / mois</p>
-          <p style="margin:0;font-size:14px;color:#374151"><strong>Pro — 79 $ / mois</strong> · 150 posts / mois + priorité de support</p>
+          <p style="margin:0 0 6px;font-size:14px;color:#374151"><strong>Essentiel — 29 $ / mois</strong> · 20 publications / mois</p>
+          <p style="margin:0;font-size:14px;color:#374151"><strong>Pro — 79 $ / mois</strong> · 150 publications / mois + ADN de marque IA</p>
         </td></tr>
       </table>
 

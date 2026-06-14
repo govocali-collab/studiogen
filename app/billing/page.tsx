@@ -7,6 +7,18 @@ import { PRICING } from '@/lib/config/pricing';
 import { TIER_LIMITS } from '@/lib/config/tier-limits';
 import type { Profile } from '@/lib/supabase/types';
 import AppHeader from '@/components/AppHeader';
+import FounderSpotsCounter from '@/components/FounderSpotsCounter';
+
+function FounderSpotsBadge() {
+  return (
+    <div className="shrink-0 text-center bg-amber-100 border border-amber-200 rounded-xl px-3 py-2 ml-auto">
+      <p className="text-[10px] font-semibold text-amber-600 uppercase tracking-wide">Places</p>
+      <p className="text-lg font-black text-amber-900 tabular-nums leading-tight">
+        <FounderSpotsCounter /><span className="text-xs font-semibold text-amber-600">/100</span>
+      </p>
+    </div>
+  );
+}
 
 export default function BillingPage() {
   return <Suspense><BillingPageInner /></Suspense>;
@@ -349,6 +361,22 @@ function BillingPageInner() {
                 </span>
               )}
             </div>}
+
+            {/* Founder offer banner */}
+            {(status === 'trialing' || status === 'canceled') && (
+              <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-2xl px-5 py-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-xl shrink-0">🎉</span>
+                  <div>
+                    <p className="text-sm font-bold text-amber-900">Offre fondateur — Réservée aux 100 premiers membres</p>
+                    <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
+                      Votre tarif est garanti à vie : Essentiel <span className="line-through text-amber-500">57 $</span> <strong>29 $ / mois</strong> · Pro <span className="line-through text-amber-500">127 $</span> <strong>79 $ / mois</strong>
+                    </p>
+                  </div>
+                  <FounderSpotsBadge />
+                </div>
+              </div>
+            )}
 
             {/* Plan selection */}
             <div>

@@ -863,6 +863,41 @@ function SettingsPageInner() {
           <>
             {/* ── Onglet IA ── */}
 
+            {!isPro ? (
+              /* ── Lock screen for Essentiel users ── */
+              <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center space-y-5">
+                <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto text-2xl">🔒</div>
+                <div>
+                  <h2 className="text-base font-bold text-gray-900 mb-2">Disponible avec StudioGen Pro</h2>
+                  <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+                    Débloquez l&apos;ADN de marque IA pour générer un contenu beaucoup plus personnalisé.
+                  </p>
+                </div>
+                <ul className="space-y-2 text-sm text-gray-500 max-w-xs mx-auto text-left">
+                  {[
+                    'ADN de marque IA complet',
+                    'Analyse automatique de ton site web',
+                    'Objectifs de transformation clients',
+                    'Publications de référence (ton style)',
+                    'Planifier ma semaine / mon mois avec l\'IA',
+                    'Suggestions stratégiques automatiques',
+                  ].map(f => (
+                    <li key={f} className="flex items-center gap-2.5">
+                      <span className="text-violet-500 font-bold shrink-0">✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/billing"
+                  className="inline-block mt-2 px-8 py-3 rounded-xl text-sm font-semibold bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+                >
+                  Passer au Pro →
+                </Link>
+              </div>
+            ) : (
+              <>
+
             {/* Profile completion card */}
             <div className="mb-4 bg-white rounded-2xl border border-gray-100 p-5">
               <div className="flex items-start justify-between mb-2.5">
@@ -1259,6 +1294,8 @@ function SettingsPageInner() {
                 ← Retour au studio
               </Link>
             </div>
+              </>
+            )}
           </>
         )}
       </main>
