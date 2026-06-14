@@ -38,11 +38,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://studiogen.ca'),
   title: {
-    default: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
+    default: 'StudioGen — Publie sur Facebook & Instagram en 2 minutes grâce à l\'IA',
     template: '%s | StudioGen',
   },
   description:
-    'StudioGen génère automatiquement tes publications Facebook et Instagram en français québécois. ADN de marque IA, calendrier de contenu, planification automatique. Essai gratuit 7 jours, aucune carte requise.',
+    'StudioGen crée tes publications Facebook et Instagram en français québécois. Génération IA, calendrier de contenu, ADN de marque. Essai gratuit 7 jours — aucune carte requise.',
   keywords: [
     'publications réseaux sociaux Québec',
     'intelligence artificielle marketing beauté',

@@ -5,9 +5,9 @@ import { createClient } from '@/lib/supabase/server';
 import FounderSpotsCounter from '@/components/FounderSpotsCounter';
 
 export const metadata: Metadata = {
-  title: 'StudioGen — Le système de contenu IA pour les professionnels de la beauté du Québec',
+  title: 'StudioGen — Publie sur Facebook & Instagram en 2 minutes grâce à l\'IA',
   description:
-    'StudioGen génère automatiquement tes publications Facebook et Instagram en français québécois grâce à ton ADN de marque IA. Économisez 10 h/semaine. Essai gratuit 7 jours, aucune carte requise.',
+    'StudioGen crée tes publications Facebook et Instagram en français québécois. Génération IA, calendrier de contenu, ADN de marque. Essai gratuit 7 jours — aucune carte requise.',
   keywords: [
     'publications réseaux sociaux Québec',
     'intelligence artificielle marketing beauté',
