@@ -555,12 +555,12 @@ export default function StudioClient({ profile: initialProfile, isAdmin }: Props
                     : `Essai gratuit · ${displayGenInfo.used}/${trialLimitNum} publications · ${displayGenInfo.daysLeftInTrial ?? 7} jours`}
                 </span>
               </div>
-              <button
-                onClick={() => setUpgradeModal({ reason: displayGenInfo.daysLeftInTrial === 0 ? "Ton essai gratuit de 7 jours est terminé. Choisis ton abonnement pour continuer." : `Tu as utilisé tes ${trialLimitNum} générations d'essai. Choisis ton abonnement pour continuer.`, tier: 'pro' })}
+              <a
+                href="/billing"
                 className="text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap flex-shrink-0"
               >
                 Activer →
-              </button>
+              </a>
             </div>
           </div>
         )}
